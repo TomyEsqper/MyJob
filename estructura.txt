@@ -1,0 +1,75 @@
+/proyecto-microempleos
+│
+├── /config
+│   ├── config.php             // Configuraciones generales (constantes, variables de entorno, etc.)
+│   ├── database.php           // Conexión a la base de datos MySQL (usando PDO, por ejemplo)
+│
+├── /public
+│   ├── index.php              // Punto de entrada principal para redirigir a la aplicación
+│   ├── /assets
+│   │   ├── /css               // Archivos CSS (incluye Bootstrap y estilos personalizados)
+│   │   ├── /js                // Archivos JavaScript (incluye jQuery, scripts AJAX y validaciones)
+│   │   ├── /img               // Imágenes y otros recursos gráficos
+│
+├── /app
+│   ├── /controllers           // Controladores que gestionan la lógica de negocio y el flujo de la aplicación
+│   │   ├── /auth              // Controladores específicos para autenticación (login, registro, logout)
+│   │   │   ├── LoginController.php
+│   │   │   ├── RegisterController.php
+│   │   │   └── LogoutController.php
+│   │   ├── /empleado          // Controladores para funcionalidades del usuario empleado (ej. dashboard, perfil, postulaciones)
+│   │   │   ├── DashboardEmpleadoController.php
+│   │   │   ├── PerfilController.php
+│   │   │   └── PostulacionesController.php
+│   │   ├── /empleador         // Controladores para funcionalidades del usuario empleador (ej. publicación de ofertas, gestión de candidatos)
+│   │   │   ├── DashboardEmpleadorController.php
+│   │   │   ├── PublicarOfertaController.php
+│   │   │   └── CandidatosController.php
+│   │   └── /admin             // Controladores para el panel de administración (gestión global de la plataforma)
+│   │       ├── DashboardAdminController.php
+│   │       ├── UsuariosController.php
+│   │       └── ReportesController.php
+│   │
+│   ├── /models                // Modelos que representan las entidades y se encargan de la interacción con la base de datos
+│   │   ├── User.php           // Modelo de usuario (contiene funciones para login, registro, actualización de perfil, etc.)
+│   │   ├── Empleado.php       // Modelo específico para datos y funcionalidades de empleados (opcional, según la diferenciación)
+│   │   ├── Empleador.php      // Modelo específico para datos y funcionalidades de empleadores
+│   │   └── Oferta.php         // Modelo para las ofertas de empleo y postulaciones
+│   │
+│   ├── /views                 // Vistas que contienen la interfaz de usuario (HTML, mezclado con PHP para contenido dinámico)
+│   │   ├── /layouts           // Plantillas comunes (header, footer, menú de navegación)
+│   │   │   ├── header.php
+│   │   │   └── footer.php
+│   │   ├── /auth              // Vistas para autenticación (login, registro, recuperación de contraseña, etc.)
+│   │   │   ├── login.php
+│   │   │   └── register.php
+│   │   ├── /empleado          // Vistas específicas del panel del empleado (dashboard, perfil, historial de postulaciones, etc.)
+│   │   │   ├── dashboard.php
+│   │   │   ├── perfil.php
+│   │   │   └── postulaciones.php
+│   │   ├── /empleador         // Vistas para el panel del empleador (dashboard, publicar oferta, ver candidatos, etc.)
+│   │   │   ├── dashboard.php
+│   │   │   ├── publicar_oferta.php
+│   │   │   └── candidatos.php
+│   │   └── /admin             // Vistas del panel de administración (gestión de usuarios, ofertas, reportes)
+│   │       ├── dashboard.php
+│   │       ├── usuarios.php
+│   │       └── reportes.php
+│   │
+│   ├── /routes                // Archivo(s) de rutas para mapear URLs a controladores y acciones
+│   │   └── web.php
+│   │
+│   └── /helpers               // Funciones y utilidades auxiliares (validaciones, manejo de sesiones, formateo, etc.)
+│       ├── auth_helper.php
+│       └── validation_helper.php
+│
+├── /ajax                      // Punto de entrada para peticiones AJAX (opcional, si prefieres separar las llamadas AJAX en un directorio específico)
+│   ├── auth.php              // Procesa peticiones AJAX para login y registro, por ejemplo
+│   └── ...                   // Otros archivos AJAX para funciones específicas
+│
+├── /storage                   // Carpeta para almacenar archivos subidos por usuarios (por ejemplo, imágenes de perfil, documentos, etc.)
+│
+├── .env                       // Archivo para variables de entorno (credenciales, configuraciones sensibles)
+├── .htaccess                  // Configuración de Apache para URLs amigables, protección de carpetas y reglas de redirección
+├── composer.json              // (Opcional) Si usas Composer para gestionar dependencias en PHP
+└── README.md                  // Documentación del proyecto
