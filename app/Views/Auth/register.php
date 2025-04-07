@@ -1,8 +1,9 @@
 <?php
 require_once '../../../Config/db.php';
-
-$userTypes = $conexion->query("SELECT * FROM usuarios"); 
+// Se elimina esta línea porque no usas la consulta
+// $userTypes = $conexion->query("SELECT * FROM usuarios"); 
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -33,7 +34,7 @@ $userTypes = $conexion->query("SELECT * FROM usuarios");
             </div>
 
             <div class="container-der-login-formulario" style="margin-bottom: 10%;">
-                <form id="formulario-registro" method="POST">
+                <form id="formulario-registro" method="POST" action="../../Controllers/Auth/registerController.php">
                     <div class="mb-3">
                         <label for="text" class="form-label">Nombre</label>
                         <input type="text" class="form-control" name="nombre_usuario" id="nombre_usuario" placeholder="Ingrese su primer nombre">
