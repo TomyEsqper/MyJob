@@ -1,49 +1,44 @@
 <?php
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    require_once '../../../Config/db.php';
+header('Content-Type: application/json');
+require_once '../../../Config/db.php'; // Asegúrate de que la ruta sea correcta
 
-    $nombre_usuario = trim($_POST['nombre_usuario']);
-    $correo_electronico = trim($_POST['correo_electronico']);
-    $password_plain = trim($_POST['password']); // Guardamos primero la contraseña limpia
+// Validar si los campos existen
+if (!isset($_POST['nombre_usuario']) || !isset($_POST['correo_electronico']) || !isset($_POST['password'])) {
+    echo json_encode(['error' => 'Faltan datos']);
+    exit();
+}
 
-    if (empty($nombre_usuario) || empty($correo_electronico) || empty($password_plain)) {
-        echo "Todos los campos son obligatorios.";
-        exit;
-    }
+$nombre = $_POST['nombre_usuario'];
+$correo = $_POST['correo_electronico'];
+$password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+$rol = 'empleado'; // Rol por defecto
 
-    // Encriptamos la contraseña después de validar que no esté vacía
-    $contrasena = password_hash($password_plain, PASSWORD_DEFAULT);
+// Validar si el correo ya existe
+$stmt = $conexion->prepare("SELECT id_usuario FROM usuarios WHERE correo_electronico = ?");
+if (!$stmt) {
+    echo json_encode(['error' => 'Error en la consulta']);
+    exit();
+}
+$stmt->bind_param("s", $correo);
+$stmt->execute();
+$result = $stmt->get_result();
 
-    // Verificar si el correo ya está registrado
-    $stmt = $conexion->prepare("SELECT id_usuario FROM usuarios WHERE correo_electronico = ?");
-    if (!$stmt) {
-        echo "Error en la preparación de la consulta: " . $conexion->error;
-        exit;
-    }
-    $stmt->bind_param("s", $correo_electronico);
-    $stmt->execute();
-    $stmt->store_result();
+if ($result->num_rows > 0) {
+    echo json_encode(['error' => 'El correo ya está registrado']);
+    exit();
+}
 
-    if ($stmt->num_rows > 0) {
-        echo "El correo electrónico ya está registrado.";
-    } else {
-        $stmt->close(); // Cerramos el primer statement antes de usar uno nuevo
+// Insertar el nuevo usuario con rol "empleado"
+$stmt = $conexion->prepare("INSERT INTO usuarios (nombre_usuario, correo_electronico, contrasena, rol) VALUES (?, ?, ?, ?)");
+if (!$stmt) {
+    echo json_encode(['error' => 'Error al preparar la consulta']);
+    exit();
+}
+$stmt->bind_param("ssss", $nombre, $correo, $password, $rol);
 
-        // Insertar el nuevo usuario
-        $stmt = $conexion->prepare("INSERT INTO usuarios (nombre_usuario, correo_electronico, contrasena) VALUES (?, ?, ?)");
-        if (!$stmt) {
-            echo "Error en la preparación de la consulta: " . $conexion->error;
-            exit;
-        }
-        $stmt->bind_param("sss", $nombre_usuario, $correo_electronico, $contrasena);
-
-        if ($stmt->execute()) {
-            echo "Usuario registrado correctamente.";
-        } else {
-            echo "Error al registrar el usuario: " . $stmt->error;
-        }
-    }
-    $stmt->close();
-    $conexion->close();
+if ($stmt->execute()) {
+    echo json_encode(['message' => 'Registro exitoso']);
+} else {
+    echo json_encode(['error' => 'Error al registrar el usuario']);
 }
 ?>

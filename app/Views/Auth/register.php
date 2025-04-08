@@ -1,7 +1,5 @@
 <?php
 require_once '../../../Config/db.php';
-// Se elimina esta línea porque no usas la consulta
-// $userTypes = $conexion->query("SELECT * FROM usuarios"); 
 ?>
 
 
@@ -17,10 +15,12 @@ require_once '../../../Config/db.php';
     
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 </head>
 <body>
     <div class="row">
-        <div class="col-md-5 col-12" style="padding: 4%; background-color: #f8f9fa; hight: 100%;">
+        <div class="col-md-5 col-12" style="padding: 4%; background-color: #f8f9fa; height: 100%;">
             <div class="container-der-login" style="display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; margin-bottom:0%">
                 <h1>Bienvenido a <span style="font-weight: bold;">My<span style="color: #258d19;">Job</span></span></h1>
                 <h6>Regístrate para acceder a las oportunidades laborales que mejor se adapten a tu perfil.</h6>
@@ -34,7 +34,7 @@ require_once '../../../Config/db.php';
             </div>
 
             <div class="container-der-login-formulario" style="margin-bottom: 10%;">
-                <form id="formulario-registro" method="POST" action="../../Controllers/Auth/registerController.php">
+                <form id="formulario-registro" method="POST">
                     <div class="mb-3">
                         <label for="text" class="form-label">Nombre</label>
                         <input type="text" class="form-control" name="nombre_usuario" id="nombre_usuario" placeholder="Ingrese su primer nombre">
@@ -60,7 +60,7 @@ require_once '../../../Config/db.php';
                 </form>
             </div>
             <div class="container-der-login-registro"">
-                <p>¿Ya tienes una cuenta? <a href="#" class="enlaces-etiqueta-a" style="text-decoration: none;">Inicia sesion</a></p>
+                <p>¿Ya tienes una cuenta? <a href="login.php" class="enlaces-etiqueta-a" style="text-decoration: none;">Inicia sesion</a></p>
             </div>
         </div>
 
@@ -68,5 +68,47 @@ require_once '../../../Config/db.php';
             <img class="mujer-3d" src="../../Resources/Images/ilustracion-3d-mujer-programando.png" alt="">
         </div>
     </div>  
+
+
+    <script>
+        document.getElementById('formulario-registro').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+
+            try {
+                const response = await fetch('../../Controllers/Auth/registerController.php', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                if (data.error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: data.error,
+                    })
+                } else if (data.message) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: '¡Registrado!',
+                        text: data.message,
+                        timer: 2000,
+                        showConfirmButton: false
+                    }).then(() => {
+                        window.location.href = 'login.php'; 
+                    });
+                }
+            } catch (error) {
+                console.error(error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'No se pudo procesar la solicitud.',
+                });
+            }
+        });
+    </script>
 </body>
 </html>
