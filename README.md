@@ -8,11 +8,14 @@
 
 ### 🔐 Autenticación
 - Registro de usuarios con validación de campos (nombre, correo, contraseña).
-- Verificación si el correo ya está registrado.
+- Verificación si el correo ya está registrado (dominio @myjob.com para admins).
 - Contraseñas encriptadas con `password_hash()`.
 - Inicio de sesión con manejo de sesiones (`session_start()`).
 - Validación de credenciales usando `password_verify()`.
-- Gestión de roles por defecto (actualmente se asigna automáticamente el rol `empleado`).
+- Gestión de roles por defecto (rol `empleado`) y restricción de admin.
+- Cierre de sesión seguro con destrucción de variables de sesión.
+- Protección de rutas según roles de usuario.
+- Visualización del nombre de usuario en sesión activa.
 
 ### 🎨 Interfaz con Bootstrap y SweetAlert2
 - Formularios modernos con Bootstrap 5.
@@ -44,14 +47,17 @@ CREATE TABLE usuarios (
 ---
 
 ## 🧪 Próximas Tareas
-- Creación de paneles diferenciados por rol (`empleado`, `empleador`, `admin`).
 - Implementar validaciones más avanzadas (regex, longitud, etc.).
 - Mejoras en seguridad (CSRF tokens, validaciones backend más robustas).
 - Agregar un sistema de verificación de cuenta por correo electrónico.
+- Implementar sistema de calificaciones para empleados.
+- Desarrollar panel de estadísticas para administradores.
 
 ---
 
 ## 🤝 Colaboradores
 - 👨‍💻 Tomás Esquivel Perdomo
+- 👨‍💻 Nicolas Plazas Zapata
+
 
 

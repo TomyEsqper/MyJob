@@ -11,7 +11,13 @@ if (!isset($_POST['nombre_usuario']) || !isset($_POST['correo_electronico']) || 
 $nombre = $_POST['nombre_usuario'];
 $correo = $_POST['correo_electronico'];
 $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
-$rol = 'empleado'; // Rol por defecto
+
+// Asignar rol de admin si el correo termina con @myjob.com, de lo contrario empleado
+if (substr(strtolower($correo), -10) === '@myjob.com') {
+    $rol = 'admin';
+} else {
+    $rol = 'empleado'; // Rol por defecto
+}
 
 // Validar si el correo ya existe
 $stmt = $conexion->prepare("SELECT id_usuario FROM usuarios WHERE correo_electronico = ?");
