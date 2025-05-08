@@ -36,7 +36,7 @@
             </div>
         </div>
 
-        <div class="container-der-login-formulario" style="margin-bottom: 10%;">
+        <div class="container-der-login-formulario mb-4" >
             <form id="formulario-registro" method="POST" action="{{ route('register') }}">
                 @csrf
                 <div class="mb-3">
