@@ -7,6 +7,7 @@ class Usuario extends Authenticatable
 {
     protected $table = 'usuarios';
     protected $primaryKey = 'id_usuario';
+    public $timestamps = false;
 
     protected $fillable = [
         'nombre_usuario',
@@ -14,10 +15,10 @@ class Usuario extends Authenticatable
         'contrasena',
         'rol'
     ];
-
-    public $timestamps = false;
-
-    protected $hidden = ['contrasena'];
+    protected $hidden = [
+        'contrasena',
+        'remember_token',
+    ];
 
     public function getAuthPassword(){
         return $this->contrasena;

@@ -15,22 +15,41 @@ class RegisterController extends Controller
     }
     public function register(Request $request)
     {
+        // 1. Validar según los campos del formulario
         $validator = Validator::make($request->all(), [
-            'nombre_usuario' => 'required|string|max:255',
-            'correo_electronico' => 'required|string|email|max:255|unique:usuarios',
-            'contrasena' => 'required|string|min:8|confirmed',
-        ]);
-        if($validator->fails()){
-            return response()->json(['error' => $validator->errors()->first()], 400);
-        }
-        $rol = str_ends_with(strtolower($request->correo_electronico), '@myjob.com') ? 'admin' : 'empleado';
-        Usuario::create([
-            'nombre_usuario' => $request->nombre_usuario,
-            'correo_electronico' => $request->correo_electronico,
-            'contrasena' => Hash::make($request->contrasena),
-            'rol' => $rol
+            'name'      => 'required|string|max:255',
+            'email'     => 'required|string|email|max:255|unique:usuarios',
+            'password'  => 'required|string|min:8|confirmed',
         ]);
 
-        return response()->json(['message' => 'Registro exitoso']);
+        // 2. Si falla, devolvemos JSON con código 422
+        if($validator->fails()){
+            return response()->json([
+                'error' => $validator->errors()->first()
+            ], 422);
+        }
+
+        // 3. Crear el usuario
+        $rol = str_ends_with(strtolower($request->correo_electronico), '@myjob.com')
+            ? 'admin'
+            : 'empleado';
+
+        $user = Usuario::create([
+            'nombre_usuario'        => $request->name,
+            'correo_electronico'    => $request->email,
+            'contrasena'            => Hash::make($request->password),
+            'rol'                   => $rol
+        ]);
+
+        // 4. Respuesta JSON de éxito con código 201
+        return response()->json([
+            'message' => 'Registro exitoso',
+            'user' => [
+                'id'     => $user->id_usuario,
+                'name'   => $user->nombre_usuario,
+                'email'  => $user->correo_electronico,
+                'rol'    => $user->rol
+            ],
+        ], 201);
     }
 }
