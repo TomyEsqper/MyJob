@@ -7,7 +7,6 @@
     <link rel="stylesheet" media="all" href="{{ asset('css/loginRegistro.css') }}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-DQvkBjpPgn7RC31MCQoOeC9TI2kdqa4+BSgNMNj8v77fdC77Kj5zpWFTJaaAoMbC" crossorigin="anonymous">
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 </head>
@@ -22,41 +21,36 @@
             <div style="display: flex; gap: 10px; margin-top: 5%; margin-bottom: 10%;">
 
                 <!-- Boton de acceder con google -->
-                <div
-                    style="display: flex; flex-direction: column; align-items: center; gap: 10px; margin-top: 5%; margin-bottom: 12%;">
-                    <div id="g_id_onload"
-                         data-client_id="71941218229-ftubpr0ff82011hhgl43oueu0i3bs97t.apps.googleusercontent.com"
-                         data-callback="handleCredentialResponse" data-context="signin" data-ux_mode="popup"
-                         data-login_uri="" data-auto_prompt="false">
+                <a href="{{ route('google.redirect') }}" class="google-btn">
+                    <div class="google-icon-wrapper">
+                        <img class="google-icon" src="https://developers.google.com/identity/images/g-logo.png" alt="Google logo"">
                     </div>
-                    <div class="g_id_signin" data-type="standard" data-size="large" data-theme="outline"
-                         data-text="sign_in_with" data-shape="rectangular" data-logo_alignment="left">
-                    </div>
-                </div>
+                    <span>Registrarse con Google</span>
+                </a>
             </div>
         </div>
 
-        <div class="container-der-login-formulario mb-4" >
+        <div class="container-der-login-formulario mb-4">
             <form id="formulario-registro" method="POST" action="{{ route('register') }}">
                 @csrf
                 <div class="mb-3">
-                    <label for="text" class="form-label">Nombre</label>
-                    <input type="text" class="form-control" name="nombre_usuario" id="nombre_usuario" placeholder="Ingrese su primer nombre">
+                    <label for="nombre_usuario" class="form-label">Nombre</label>
+                    <input type="text" class="form-control" name="name" id="name" placeholder="Ingrese su primer nombre">
                 </div>
                 <div class="mb-3">
-                    <label for="email" class="form-label">Correo Electrónico</label>
-                    <input type="email" class="form-control" id="correo_electronico" name="correo_electronico" placeholder="Ingrese su correo electrónico">
+                    <label for="correo_electronico" class="form-label">Correo Electrónico</label>
+                    <input type="email" class="form-control" id="email" name="email" placeholder="Ingrese su correo electrónico">
                 </div>
                 <div class="mb-3">
-                    <label for="password" class="form-label">Contraseña</label>
-                    <input type="password" class="form-control" id="contrasena" name="contrasena" placeholder="Ingrese su contraseña">
-                    <input type="password" class="form-control mt-4" id="contrasena_confirmation" name="contrasena_confirmation" placeholder="Repita su contraseña">
+                    <label for="contrasena" class="form-label">Contraseña</label>
+                    <input type="password" class="form-control" id="password" name="password" placeholder="Ingrese su contraseña">
+                    <input type="password" class="form-control mt-4" id="password_confirmation" name="password_confirmation" placeholder="Repita su contraseña">
                 </div>
 
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <button type="submit" class="cta btn">
-                        <span>Registrarme</span>
-                        <svg width="6%" height="1rem" viewBox="0 0 13 10">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin: 7%">
+                    <button type="submit" id="btn-registro" class="cta btn">
+                        <span id="btn-text">Registrarme</span>
+                        <svg id="btn-icon" width="6%" height="1rem" viewBox="0 0 13 10">
                             <path d="M1,5 L11,5"></path>
                             <polyline points="8 1 12 5 8 9"></polyline>
                         </svg>
@@ -64,8 +58,8 @@
                 </div>
             </form>
         </div>
-            <div class="container-der-login-registro">
-            <p>¿Ya tienes una cuenta? <a href="/login" class="enlaces-etiqueta-a" style="text-decoration: none;">Inicia sesion</a></p>
+            <div class="container-der-login-registro mt-3">
+            <p>¿Ya tienes una cuenta? <a href="{{ route('login') }}" class="enlaces-etiqueta-a" style="text-decoration: none;">Inicia sesion</a></p>
         </div>
     </div>
 
@@ -74,46 +68,66 @@
     </div>
 </div>
 
+    <script>
 
-<script>
-    document.getElementById('formulario-registro').addEventListener('submit', async function (e) {
-        e.preventDefault();
+        const form = document.getElementById('formulario-registro');
+        const btnRegistro = document.getElementById('btn-registro');
+        const btnText = document.getElementById('btn-text');
+        const btnIcon = document.getElementById('btn-icon');
 
-        const formData = new FormData(this);
+        form.addEventListener('submit', async function (e) {
+            e.preventDefault();
 
-        try {
-            const response = await fetch("{{ route('register') }}", {
-                method: 'POST',
-                body: formData
-            });
+            // Mostrar estado de carga
+            btnRegistro.disabled = true;
+            btnText.textContent = 'Registrando...';
 
-            const data = await response.json();
-            if (data.error) {
+            const formData = new FormData(this);
+
+            try {
+                const response = await fetch(this.action, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    // Si llega error de validación o API, lo mostramos
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: data.error || 'Ha ocurrido un error.',
+                    });
+                }else{
+                    // Exito
+                    Swal.fire({
+                        icon: 'success',
+                        title: '¡Registrado!',
+                        text: data.message,
+                        timer: 2000,
+                        showConfirmButton: false
+                    }).then(() => {
+                        window.location.href = '{{ route("login") }}';
+                    });
+                }
+            } catch (error) {
+                console.error(error);
                 Swal.fire({
                     icon: 'error',
-                    title: 'Oops...',
-                    text: data.error,
-                })
-            } else if (data.message) {
-                Swal.fire({
-                    icon: 'success',
-                    title: '¡Registrado!',
-                    text: data.message,
-                    timer: 2000,
-                    showConfirmButton: false
-                }).then(() => {
-                    window.location.href = 'login.php';
+                    title: 'Error',
+                    text: 'No se pudo procesar la solicitud.',
                 });
+            } finally {
+                // Restablecer el estado del botón
+                btnRegistro.disabled = false;
+                btnText.textContent = 'Registrarme';
+                btnIcon.style.display = '';
             }
-        } catch (error) {
-            console.error(error);
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'No se pudo procesar la solicitud.',
-            });
-        }
-    });
-</script>
+        });
+    </script>
 </body>
 </html>
