@@ -75,10 +75,14 @@
                         </div>
                         <div class="dropdown ms-3">
                             <a href="#" class="dropdown-toggle text-decoration-none d-flex align-items-center" data-bs-toggle="dropdown">
-                                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
-                                    <span>JD</span>
-                                </div>
-                                <span class="ms-2">Juan Pérez</span>
+                                @auth
+                                    <img src="{{ Auth::user()->foto_perfil }}" class="rounded-circle m-2" width="30">
+                                    <span>¡Bienvenido {{ Auth::user()->nombre_usuario }}!</span>
+                                @endauth
+
+                                @guest
+                                    <span>Invitado</span>
+                                @endguest
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end">
                                 <li><a class="dropdown-item" href="#">Mi Perfil</a></li>

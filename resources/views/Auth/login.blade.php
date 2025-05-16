@@ -22,19 +22,13 @@
                 <h1>Bienvenido a <span style="font-weight: bold;">My<span style="color: #258d19;">Job</span></span></h1>
                 <h6>Regístrate para acceder a las oportunidades laborales que mejor se adapten a tu perfil.</h6>
 
-
-                <!-- Boton de acceder con google  test-->
-                <div
-                    style="display: flex; flex-direction: column; align-items: center; gap: 10px; margin-top: 5%; margin-bottom: 12%;">
-                    <div id="g_id_onload"
-                         data-client_id="71941218229-ftubpr0ff82011hhgl43oueu0i3bs97t.apps.googleusercontent.com"
-                         data-callback="handleCredentialResponse" data-context="signin" data-ux_mode="popup"
-                         data-login_uri="" data-auto_prompt="false">
+                <!-- Boton de acceder con google -->
+                <a href="{{ route('google.redirect') }}" class="google-btn m-4">
+                    <div class="google-icon-wrapper">
+                        <img class="google-icon" src="https://developers.google.com/identity/images/g-logo.png" alt="Google logo"">
                     </div>
-                    <div class="g_id_signin" data-type="standard" data-size="large" data-theme="outline"
-                         data-text="sign_in_with" data-shape="rectangular" data-logo_alignment="left">
-                    </div>
-                </div>
+                    <span>Iniciar sesion con Google</span>
+                </a>
             </div>
 
             <div class="container-der-login-formulario" style="margin-bottom: 20%;">
@@ -50,7 +44,7 @@
                         <input type="password" class="form-control" id="password" name="password" required
                                placeholder="Ingrese su contraseña">
                     </div>
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin: 6%">
                         <button type="submit" class="cta btn">
                             <span>Iniciar Sesión</span>
                             <svg width="6%" height="1rem" viewBox="0 0 13 10">
