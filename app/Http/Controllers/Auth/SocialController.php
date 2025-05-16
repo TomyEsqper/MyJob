@@ -13,7 +13,7 @@ class SocialController extends Controller
     public function redirectToGoogle()
     {
         return Socialite::driver('google')
-            ->scopes(['openid','profile','email'])
+            ->scopes(['openid', 'profile', 'email'])
             ->redirect();
     }
 
@@ -21,22 +21,22 @@ class SocialController extends Controller
     {
         $googleUser = Socialite::driver('google')->stateless()->user();
 
-        $user = Usuario::firstOrCreate(
+        $user = Usuario::updateOrCreate(
             ['correo_electronico' => $googleUser->getEmail()],
             [
-                'nombre_usuario' => $googleUser->getName() ?: Str::before($googleUser->getEmail(), '@'),
-                'contrasena'     => bcrypt(Str::random(16)),
-                'rol'            => 'empleado',
+                'nombre_usuario' => $googleUser->getName() ?? Str::before($googleUser->getEmail(), '@'),
+                'contrasena' => bcrypt(Str::random(16)),
+                'rol' => str_ends_with(strtolower($googleUser->getEmail()), '@myjob.com') ? 'admin' : 'empleado',
+                'activo' => false,
+                'token_activacion' => Str::random(60),
+                'google_id' => $googleUser->getId(),
+                'google_token' => $googleUser->token,
+                'foto_perfil' => $googleUser->getAvatar(),
             ]
         );
 
         Auth::login($user, true);
 
-        return match($user->rol) {
-            'admin'     => redirect()->intended('/admin/dashboard'),
-            'empleado'  => redirect()->intended('/empleado/dashboard'),
-            'empleador' => redirect()->intended('/empleador/dashboard'),
-            default     => redirect()->intended('/'),
-        };
+        return redirect()->intended('/empleado/dashboard');
     }
 }

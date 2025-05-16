@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('contrasena');
             $table->enum('rol', ['admin', 'empleado']);
             $table->string('google_id')->nullable();
-            $table->timestamp();
+            $table->timestamps();
 
         });
     }

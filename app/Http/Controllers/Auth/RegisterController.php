@@ -30,7 +30,7 @@ class RegisterController extends Controller
         }
 
         // 3. Crear el usuario
-        $rol = str_ends_with(strtolower($request->correo_electronico), '@myjob.com')
+        $rol = str_ends_with(strtolower($request->email), '@myjob.com')
             ? 'admin'
             : 'empleado';
 

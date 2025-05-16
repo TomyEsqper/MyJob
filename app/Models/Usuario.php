@@ -13,7 +13,12 @@ class Usuario extends Authenticatable
         'nombre_usuario',
         'correo_electronico',
         'contrasena',
-        'rol'
+        'rol',
+        'google_id',
+        'google_token',
+        'foto_perfil',
+        'activo',
+        'token_activacion'
     ];
     protected $hidden = [
         'contrasena',
