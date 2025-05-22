@@ -62,8 +62,7 @@
             </div>
 
             <!-- Main Content -->
-            <div class="col main-content">
-l                <!-- Header -->
+            <div class="col main-content">               <!-- Header -->
                 <div class="header mb-4 rounded shadow-sm">
                     <h4 class="mb-0 fw-bold">Dashboard Empleador</h4>
                     <div class="user-profile">
