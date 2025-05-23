@@ -22,6 +22,9 @@ Route::get('auth/google/redirect', [SocialController::class, 'redirectToGoogle']
 // callback que procesa la respuesta de Google
 Route::get('auth/google/callback', [SocialController::class, 'handleGoogleCallback'])->name('google.callback');
 
+Route::post('/check-nit', [App\Http\Controllers\RegisterController::class, 'checkNit'])
+       ->name('check.nit');
+
 // Rutas para los dashboards
 Route::get('/empleado/dashboard', function () {
     return view('empleado.dashboard');

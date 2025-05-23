@@ -18,6 +18,59 @@
   }
 }
 
+.selector {
+    display: flex;
+    width: 90%;            /* ocupa 90% del ancho de la pantalla */
+    max-width: 500px;      /* pero no pase de 500px */
+    height: 80px;          /* altura fija para control */
+}
+
+.selector button {
+    width: 50%;            /* cada uno toma la mitad */
+    border: none;
+    background: #3EA055;
+    color: white;
+    cursor: pointer;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s, box-shadow 0.3s;
+    padding: 0;            /* sin padding extra */
+}
+
+/* Trapecio izquierdo */
+#btn-empresa {
+    clip-path: polygon(10% 0%, 100% 0%, 85% 100%, 0% 100%);
+}
+/* Trapecio derecho */
+#btn-usuario {
+    clip-path: polygon(0% 0%, 90% 0%, 100% 100%, 15% 100%);
+}
+
+/* Hover */
+.selector button:hover {
+    background: #91dfa4;
+}
+
+/* Activo */
+.selector button.active {
+    background: #258d19;
+    box-shadow: inset 0 0 8px rgba(0,0,0,0.2);
+}
+
+/* Estado activo (seleccionado) */
+.btn-trap.active {
+    background-color: #258d19;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+
+button.activo {
+    background-color: #4ea93b;
+    color: #fff;
+}
+
 .btn-iconos{
   display: block;
   border-radius: 3rem;

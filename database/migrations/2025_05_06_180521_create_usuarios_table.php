@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('nombre_usuario');
             $table->string('correo_electronico')->unique();
             $table->string('contrasena');
-            $table->enum('rol', ['admin', 'empleado']);
+            $table->enum('rol', ['admin', 'empleado', 'empleador']);
             $table->string('google_id')->nullable();
             $table->timestamps();
 

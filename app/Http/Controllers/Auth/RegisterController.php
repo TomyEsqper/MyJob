@@ -52,4 +52,18 @@ class RegisterController extends Controller
             ],
         ], 201);
     }
+
+    public function checkNit(Request $request)
+    {
+        $request->validate([
+            'nit' => ['required', 'string'],
+        ]);
+
+        $empresa = Empresa::where('nit', $request->nit)->first();
+
+        return response()->json([
+            'exists' => (bool) $empresa,
+            'empresa'=> $empresa ? $empresa->razon_social : null,
+        ]);
+    }
 }

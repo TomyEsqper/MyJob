@@ -23,29 +23,55 @@
                 <!-- Boton de acceder con google -->
                 <a href="{{ route('google.redirect') }}" class="google-btn">
                     <div class="google-icon-wrapper">
-                        <img class="google-icon" src="https://developers.google.com/identity/images/g-logo.png" alt="Google logo"">
+                        <img class="google-icon" src="https://developers.google.com/identity/images/g-logo.png" alt="Google logo">
                     </div>
                     <span>Registrarse con Google</span>
                 </a>
             </div>
         </div>
 
+        <div class="selector">
+            <button id="btn-empresa"><span>Empresa</span></button>
+            <button id="btn-usuario"><span>Usuario</span></button>
+        </div>
+
         <div class="container-der-login-formulario mb-4">
             <form id="formulario-registro" method="POST" action="{{ route('register') }}">
                 @csrf
-                <div class="mb-3">
-                    <label for="nombre_usuario" class="form-label">Nombre</label>
-                    <input type="text" class="form-control" name="name" id="name" placeholder="Ingrese su primer nombre">
+
+                <div id="inputs-usuario" class="inputs-usuario">
+                    <div class="mb-3">
+                        <label for="nombre_usuario" class="form-label">Nombre</label>
+                        <input type="text" class="form-control" name="name" id="name" placeholder="Ingrese su primer nombre">
+                    </div>
+                    <div class="mb-3">
+                        <label for="correo_electronico" class="form-label">Correo Electrónico</label>
+                        <input type="email" class="form-control" id="email" name="email" placeholder="Ingrese su correo electrónico">
+                    </div>
+                    <div class="mb-3">
+                        <label for="contrasena" class="form-label">Contraseña</label>
+                        <input type="password" class="form-control" id="password" name="password" placeholder="Ingrese su contraseña">
+                        <input type="password" class="form-control mt-4" id="password_confirmation" name="password_confirmation" placeholder="Repita su contraseña">
+                    </div>
                 </div>
-                <div class="mb-3">
-                    <label for="correo_electronico" class="form-label">Correo Electrónico</label>
-                    <input type="email" class="form-control" id="email" name="email" placeholder="Ingrese su correo electrónico">
+
+                <div id="inputs-empresa" class="inputs-empresa" style="display: none;">
+                    <div class="mb-3">
+                        <label for="nit" class="form-label">NIT</label>
+                        <input type="text" class="form-control" name="nit" id="nit" placeholder="Ingrese su primer nombre">
+                    </div>
+                    <div class="mb-3">
+                        <label for="correo_electronico" class="form-label">Correo Electrónico</label>
+                        <input type="email" class="form-control" id="email" name="email" placeholder="Ingrese su correo electrónico">
+                    </div>
+                    <div class="mb-3">
+                        <label for="contrasena" class="form-label">Contraseña</label>
+                        <input type="password" class="form-control" id="password" name="password" placeholder="Ingrese su contraseña">
+                        <input type="password" class="form-control mt-4" id="password_confirmation" name="password_confirmation" placeholder="Repita su contraseña">
+                    </div>
                 </div>
-                <div class="mb-3">
-                    <label for="contrasena" class="form-label">Contraseña</label>
-                    <input type="password" class="form-control" id="password" name="password" placeholder="Ingrese su contraseña">
-                    <input type="password" class="form-control mt-4" id="password_confirmation" name="password_confirmation" placeholder="Repita su contraseña">
-                </div>
+
+
 
                 <div style="display: flex; justify-content: space-between; align-items: center; margin: 7%">
                     <button type="submit" id="btn-registro" class="cta btn">
@@ -58,7 +84,7 @@
                 </div>
             </form>
         </div>
-            <div class="container-der-login-registro mt-3">
+        <div class="container-der-login-registro mt-3">
             <p>¿Ya tienes una cuenta? <a href="{{ route('login') }}" class="enlaces-etiqueta-a" style="text-decoration: none;">Inicia sesion</a></p>
         </div>
     </div>
@@ -68,66 +94,91 @@
     </div>
 </div>
 
-    <script>
 
-        const form = document.getElementById('formulario-registro');
-        const btnRegistro = document.getElementById('btn-registro');
-        const btnText = document.getElementById('btn-text');
-        const btnIcon = document.getElementById('btn-icon');
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const btnEmpresa = document.getElementById('btn-empresa');
+        const btnUsuario = document.getElementById('btn-usuario');
+        const inputsEmpresa = document.getElementById('inputs-empresa');
+        const inputsUsuario = document.getElementById('inputs-usuario');
 
-        form.addEventListener('submit', async function (e) {
-            e.preventDefault();
+        function activate(btnToActivate, btnToDeactivate) {
+            btnToActivate.classList.add('activo');
+            btnToDeactivate.classList.remove('activo');
+        }
+        btnEmpresa.addEventListener('click', () => {
+            inputsEmpresa.style.display = 'block';
+            inputsUsuario.style.display = 'none';
+            activate(btnEmpresa, btnUsuario);
+        });
 
-            // Mostrar estado de carga
-            btnRegistro.disabled = true;
-            btnText.textContent = 'Registrando...';
+        btnUsuario.addEventListener('click', () => {
+            inputsUsuario.style.display = 'block';
+            inputsEmpresa.style.display = 'none';
+            activate(btnUsuario, btnEmpresa);
+        });
+    })
+</script>
+<script>
 
-            const formData = new FormData(this);
+    const form = document.getElementById('formulario-registro');
+    const btnRegistro = document.getElementById('btn-registro');
+    const btnText = document.getElementById('btn-text');
+    const btnIcon = document.getElementById('btn-icon');
 
-            try {
-                const response = await fetch(this.action, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
-                    body: formData
-                });
+    form.addEventListener('submit', async function (e) {
+        e.preventDefault();
 
-                const data = await response.json();
+        // Mostrar estado de carga
+        btnRegistro.disabled = true;
+        btnText.textContent = 'Registrando...';
 
-                if (!response.ok) {
-                    // Si llega error de validación o API, lo mostramos
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Oops...',
-                        text: data.error || 'Ha ocurrido un error.',
-                    });
-                }else{
-                    // Exito
-                    Swal.fire({
-                        icon: 'success',
-                        title: '¡Registrado!',
-                        text: data.message,
-                        timer: 2000,
-                        showConfirmButton: false
-                    }).then(() => {
-                        window.location.href = '{{ route("login") }}';
-                    });
-                }
-            } catch (error) {
-                console.error(error);
+        const formData = new FormData(this);
+
+        try {
+            const response = await fetch(this.action, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                // Si llega error de validación o API, lo mostramos
                 Swal.fire({
                     icon: 'error',
-                    title: 'Error',
-                    text: 'No se pudo procesar la solicitud.',
+                    title: 'Oops...',
+                    text: data.error || 'Ha ocurrido un error.',
                 });
-            } finally {
-                // Restablecer el estado del botón
-                btnRegistro.disabled = false;
-                btnText.textContent = 'Registrarme';
-                btnIcon.style.display = '';
+            }else{
+                // Exito
+                Swal.fire({
+                    icon: 'success',
+                    title: '¡Registrado!',
+                    text: data.message,
+                    timer: 2000,
+                    showConfirmButton: false
+                }).then(() => {
+                    window.location.href = '{{ route("login") }}';
+                });
             }
-        });
-    </script>
+        } catch (error) {
+            console.error(error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'No se pudo procesar la solicitud.',
+            });
+        } finally {
+            // Restablecer el estado del botón
+            btnRegistro.disabled = false;
+            btnText.textContent = 'Registrarme';
+            btnIcon.style.display = '';
+        }
+    });
+</script>
 </body>
 </html>
