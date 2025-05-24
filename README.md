@@ -25,9 +25,9 @@ Plataforma web para conectar personas desempleadas o con dificultades de acceso 
 ## Descripción
 
 ````
-Conexión Laboral``` es una aplicación web desarrollada con Laravel y MySQL que facilita la publicación y búsqueda de ofertas de trabajo de baja y media cualificación. Permite a empleados registrarse, completar su perfil, postularse a trabajos y comunicarse con empleadores mediante un chat interno. Los empleadores pueden publicar ofertas, filtrar candidatos, gestionar postulaciones y evaluar empleados.
+MyJob es una aplicación web desarrollada con Laravel y MySQL que facilita la publicación y búsqueda de ofertas de trabajo de baja y media cualificación. Permite a empleados registrarse, completar su perfil, postularse a trabajos y comunicarse con empleadores mediante un chat interno. Los empleadores pueden publicar ofertas, filtrar candidatos, gestionar postulaciones y evaluar empleados.
 
-Este proyecto fue desarrollado en el marco de la Hackathon del SENA con un MVP planificado a un mes.
+Este proyecto fue desarrollado en el marco de proyecto del SENA con un MVP planificado a un mes.
 
 ---
 
@@ -104,7 +104,7 @@ Este proyecto fue desarrollado en el marco de la Hackathon del SENA con un MVP p
    DB_CONNECTION=mysql
    DB_HOST=127.0.0.1
    DB_PORT=3306
-   DB_DATABASE=conexion_laboral
+   DB_DATABASE=
    DB_USERNAME=root
    DB_PASSWORD=
    ```
