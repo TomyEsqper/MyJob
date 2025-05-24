@@ -1,61 +1,217 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+**Nombre del proyecto**: **Conexión Laboral**
+Plataforma web para conectar personas desempleadas o con dificultades de acceso al mercado laboral con empleadores que requieren servicios presenciales de baja y media cualificación.
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+---
 
-## About Laravel
+## Tabla de contenidos
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+1. [Descripción](#descripción)
+2. [Características](#características)
+3. [Tecnologías](#tecnologías)
+4. [Requisitos](#requisitos)
+5. [Instalación](#instalación)
+6. [Configuración](#configuración)
+7. [Estructura del proyecto](#estructura-del-proyecto)
+8. [Uso](#uso)
+9. [Migraciones y seeders](#migraciones-y-seeders)
+10. [Pruebas](#pruebas)
+11. [Despliegue](#despliegue)
+12. [Roadmap](#roadmap)
+13. [Contribuciones](#contribuciones)
+14. [Licencia](#licencia)
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+---
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Descripción
 
-## Learning Laravel
+````
+Conexión Laboral``` es una aplicación web desarrollada con Laravel y MySQL que facilita la publicación y búsqueda de ofertas de trabajo de baja y media cualificación. Permite a empleados registrarse, completar su perfil, postularse a trabajos y comunicarse con empleadores mediante un chat interno. Los empleadores pueden publicar ofertas, filtrar candidatos, gestionar postulaciones y evaluar empleados.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+Este proyecto fue desarrollado en el marco de la Hackathon del SENA con un MVP planificado a un mes.
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+---
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Características
+- Registro y autenticación de empleados y empleadores
+- Creación y publicación de ofertas de trabajo
+- Sistema de postulación y gestión de candidaturas
+- Paneles de usuario diferenciados (empleado, empleador, administrador)
+- Chat interno persistente (solo texto)
+- Calificaciones y evaluaciones mutuas
+- Filtros de búsqueda: ciudad, tipo de trabajo, salario, reputación
+- Planes de membresía (Gratuito, Estándar, Premium)
+- Notificaciones por correo y plataforma (PWA)
+- Gestión de cuentas y seguridad (bcrypt, SSL, roles)
+- Función de eliminación de datos según Ley 1581 de Colombia
 
-## Laravel Sponsors
+---
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+## Tecnologías
+- **Framework**: Laravel 10
+- **Front-end**: Bootstrap 5, JavaScript
+- **Base de datos**: MySQL (XAMPP en desarrollo)
+- **Control de versiones**: Git & GitHub
+- **Entorno**: PHP 8.x, Composer
+- **Deployment**: Hosting compartido / VPS / DigitalOcean
 
-### Premium Partners
+---
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development/)**
-- **[Active Logic](https://activelogic.com)**
+## Requisitos
+- PHP >= 8.1
+- Composer
+- MySQL
+- Node.js & npm (para assets)
+- Git
 
-## Contributing
+---
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## Instalación
+1. Clonar repositorio:
+   ```bash
+   git clone https://github.com/tu-usuario/conexion-laboral.git
+   cd conexion-laboral
+````
 
-## Code of Conduct
+2. Instalar dependencias de PHP:
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+   ```bash
+   composer install
+   ```
+3. Instalar dependencias de Node:
 
-## Security Vulnerabilities
+   ```bash
+   npm install
+   npm run dev
+   ```
+4. Copiar archivo de entorno:
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+   ```bash
+   cp .env.example .env
+   ```
+5. Generar clave de aplicación:
 
-## License
+   ```bash
+   php artisan key:generate
+   ```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+---
+
+## Configuración
+
+1. Configura los datos de la base de datos en `.env`:
+
+   ```dotenv
+   DB_CONNECTION=mysql
+   DB_HOST=127.0.0.1
+   DB_PORT=3306
+   DB_DATABASE=conexion_laboral
+   DB_USERNAME=root
+   DB_PASSWORD=
+   ```
+2. Configura credenciales de correo para notificaciones en `.env`:
+
+   ```dotenv
+   MAIL_MAILER=smtp
+   MAIL_HOST=smtp.mailtrap.io
+   MAIL_PORT=2525
+   MAIL_USERNAME=tu_usuario
+   MAIL_PASSWORD=tu_contraseña
+   MAIL_ENCRYPTION=tls
+   ```
+
+---
+
+## Estructura del proyecto
+
+```
+/app
+  /Http
+    /Controllers
+    /Middleware
+  /Models
+/database
+  /migrations
+  /seeders
+/resources
+  /views
+  /js
+  /sass
+/routes
+  web.php
+  api.php
+```
+
+---
+
+## Uso
+
+1. Ejecuta migraciones y seeders:
+
+   ```bash
+   php artisan migrate --seed
+   ```
+2. Levanta el servidor local:
+
+   ```bash
+   php artisan serve
+   ```
+3. Accede en tu navegador a `http://127.0.0.1:8000`
+
+---
+
+## Migraciones y seeders
+
+* Las migraciones se encuentran en `database/migrations`.
+* Los seeders en `database/seeders` para datos de prueba (roles, planes, usuarios demo).
+
+---
+
+## Pruebas
+
+* Ejecutar pruebas unitarias:
+
+  ```bash
+  php artisan test
+  ```
+* Pruebas de carga básicas con Apache Benchmark o similares.
+
+---
+
+## Despliegue
+
+1. Subir al servidor o VPS.
+2. Configurar entorno (`.env`) y dependencias.
+3. Ejecutar migraciones en producción:
+
+   ```bash
+   php artisan migrate --force
+   ```
+4. Configurar SSL y cron jobs (notificaciones, expiración).
+
+---
+
+## Roadmap
+
+* Integración de motor de búsqueda full-text
+* Notificaciones push PWA
+* Geolocalización de ofertas
+* App móvil (iOS/Android)
+* Automatización CI/CD con GitHub Actions
+
+---
+
+## Contribuciones
+
+Contribuciones, issues y solicitudes de mejoras son bienvenidas.
+
+1. Fork del proyecto
+2. Crear branch para la función (`git checkout -b feature/nombre-funcion`)
+3. Commit de tus cambios (`git commit -m 'Agrega nueva función'`)
+4. Push al branch (`git push origin feature/nombre-funcion`)
+5. Abre un Pull Request
+
+---
+
+## Licencia
+
+Este proyecto está bajo la [Licencia MIT](LICENSE).
