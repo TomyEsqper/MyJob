@@ -52,7 +52,7 @@
 
                         <a href="#" class="nav-link">
 
-                            <i class="fas fa-briefcase"></i> Mis Aplicaciones
+                            <i class="fas fa-briefcase text-success"></i> Mis Aplicaciones
 
                         </a>
 
@@ -357,93 +357,33 @@
 
 
                 <!-- Recommended Jobs -->
-
                 <div class="card">
-
                     <div class="card-header d-flex justify-content-between align-items-center">
-
-                        <h5 class="mb-0">Empleos Recomendados</h5>
-
+                        <h5 class="mb-0">Ofertas Disponibles</h5>
                         <a href="#" class="btn btn-sm btn-outline-light">Ver Más</a>
-
                     </div>
-
                     <div class="card-body p-0">
-
+                        @forelse($ofertas as $oferta)
                         <div class="job-card">
-
                             <div class="company-logo">
-
-                                <i class="fas fa-database"></i>
-
+                                <i class="fas fa-building"></i>
                             </div>
-
                             <div class="job-info">
-
-                                <h4>Ingeniero de Datos</h4>
-
-                                <p>DataCorp • Madrid • 60.000€ - 75.000€</p>
-
+                                <h4>{{ $oferta->titulo }}</h4>
+                                <p>{{ $oferta->empresa ?? 'Empresa desconocida' }} • {{ $oferta->ubicacion }} • {{ $oferta->salario ? number_format($oferta->salario, 2) . '€' : 'Salario no especificado' }}</p>
                             </div>
-
                             <div class="job-actions">
-
-                                <button class="btn btn-sm btn-primary">Aplicar</button>
-
+                                <a href="{{ route('ofertas.show', $oferta->id) }}" class="btn btn-sm btn-primary">Ver Detalle</a>
+                                <form action="{{ route('aplicaciones.store', $oferta->id) }}" method="POST" style="display:inline-block;">
+                                    @csrf
+                                    <button type="submit" class="btn btn-sm btn-success">Aplicar</button>
+                                </form>
                             </div>
-
                         </div>
-
-                        <div class="job-card">
-
-                            <div class="company-logo">
-
-                                <i class="fas fa-mobile-alt"></i>
-
-                            </div>
-
-                            <div class="job-info">
-
-                                <h4>Desarrollador de Apps</h4>
-
-                                <p>MobileFirst • Remoto • 45.000€ - 55.000€</p>
-
-                            </div>
-
-                            <div class="job-actions">
-
-                                <button class="btn btn-sm btn-primary">Aplicar</button>
-
-                            </div>
-
-                        </div>
-
-                        <div class="job-card">
-
-                            <div class="company-logo">
-
-                                <i class="fas fa-project-diagram"></i>
-
-                            </div>
-
-                            <div class="job-info">
-
-                                <h4>Project Manager</h4>
-
-                                <p>GlobalTech • Barcelona • 50.000€ - 65.000€</p>
-
-                            </div>
-
-                            <div class="job-actions">
-
-                                <button class="btn btn-sm btn-primary">Aplicar</button>
-
-                            </div>
-
-                        </div>
-
+                        @empty
+                        <div class="p-3 text-center text-muted">No hay ofertas disponibles en este momento.</div>
+                        @endforelse
                     </div>
-
                 </div>
 
             </div>

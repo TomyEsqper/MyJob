@@ -23,6 +23,7 @@ body {
 .sidebar .logo {
     padding: 20px;
     border-bottom: 1px solid #eee;
+    align-content: center;
 }
 
 .sidebar .nav-link {

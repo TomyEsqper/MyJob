@@ -10,6 +10,8 @@ return array(
     'App\\Http\\Controllers\\Auth\\RegisterController' => $baseDir . '/app/Http/Controllers/Auth/RegisterController.php',
     'App\\Http\\Controllers\\Auth\\SocialController' => $baseDir . '/app/Http/Controllers/Auth/SocialController.php',
     'App\\Http\\Controllers\\Controller' => $baseDir . '/app/Http/Controllers/Controller.php',
+    'App\\Http\\Controllers\\OfertaController' => $baseDir . '/app/Http/Controllers/OfertaController.php',
+    'App\\Models\\Oferta' => $baseDir . '/app/Models/Oferta.php',
     'App\\Models\\User' => $baseDir . '/app/Models/User.php',
     'App\\Models\\Usuario' => $baseDir . '/app/Models/Usuario.php',
     'App\\Providers\\AppServiceProvider' => $baseDir . '/app/Providers/AppServiceProvider.php',

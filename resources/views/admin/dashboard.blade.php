@@ -35,7 +35,7 @@
                     </li>
                     <li class="nav-item">
                         <a href="#" class="nav-link">
-                            <i class="fas fa-briefcase"></i> Ofertas
+                            <i class="fas fa-briefcase text-success"></i> Ofertas
                         </a>
                     </li>
                     <li class="nav-item">

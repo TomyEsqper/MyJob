@@ -23,6 +23,7 @@ body {
 .sidebar .logo {
     padding: 20px;
     border-bottom: 1px solid #eee;
+    justify-content: center;
 }
 
 .sidebar .nav-link {
@@ -85,7 +86,7 @@ body {
 
 .card-header {
     background-color: var(--primary-color);
-    color: white;
+    color: rgb(64, 66, 62);
     border-radius: 10px 10px 0 0 !important;
     padding: 15px 20px;
 }

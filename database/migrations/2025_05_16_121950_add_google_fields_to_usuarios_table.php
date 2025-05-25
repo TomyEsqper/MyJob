@@ -25,14 +25,12 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('usuarios', function (Blueprint $table) {
-            $table::table('usuarios', function (Blueprint $table) {
-                $table->dropColumn([
-                    'google_token',
-                    'foto_perfil',
-                    'activo',
-                    'token_activacion'
-                ]);
-            });
+            $table->dropColumn([
+                'google_token',
+                'foto_perfil',
+                'activo',
+                'token_activacion'
+            ]);
         });
     }
 };

@@ -37,15 +37,21 @@ class SocialController extends Controller
         } else{
 
             // 2b) Si no existe, lo crea con todos sus datos
+            // Determinar el rol según el dominio o lógica personalizada
+            $email = strtolower($googleUser->getEmail());
+            if (str_ends_with($email, '@myjob.com')) {
+                $rol = 'admin';
+            } elseif (str_ends_with($email, '@empresa.com')) {
+                $rol = 'empleador';
+            } else {
+                $rol = 'empleado';
+            }
             $user = Usuario::create([
                 'nombre_usuario'     => $googleUser->getName()
                                         ?? Str::before($googleUser->getEmail(), '@'),
                 'correo_electronico' => $googleUser->getEmail(),
                 'contrasena'         => bcrypt(Str::random(16)),
-                'rol'                => str_ends_with(
-                                            strtolower($googleUser->getEmail()),
-                                                '@myjob.com'
-                                            ) ? 'admin' : 'empleado',
+                'rol'                => $rol,
                 'activo'             => false,
                 'token_activacion'   => Str::random(60),
                 'google_id'          => $googleUser->getId(),
@@ -57,7 +63,16 @@ class SocialController extends Controller
         // 3) Loguea al usuario (nunca más de una cuenta creada)
         Auth::login($user, true);
 
-        return redirect()->intended('/empleado/dashboard');
+        // Redirección dinámica según el rol
+        if ($user->rol === 'admin') {
+            return redirect()->intended('/admin/dashboard');
+        } elseif ($user->rol === 'empleado') {
+            return redirect()->intended('/empleado/dashboard');
+        } elseif ($user->rol === 'empleador') {
+            return redirect()->intended('/empleador/dashboard');
+        } else {
+            return redirect()->intended('/');
+        }
     }
 }
 
