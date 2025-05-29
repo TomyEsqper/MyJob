@@ -8,18 +8,14 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-DQvkBjpPgn7RC31MCQoOeC9TI2kdqa4+BSgNMNj8v77fdC77Kj5zpWFTJaaAoMbC" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
 </head>
 <body>
 <div class="row">
     <div class="col-md-5 col-12 p-4 bg-light">
         <div class="container-der-login" style="display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; margin-bottom:0">
-
             <h1>Bienvenido a <strong>My<span style="color:#258d19;">Job</span></strong></h1>
             <h6>Regístrate para acceder a las oportunidades laborales.</h6>
-
             <div style="display: flex; gap: 10px; margin-top: 5%; margin-bottom: 10%;">
-
                 <!-- Boton de acceder con google -->
                 <a href="{{ route('google.redirect') }}" class="google-btn">
                     <div class="google-icon-wrapper">
@@ -32,8 +28,10 @@
 
         <div class="selector">
             <button id="btn-empresa"><span>Empresa</span></button>
-            <button id="btn-usuario"><span>Usuario</span></button>
+            <button id="btn-usuario" class="activo"><span>Usuario</span></button>
         </div>
+
+        <div><a class="click-btn btn-style2" href="#">Hover me</a></div>
 
         <div class="container-der-login-formulario mb-4">
             <form id="formulario-registro" method="POST" action="{{ route('register') }}">
@@ -41,37 +39,35 @@
 
                 <div id="inputs-usuario" class="inputs-usuario">
                     <div class="mb-3">
-                        <label for="nombre_usuario" class="form-label">Nombre</label>
-                        <input type="text" class="form-control" name="name" id="name" placeholder="Ingrese su primer nombre">
+                        <label for="name_usuario" class="form-label">Nombre</label>
+                        <input type="text" class="form-control" name="name" id="name_usuario" placeholder="Ingrese su primer nombre" required>
                     </div>
                     <div class="mb-3">
-                        <label for="correo_electronico" class="form-label">Correo Electrónico</label>
-                        <input type="email" class="form-control" id="email" name="email" placeholder="Ingrese su correo electrónico">
+                        <label for="email_usuario" class="form-label">Correo Electrónico</label>
+                        <input type="email" class="form-control" id="email_usuario" name="email" placeholder="Ingrese su correo electrónico" required>
                     </div>
                     <div class="mb-3">
-                        <label for="contrasena" class="form-label">Contraseña</label>
-                        <input type="password" class="form-control" id="password" name="password" placeholder="Ingrese su contraseña">
-                        <input type="password" class="form-control mt-4" id="password_confirmation" name="password_confirmation" placeholder="Repita su contraseña">
+                        <label for="password_usuario" class="form-label">Contraseña</label>
+                        <input type="password" class="form-control" id="password_usuario" name="password" placeholder="Ingrese su contraseña" required>
+                        <input type="password" class="form-control mt-4" id="password_confirmation_usuario" name="password_confirmation" placeholder="Repita su contraseña" required>
                     </div>
                 </div>
 
                 <div id="inputs-empresa" class="inputs-empresa" style="display: none;">
                     <div class="mb-3">
-                        <label for="nit" class="form-label">NIT</label>
-                        <input type="text" class="form-control" name="nit" id="nit" placeholder="Ingrese su primer nombre">
+                        <label for="nit_empresa" class="form-label">NIT</label>
+                        <input type="text" class="form-control" name="nit" id="nit_empresa" placeholder="Ingrese su NIT" disabled required>
                     </div>
                     <div class="mb-3">
-                        <label for="correo_electronico" class="form-label">Correo Electrónico</label>
-                        <input type="email" class="form-control" id="email" name="email" placeholder="Ingrese su correo electrónico">
+                        <label for="email_empresa" class="form-label">Correo Electrónico</label>
+                        <input type="email" class="form-control" id="email_empresa" name="email" placeholder="Ingrese su correo electrónico" disabled required>
                     </div>
                     <div class="mb-3">
-                        <label for="contrasena" class="form-label">Contraseña</label>
-                        <input type="password" class="form-control" id="password" name="password" placeholder="Ingrese su contraseña">
-                        <input type="password" class="form-control mt-4" id="password_confirmation" name="password_confirmation" placeholder="Repita su contraseña">
+                        <label for="password_empresa" class="form-label">Contraseña</label>
+                        <input type="password" class="form-control" id="password_empresa" name="password" placeholder="Ingrese su contraseña" disabled required>
+                        <input type="password" class="form-control mt-4" id="password_confirmation_empresa" name="password_confirmation" placeholder="Repita su contraseña" disabled required>
                     </div>
                 </div>
-
-
 
                 <div style="display: flex; justify-content: space-between; align-items: center; margin: 7%">
                     <button type="submit" id="btn-registro" class="cta btn">
@@ -85,7 +81,7 @@
             </form>
         </div>
         <div class="container-der-login-registro mt-3">
-            <p>¿Ya tienes una cuenta? <a href="{{ route('login') }}" class="enlaces-etiqueta-a" style="text-decoration: none;">Inicia sesion</a></p>
+            <p>¿Ya tienes una cuenta? <a href="{{ route('login') }}" class="enlaces-etiqueta-a" style="text-decoration: none;">Inicia sesión</a></p>
         </div>
     </div>
 
@@ -94,7 +90,6 @@
     </div>
 </div>
 
-
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const btnEmpresa = document.getElementById('btn-empresa');
@@ -102,25 +97,27 @@
         const inputsEmpresa = document.getElementById('inputs-empresa');
         const inputsUsuario = document.getElementById('inputs-usuario');
 
-        function activate(btnToActivate, btnToDeactivate) {
-            btnToActivate.classList.add('activo');
-            btnToDeactivate.classList.remove('activo');
+        function toggleSection(showEl, hideEl, showBtn, hideBtn) {
+            showEl.style.display = 'block';
+            hideEl.style.display = 'none';
+            showBtn.classList.add('activo');
+            hideBtn.classList.remove('activo');
+
+            // Habilitar inputs visibles y deshabilitar ocultos
+            showEl.querySelectorAll('input').forEach(input => input.disabled = false);
+            hideEl.querySelectorAll('input').forEach(input => input.disabled = true);
         }
+
         btnEmpresa.addEventListener('click', () => {
-            inputsEmpresa.style.display = 'block';
-            inputsUsuario.style.display = 'none';
-            activate(btnEmpresa, btnUsuario);
+            toggleSection(inputsEmpresa, inputsUsuario, btnEmpresa, btnUsuario);
         });
 
         btnUsuario.addEventListener('click', () => {
-            inputsUsuario.style.display = 'block';
-            inputsEmpresa.style.display = 'none';
-            activate(btnUsuario, btnEmpresa);
+            toggleSection(inputsUsuario, inputsEmpresa, btnUsuario, btnEmpresa);
         });
-    })
+    });
 </script>
 <script>
-
     const form = document.getElementById('formulario-registro');
     const btnRegistro = document.getElementById('btn-registro');
     const btnText = document.getElementById('btn-text');
@@ -129,9 +126,10 @@
     form.addEventListener('submit', async function (e) {
         e.preventDefault();
 
-        // Mostrar estado de carga
+        // Mostrar estado de carga: deshabilitar botón y ocultar icono
         btnRegistro.disabled = true;
         btnText.textContent = 'Registrando...';
+        btnIcon.style.display = 'none';
 
         const formData = new FormData(this);
 
@@ -139,7 +137,8 @@
             const response = await fetch(this.action, {
                 method: 'POST',
                 headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
                 },
                 body: formData
             });
@@ -147,33 +146,15 @@
             const data = await response.json();
 
             if (!response.ok) {
-                // Si llega error de validación o API, lo mostramos
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Oops...',
-                    text: data.error || 'Ha ocurrido un error.',
-                });
-            }else{
-                // Exito
-                Swal.fire({
-                    icon: 'success',
-                    title: '¡Registrado!',
-                    text: data.message,
-                    timer: 2000,
-                    showConfirmButton: false
-                }).then(() => {
-                    window.location.href = '{{ route("login") }}';
-                });
+                Swal.fire({ icon: 'error', title: 'Oops...', text: data.error || 'Ha ocurrido un error.' });
+            } else {
+                Swal.fire({ icon: 'success', title: '¡Registrado!', text: data.message, timer: 2000, showConfirmButton: false })
+                    .then(() => window.location.href = '{{ route("login") }}');
             }
         } catch (error) {
             console.error(error);
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'No se pudo procesar la solicitud.',
-            });
+            Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo procesar la solicitud.' });
         } finally {
-            // Restablecer el estado del botón
             btnRegistro.disabled = false;
             btnText.textContent = 'Registrarme';
             btnIcon.style.display = '';

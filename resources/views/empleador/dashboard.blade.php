@@ -61,7 +61,8 @@
             </div>
 
             <!-- Main Content -->
-            <div class="col main-content">               <!-- Header -->
+            <div class="col main-content">
+                <!-- Header -->
                 <div class="header mb-4 rounded shadow-sm">
                     <h4 class="mb-0 fw-bold">Dashboard Empleador</h4>
                     <div class="user-profile">
@@ -81,10 +82,13 @@
                         </div>
                         <div class="dropdown">
                             <a href="#" class="dropdown-toggle text-decoration-none d-flex align-items-center" data-bs-toggle="dropdown">
-                                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
-                                    <span>TS</span>
-                                </div>
-                                <span class="ms-2 fw-medium">TechSolutions Inc.</span>
+                                @auth
+                                    <img src="{{ Auth::user()->foto_perfil }}" class="rounded-circle m-2" width="30">
+                                    <span>¡Bienvenido {{ Auth::user()->nombre_usuario }}!</span>
+                                @endauth
+                                @guest
+                                    <span>Invitado</span>
+                                @endguest
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end shadow-sm">
                                 <li><a class="dropdown-item" href="#"><i class="fas fa-building me-2 text-muted"></i>Perfil de Empresa</a></li>
