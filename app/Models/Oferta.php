@@ -16,6 +16,15 @@ class Oferta extends Model
         'fecha_fin',
         'empleador_id'
     ];
+
+    public static function where(string $string, $id_usuario)
+    {
+    }
+
+    public static function create(array $validated)
+    {
+    }
+
     public function empleador()
     {
         return $this->belongsTo(Usuario::class, 'empleador_id', 'id_usuario');

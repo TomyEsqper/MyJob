@@ -41,4 +41,10 @@ return [
         'redirect'      => env('GOOGLE_REDIRECT_URI'),
     ],
 
+    'datos_gov_co' => [
+        'datos_gov_co' => [
+            'base_uri' => env('CAMARACOMERCIO_API_URL'),
+            'token'    => env('CAMARACOMERCIO_APP_TOKEN'),
+        ],
+    ]
 ];

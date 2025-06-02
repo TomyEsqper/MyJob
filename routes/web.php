@@ -7,14 +7,20 @@ use App\Http\Controllers\Auth\SocialController;
 use App\Http\Controllers\OfertaController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use App\Http\Controllers\EmpresaController;
 
 Route::get('/', function () {
     return view('index');
 });
 
-Route::get('/register', [RegisterController::class, 'showForm'])->name('register.form');
-Route::post('/register', [RegisterController::class, 'register'])->name('register');
-
+// 1. GET para mostrar el formulario de registro
+Route::get('/register', [RegisterController::class, 'showRegistrationForm'])
+    ->name('register.form');
+// 2. POST para procesar el registro
+Route::post('/register', [RegisterController::class, 'register'])
+    ->name('register');
+// 3. POST para la verificación de NIT vía AJAX
+Route::post('/verificar-nit', [EmpresaController::class, 'verificarNit']);
 
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login']);
@@ -45,3 +51,7 @@ Route::get('/admin/dashboard', function () {
 
 
 Route::resource('ofertas', OfertaController::class);
+
+Auth::routes();
+
+Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');

@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('titulo');
             $table->text('descripcion');
             $table->string('ubicacion');
-            $table->decimal('salario', 10, 2)->nullable();
+            $table->decimal('salario', 10)->nullable();
             $table->string('tipo_contrato');
             $table->date('fecha_inicio')->nullable();
             $table->date('fecha_fin')->nullable();

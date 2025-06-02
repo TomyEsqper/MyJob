@@ -3,52 +3,42 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Foundation\Auth\AuthenticatesUsers;
 
 class LoginController extends Controller
 {
-    public function showLoginForm()
+    /*
+    |--------------------------------------------------------------------------
+    | Login Controller
+    |--------------------------------------------------------------------------
+    |
+    | This controller handles authenticating users for the application and
+    | redirecting them to your home screen. The controller uses a trait
+    | to conveniently provide its functionality to your applications.
+    |
+    */
+
+    use AuthenticatesUsers;
+
+    /**
+     * Where to redirect users after login.
+     *
+     * @var string
+     */
+    protected $redirectTo = '/home';
+
+    /**
+     * Create a new controller instance.
+     *
+     * @return void
+     */
+    public function __construct()
     {
-        return view('auth.login');
-    }
-    public function login(Request $request)
-    {
-        $credentials = $request->validate([
-            'correo_electronico' => ['required', 'email'],
-            'password' => ['required'],
-        ]);
-
-        if (Auth::attempt(['correo_electronico' => $credentials['correo_electronico'], 'password' => $credentials['password']])) {
-            $request->session()->regenerate();
-
-            $user = Auth::user();
-            if ($user->rol === 'admin') {
-                return redirect()->intended('/admin/dashboard');
-            } elseif ($user->rol === 'empleado') {
-                return redirect()->intended('/empleado/dashboard');
-            } elseif ($user->rol === 'empleador') {
-                return redirect()->intended('/empleador/dashboard');
-            }else{
-                return redirect()->intended('/');
-            }
-        }
-
-        return back()->withErrors([
-            'correo_electronico' => 'Las credenciales proporcionadas son incorrectas.',
-        ])->onlyInput('correo_electronico');
-    }
-
-    public function googleLogin(Request $request)
-    {
-        $credential = $request->input('credential');
-        // Aquí validas el JWT con el cliente Google,
-        // extraes email, creas/obtienes usuario y haces Auth::login($user)
-        // Luego rediriges igual que en login():
-        return response()->json([
-            'message' => '¡Bienvenido con Google!',
-            'rol' => Auth::user()->rol
-        ]);
+        $this->middleware('guest')->except('logout');
+        $this->middleware('auth')->only('logout');
     }
 
+    private function middleware(string $string)
+    {
+    }
 }

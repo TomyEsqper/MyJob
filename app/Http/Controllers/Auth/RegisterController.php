@@ -5,65 +5,90 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\Usuario;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+use Illuminate\View\View;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Contracts\Validation\Validator as ValidatorContract;
 
 class RegisterController extends Controller
 {
-    public function showForm(){
+    /**
+     * A dónde redirigir tras el registro.
+     */
+    protected string $redirectTo = '/empleador/dashboard';
+
+    public function __construct()
+    {
+        // Middleware disponible porque extendemos App\Http\Controllers\Controller
+        $this->middleware('guest');
+    }
+
+    /**
+     * Muestra el formulario de registro.
+     */
+    public function showRegistrationForm(): View
+    {
         return view('auth.register');
     }
-    public function register(Request $request)
+
+    /**
+     * Procesa el registro y devuelve JSON.
+     */
+    public function register(Request $request): JsonResponse
     {
-        // 1. Validar según los campos del formulario
-        $validator = Validator::make($request->all(), [
-            'name'      => 'required|string|max:255',
-            'email'     => 'required|string|email|max:255|unique:usuarios',
-            'password'  => 'required|string|min:8|confirmed',
-        ]);
+        // Valida y lanza excepción automáticamente si falla
+        $this->validator($request->all())->validate();
 
-        // 2. Si falla, devolvemos JSON con código 422
-        if($validator->fails()){
-            return response()->json([
-                'error' => $validator->errors()->first()
-            ], 422);
-        }
+        // Crea el usuario
+        $user = $this->create($request->all());
 
-        // 3. Crear el usuario
-        $rol = str_ends_with(strtolower($request->email), '@myjob.com')
-            ? 'admin'
-            : 'empleado';
-
-        $user = Usuario::create([
-            'nombre_usuario'        => $request->name,
-            'correo_electronico'    => $request->email,
-            'contrasena'            => Hash::make($request->password),
-            'rol'                   => $rol
-        ]);
-
-        // 4. Respuesta JSON de éxito con código 201
+        // Retorna JSON y código 201
         return response()->json([
             'message' => 'Registro exitoso',
-            'user' => [
-                'id'     => $user->id_usuario,
-                'name'   => $user->nombre_usuario,
-                'email'  => $user->correo_electronico,
-                'rol'    => $user->rol
+            'user'    => [
+                'id'    => $user->id_usuario,
+                'name'  => $user->nombre_usuario,
+                'email' => $user->correo_electronico,
+                'rol'   => $user->rol,
             ],
         ], 201);
     }
 
-    public function checkNit(Request $request)
+    /**
+     * Validador de los datos de registro.
+     *
+     * @param  array  $data
+     * @return ValidatorContract
+     */
+    protected function validator(array $data): ValidatorContract
     {
-        $request->validate([
-            'nit' => ['required', 'string'],
+        return Validator::make($data, [
+            'name'               => ['required', 'string', 'max:255'],
+            'correo_electronico' => ['required', 'string', 'email', 'max:255', 'unique:usuarios,correo_electronico'],
+            'password'           => ['required', 'string', 'min:8', 'confirmed'],
+            'nit'                => ['nullable', 'string'],
         ]);
+    }
 
-        $empresa = Empresa::where('nit', $request->nit)->first();
+    /**
+     * Crea una nueva instancia de usuario.
+     *
+     * @param  array  $data
+     * @return Usuario
+     */
+    protected function create(array $data): Usuario
+    {
+        $rol = str_ends_with(strtolower($data['correo_electronico']), '@myjob.com')
+            ? 'admin'
+            : 'empleado';
 
-        return response()->json([
-            'exists' => (bool) $empresa,
-            'empresa'=> $empresa ? $empresa->razon_social : null,
+        return Usuario::create([
+            'nombre_usuario'     => $data['name'],
+            'correo_electronico' => $data['correo_electronico'],
+            'contrasena'         => Hash::make($data['password']),
+            'rol'                => $rol,
+            'nit'                => $data['nit'] ?? null,
         ]);
     }
 }

@@ -50,7 +50,7 @@ class SocialController extends Controller
                 'nombre_usuario'     => $googleUser->getName()
                                         ?? Str::before($googleUser->getEmail(), '@'),
                 'correo_electronico' => $googleUser->getEmail(),
-                'contrasena'         => bcrypt(Str::random(16)),
+                'contrasena'         => bcrypt(Str::random()),
                 'rol'                => $rol,
                 'activo'             => false,
                 'token_activacion'   => Str::random(60),
@@ -71,7 +71,7 @@ class SocialController extends Controller
         } elseif ($user->rol === 'empleador') {
             return redirect()->intended('/empleador/dashboard');
         } else {
-            return redirect()->intended('/');
+            return redirect()->intended();
         }
     }
 }

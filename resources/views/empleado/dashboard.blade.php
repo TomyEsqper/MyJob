@@ -76,7 +76,7 @@
                         <div class="dropdown ms-3">
                             <a href="#" class="dropdown-toggle text-decoration-none d-flex align-items-center" data-bs-toggle="dropdown">
                                 @auth
-                                    <img src="{{ Auth::user()->foto_perfil }}" class="rounded-circle m-2" width="30">
+                                    <img src="{{ Auth::user()->foto_perfil }}" class="rounded-circle m-2" width="30" alt="ImgGoogle">
                                     <span>¡Bienvenido {{ Auth::user()->nombre_usuario }}!</span>
                                 @endauth
                                 @guest

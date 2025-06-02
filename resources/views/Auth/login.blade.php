@@ -18,14 +18,14 @@
 
         <div class="col-md-5 col-12" style="padding: 4%; background-color: #f8f9fa;">
             <div class="container-der-login"
-                 style="display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; margin-bottom:0%">
+                 style="display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
                 <h1>Bienvenido a <span style="font-weight: bold;">My<span style="color: #258d19;">Job</span></span></h1>
                 <h6>Regístrate para acceder a las oportunidades laborales que mejor se adapten a tu perfil.</h6>
 
                 <!-- Boton de acceder con google -->
                 <a href="{{ route('google.redirect') }}" class="google-btn m-4">
                     <div class="google-icon-wrapper">
-                        <img class="google-icon" src="https://developers.google.com/identity/images/g-logo.png" alt="Google logo"">
+                        <img class="google-icon" src="https://developers.google.com/identity/images/g-logo.png" alt="Google logo">
                     </div>
                     <span>Iniciar sesion con Google</span>
                 </a>
@@ -52,7 +52,7 @@
                                 <polyline points="8 1 12 5 8 9"></polyline>
                             </svg>
                         </button>
-                        <p style="margin-top: 3%">¿Haz olvidado tu contraseña?<a href="register.php"
+                        <p style="margin-top: 3%">¿Haz olvidado tu contraseña?<a href="{{ route('ForgotPassword') }}"
                                                                                  class="enlaces-etiqueta-a" style="text-decoration: none;"> Haz click aquí</a></p>
                     </div>
                 </form>

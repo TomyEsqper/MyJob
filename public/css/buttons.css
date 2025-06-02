@@ -1,0 +1,51 @@
+
+
+:root {
+    --btn-bg: #FCFCFD;
+    --btn-color: #36395a;
+    --btn-height: 48px;
+    --btn-padding-x: 32px;
+    --btn-font-size: 18px;
+    --btn-radius: 6px;
+    --btn-shadow: 0px 2px 4px rgb(45 35 66 / 40%),
+    0px 7px 13px -3px rgb(45 35 66 / 30%),
+    inset 0px -3px 0px #d6d6e7;
+    --btn-hover-shadow: 0px 4px 8px rgb(45 35 66 / 40%),
+    0px 7px 13px -3px rgb(45 35 66 / 30%),
+    inset 0px -3px 0px #d6d6e7;
+    --btn-active-shadow: inset 0px 3px 7px #d6d6e7;
+    --transition-speed: 0.15s;
+}
+
+
+.selector button {
+    display: inline-block;
+    outline: 0;
+    border: 0;
+    cursor: pointer;
+    will-change: box-shadow, transform;
+    background: var(--btn-bg);
+    box-shadow: var(--btn-shadow);
+    height: var(--btn-height);
+    padding: 0 var(--btn-padding-x);
+    font-size: var(--btn-font-size);
+    border-radius: var(--btn-radius);
+    color: var(--btn-color);
+    transition: box-shadow var(--transition-speed) ease, transform var(--transition-speed) ease;
+}
+
+.selector button:hover {
+    box-shadow: var(--btn-hover-shadow);
+    transform: translateY(-2px);
+}
+
+.selector button:active {
+    box-shadow: var(--btn-active-shadow);
+    transform: translateY(2px);
+}
+
+.selector button.activo {
+    outline: 2px solid #4f46e5; /* opcional para resaltar el botón activo */
+}
+
+
