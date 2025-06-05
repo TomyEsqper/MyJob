@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('tipo_contrato');
             $table->date('fecha_inicio')->nullable();
             $table->date('fecha_fin')->nullable();
+            $table->enum('estado', ['activa', 'inactiva', 'cerrada'])->default('activa');
             $table->unsignedBigInteger('empleador_id');
             $table->foreign('empleador_id')->references('id_usuario')->on('usuarios')->onDelete('cascade');
             $table->timestamps();
