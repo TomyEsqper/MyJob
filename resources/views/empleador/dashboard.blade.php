@@ -29,7 +29,7 @@
                         </a>
                     </li>
                     <li class="nav-item mb-2">
-                        <a href="#" class="nav-link rounded">
+                        <a href="{{ route('empleador.perfil') }}" class="nav-link rounded">
                             <i class="fas fa-building me-2 text-warning"></i> Mi Empresa
                         </a>
                     </li>
@@ -91,7 +91,7 @@
                                 @endguest
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end shadow-sm">
-                                <li><a class="dropdown-item" href="#"><i class="fas fa-building me-2 text-muted"></i>Perfil de Empresa</a></li>
+                                <li><a class="dropdown-item" href="{{ route('empleador.perfil') }}"><i class="fas fa-building me-2 text-muted"></i>Perfil de Empresa</a></li>
                                 <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2 text-muted"></i>Configuración</a></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item text-danger" href="#" onclick="event.preventDefault(); document.getElementById('logout-form-dropdown').submit();"><i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión</a></li>

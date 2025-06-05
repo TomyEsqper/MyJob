@@ -13,9 +13,9 @@
         <div class="row">
             <!-- Sidebar -->
             <div class="col-auto p-0 sidebar">
-                <div class="logo">
-                    <img src="{{ asset('logos/mac-os-100.png') }}" alt="Logo" height="50">
-                    <span class="ms-2 fw-bold">JobPortal</span>
+            <div class="logo d-flex align-items-center p-3">
+                    <img src="{{ asset('images/logo.png') }}" alt="Logo" height="50" >
+                    <!-- <span class="ms-2 fw-bold">Myjob</span> -->
                 </div>
                 <ul class="nav flex-column mt-4">
                     <li class="nav-item">
@@ -44,14 +44,22 @@
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a href="{{ route('empleado.perfil') }}" class="nav-link">
+                            <i class="fas fa-user"></i> Mi Perfil
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a href="#" class="nav-link">
                             <i class="fas fa-cog"></i> Configuración
                         </a>
                     </li>
                     <li class="nav-item mt-5">
-                        <a href="#" class="nav-link text-danger">
-                            <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
-                        </a>
+                        <form action="{{ route('logout') }}" method="POST" class="nav-link">
+                            @csrf
+                            <button type="submit" class="btn btn-link text-danger p-0">
+                                <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                            </button>
+                        </form>
                     </li>
                 </ul>
             </div>
@@ -84,10 +92,15 @@
                                 @endguest
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end">
-                                <li><a class="dropdown-item" href="#">Mi Perfil</a></li>
+                                <li><a class="dropdown-item" href="{{ route('empleado.perfil') }}">Mi Perfil</a></li>
                                 <li><a class="dropdown-item" href="#">Configuración</a></li>
                                 <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item text-danger" href="#">Cerrar Sesión</a></li>
+                                <li>
+                                    <form action="{{ route('logout') }}" method="POST">
+                                        @csrf
+                                        <button type="submit" class="dropdown-item text-danger">Cerrar Sesión</button>
+                                    </form>
+                                </li>
                             </ul>
                         </div>
                     </div>
