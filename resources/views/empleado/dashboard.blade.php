@@ -197,24 +197,61 @@
                     </div>
                     <div class="card-body p-0">
                         @forelse($ofertas as $oferta)
-                        <div class="job-card">
-                            <div class="company-logo">
-                                <i class="fas fa-building"></i>
-                            </div>
-                            <div class="job-info">
-                                <h4>{{ $oferta->titulo }}</h4>
-                                <p>{{ $oferta->empresa ?? 'Empresa desconocida' }} • {{ $oferta->ubicacion }} • {{ $oferta->salario ? number_format($oferta->salario, 2) . '€' : 'Salario no especificado' }}</p>
-                            </div>
-                            <div class="job-actions">
-                                <a href="{{ route('ofertas.show', $oferta->id) }}" class="btn btn-sm btn-primary">Ver Detalle</a>
-                                <form action="{{ route('aplicaciones.store', $oferta->id) }}" method="POST" style="display:inline-block;">
-                                    @csrf
-                                    <button type="submit" class="btn btn-sm btn-success">Aplicar</button>
-                                </form>
+                        <div class="job-card p-4 border-bottom position-relative">
+                            <div class="row align-items-center">
+                                <div class="col-auto">
+                                    <div class="company-logo bg-light rounded-circle p-3 d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                                        @if($oferta->empleador && $oferta->empleador->logo_empresa)
+                                            <img src="{{ $oferta->empleador->logo_empresa }}" alt="Logo" class="img-fluid rounded-circle" style="max-width: 60px; max-height: 60px;">
+                                        @else
+                                            <i class="fas fa-building text-primary" style="font-size: 2rem;"></i>
+                                        @endif
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="job-info">
+                                        <h4 class="mb-1 text-primary">{{ $oferta->titulo }}</h4>
+                                        <p class="mb-2 text-muted">
+                                            <i class="fas fa-building me-2"></i>
+                                            {{ $oferta->empleador->nombre_empresa ?? 'Empresa desconocida' }}
+                                        </p>
+                                        <div class="d-flex flex-wrap gap-3">
+                                            <span class="text-muted small">
+                                                <i class="fas fa-map-marker-alt me-1 text-secondary"></i>
+                                                {{ $oferta->ubicacion }}
+                                            </span>
+                                            <span class="text-muted small">
+                                                <i class="fas fa-money-bill-wave me-1 text-success"></i>
+                                                {{ $oferta->salario ? number_format($oferta->salario, 2) . '€' : 'Salario no especificado' }}
+                                            </span>
+                                            <span class="text-muted small">
+                                                <i class="fas fa-clock me-1 text-info"></i>
+                                                {{ $oferta->tipo_contrato }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-auto mt-3 mt-md-0">
+                                    <div class="job-actions d-flex gap-2 justify-content-md-end">
+                                        <a href="{{ route('ofertas.show', ['oferta' => $oferta->id]) }}" 
+                                           class="btn btn-outline-primary btn-sm">
+                                            <i class="fas fa-eye me-1"></i> Ver Detalle
+                                        </a>
+                                        <form action="{{ route('empleado.aplicar', $oferta->id) }}" method="POST">
+                                            @csrf
+                                            <button type="submit" class="btn btn-success btn-sm">
+                                                <i class="fas fa-paper-plane me-1"></i> Aplicar
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         @empty
-                        <div class="p-3 text-center text-muted">No hay ofertas disponibles en este momento.</div>
+                        <div class="p-4 text-center text-muted">
+                            <i class="fas fa-briefcase fa-3x mb-3 text-light"></i>
+                            <p class="mb-0">No hay ofertas disponibles en este momento.</p>
+                        </div>
                         @endforelse
                     </div>
                 </div>
@@ -223,5 +260,35 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <style>
+        .job-card {
+            transition: all 0.3s ease;
+            background-color: white;
+        }
+        .job-card:hover {
+            background-color: #f8f9fa;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .company-logo {
+            transition: all 0.3s ease;
+        }
+        .job-card:hover .company-logo {
+            transform: scale(1.05);
+        }
+        .btn {
+            transition: all 0.2s ease;
+        }
+        .btn:hover {
+            transform: translateY(-1px);
+        }
+        .gap-3 {
+            gap: 1rem !important;
+        }
+        .gap-2 {
+            gap: 0.5rem !important;
+        }
+    </style>
 </body>
 </html>

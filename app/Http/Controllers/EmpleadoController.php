@@ -102,4 +102,22 @@ class EmpleadoController extends Controller
 
         return redirect()->back()->with('success', 'CV actualizado correctamente');
     }
+
+    public function aplicar(Oferta $oferta)
+    {
+        $usuario = Auth::user();
+        
+        // Verificar si el usuario ya aplicó a esta oferta
+        if ($usuario->aplicaciones()->where('oferta_id', $oferta->id)->exists()) {
+            return redirect()->back()->with('error', 'Ya has aplicado a esta oferta anteriormente.');
+        }
+
+        // Crear la aplicación
+        $usuario->aplicaciones()->create([
+            'oferta_id' => $oferta->id,
+            'estado' => 'pendiente'
+        ]);
+
+        return redirect()->back()->with('success', 'Has aplicado exitosamente a la oferta.');
+    }
 }

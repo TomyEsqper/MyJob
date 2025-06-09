@@ -43,6 +43,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/actualizar-cv', [EmpleadoController::class, 'actualizarCV'])->name('actualizar-cv');
         Route::post('/actualizar-habilidades', [EmpleadoController::class, 'actualizarHabilidades'])->name('actualizar-habilidades');
         Route::get('/aplicaciones', [EmpleadoController::class, 'aplicaciones'])->name('aplicaciones');
+        Route::post('/aplicaciones/{oferta}', [EmpleadoController::class, 'aplicar'])->name('aplicar');
         Route::get('/buscar', [EmpleadoController::class, 'buscar'])->name('buscar');
         Route::get('/cv', [EmpleadoController::class, 'cv'])->name('cv');
         Route::get('/notificaciones', [EmpleadoController::class, 'notificaciones'])->name('notificaciones');
@@ -54,13 +55,28 @@ Route::middleware(['auth'])->group(function () {
 Route::middleware(['auth'])->group(function () {
     Route::prefix('empleador')->name('empleador.')->group(function () {
         Route::get('/dashboard', [EmpleadorController::class, 'dashboard'])->name('dashboard');
+        
+        // Rutas de ofertas
+        Route::resource('ofertas', OfertaController::class);
+        
+        // Rutas de perfil y empresa
+        Route::get('/empresa', [EmpleadorController::class, 'empresa'])->name('empresa');
         Route::get('/perfil', [EmpleadorController::class, 'perfil'])->name('perfil');
         Route::post('/actualizar-perfil', [EmpleadorController::class, 'actualizarPerfil'])->name('actualizar-perfil');
+        Route::post('/actualizar-avatar', [EmpleadorController::class, 'actualizarAvatar'])->name('actualizar-avatar');
         Route::post('/actualizar-logo', [EmpleadorController::class, 'actualizarLogo'])->name('actualizar-logo');
         Route::post('/actualizar-beneficios', [EmpleadorController::class, 'actualizarBeneficios'])->name('actualizar-beneficios');
-        Route::get('/ofertas', [EmpleadorController::class, 'ofertas'])->name('ofertas');
+        
+        // Rutas de candidatos
         Route::get('/candidatos', [EmpleadorController::class, 'candidatos'])->name('candidatos');
+        
+        // Rutas de estadísticas
+        Route::get('/estadisticas', [EmpleadorController::class, 'estadisticas'])->name('estadisticas');
+        
+        // Rutas de notificaciones
         Route::get('/notificaciones', [EmpleadorController::class, 'notificaciones'])->name('notificaciones');
+        
+        // Rutas de configuración
         Route::get('/configuracion', [EmpleadorController::class, 'configuracion'])->name('configuracion');
     });
 });
@@ -68,5 +84,3 @@ Route::middleware(['auth'])->group(function () {
 Route::get('/admin/dashboard', function () {
     return view('admin.dashboard');
 })->name('admin.dashboard');
-
-Route::resource('ofertas', OfertaController::class);

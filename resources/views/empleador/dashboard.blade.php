@@ -19,7 +19,7 @@
                 </div>
                 <ul class="nav flex-column mt-4 px-2">
                     <li class="nav-item mb-2">
-                        <a href="{{ route('ofertas.index') }}" class="nav-link rounded">
+                        <a href="{{ route('empleador.ofertas.index') }}" class="nav-link rounded">
                             <i class="fas fa-briefcase me-2 text-success"></i> Mis Ofertas
                         </a>
                     </li>
@@ -223,7 +223,7 @@
                         <div class="card h-100 border-0 shadow-sm rounded">
                             <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
                                 <h5 class="mb-0 fw-bold"><i class="fas fa-briefcase me-2 text-success"></i>Ofertas Activas</h5>
-                                <a href="{{ route('ofertas.create') }}" class="btn btn-sm btn-primary rounded-pill px-3"><i class="fas fa-plus me-1"></i>Nueva Oferta</a>
+                                <a href="{{ route('empleador.ofertas.create') }}" class="btn btn-sm btn-primary rounded-pill px-3"><i class="fas fa-plus me-1"></i>Nueva Oferta</a>
                             </div>
                             <div class="card-body p-0">
                                 @if(session('success'))
@@ -245,8 +245,8 @@
                                             </p>
                                         </div>
                                         <div class="oferta-actions">
-                                            <a href="{{ route('ofertas.edit', $oferta->id) }}" class="btn btn-sm btn-outline-primary me-2 rounded-pill"><i class="fas fa-edit me-1"></i>Editar</a>
-                                            <form action="{{ route('ofertas.destroy', $oferta->id) }}" method="POST" style="display:inline-block;">
+                                            <a href="{{ route('empleador.ofertas.edit', $oferta->id) }}" class="btn btn-sm btn-outline-primary me-2 rounded-pill"><i class="fas fa-edit me-1"></i>Editar</a>
+                                            <form action="{{ route('empleador.ofertas.destroy', $oferta->id) }}" method="POST" style="display:inline-block;">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="btn btn-sm btn-primary rounded-pill" onclick="return confirm('¿Estás seguro de eliminar esta oferta?')"><i class="fas fa-trash-alt me-1"></i>Eliminar</button>

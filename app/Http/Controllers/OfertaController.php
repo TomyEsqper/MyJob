@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Oferta;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -12,7 +13,7 @@ class OfertaController extends Controller
      */
     public function index()
     {
-        $ofertas = \App\Models\Oferta::where('empleador_id', Auth::user()->id_usuario)->get();
+        $ofertas = Oferta::where('empleador_id', Auth::id())->get();
         return view('empleador.ofertas.index', compact('ofertas'));
     }
 
@@ -29,65 +30,88 @@ class OfertaController extends Controller
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
+        $request->validate([
             'titulo' => 'required|string|max:255',
             'descripcion' => 'required|string',
+            'requisitos' => 'required|string',
+            'salario' => 'nullable|numeric|min:0',
             'ubicacion' => 'required|string|max:255',
-            'salario' => 'nullable|numeric',
-            'tipo_contrato' => 'required|string|max:100',
-            'fecha_inicio' => 'nullable|date',
-            'fecha_fin' => 'nullable|date|after_or_equal:fecha_inicio',
+            'tipo_contrato' => 'required|string|max:255',
+            'jornada' => 'required|string|max:255',
+            'estado' => 'required|in:activa,inactiva',
         ]);
-        $validated['empleador_id'] = Auth::user()->id_usuario;
-        \App\Models\Oferta::create($validated);
-        return redirect()->route('ofertas.index')->with('success', 'Oferta creada correctamente.');
+
+        $oferta = new Oferta($request->all());
+        $oferta->empleador_id = Auth::id();
+        $oferta->save();
+
+        return redirect()->route('empleador.ofertas.index')
+            ->with('success', 'Oferta creada correctamente');
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Oferta $oferta)
     {
-        //
+        if ($oferta->empleador_id !== Auth::id()) {
+            abort(403);
+        }
+        return view('empleador.ofertas.show', compact('oferta'));
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(Oferta $oferta)
     {
-        $oferta = \App\Models\Oferta::where('empleador_id', Auth::user()->id_usuario)->findOrFail($id);
+        if ($oferta->empleador_id !== Auth::id()) {
+            abort(403);
+        }
         return view('empleador.ofertas.edit', compact('oferta'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Oferta $oferta)
     {
-        $oferta = \App\Models\Oferta::where('empleador_id', Auth::user()->id_usuario)->findOrFail($id);
-        $validated = $request->validate([
+        if ($oferta->empleador_id !== Auth::id()) {
+            abort(403);
+        }
+
+        $request->validate([
             'titulo' => 'required|string|max:255',
             'descripcion' => 'required|string',
+            'requisitos' => 'required|string',
+            'salario' => 'nullable|numeric|min:0',
             'ubicacion' => 'required|string|max:255',
-            'salario' => 'nullable|numeric',
-            'tipo_contrato' => 'required|string|max:100',
-            'fecha_inicio' => 'nullable|date',
-            'fecha_fin' => 'nullable|date|after_or_equal:fecha_inicio',
+            'tipo_contrato' => 'required|string|max:255',
+            'jornada' => 'required|string|max:255',
+            'estado' => 'required|in:activa,inactiva',
         ]);
-        $oferta->update($validated);
-        return redirect()->route('ofertas.index')->with('success', 'Oferta actualizada correctamente.');
+
+        $oferta->update($request->all());
+
+        return redirect()->route('empleador.ofertas.index')
+            ->with('success', 'Oferta actualizada correctamente');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Oferta $oferta)
     {
-        $oferta = \App\Models\Oferta::where('empleador_id', Auth::user()->id_usuario)->findOrFail($id);
+        if ($oferta->empleador_id !== Auth::id()) {
+            abort(403);
+        }
+
         $oferta->delete();
-        return redirect()->route('ofertas.index')->with('success', 'Oferta eliminada correctamente.');
+
+        return redirect()->route('empleador.ofertas.index')
+            ->with('success', 'Oferta eliminada correctamente');
     }
+
     public function dashboard()
     {
         $ofertas = \App\Models\Oferta::where('empleador_id', Auth::user()->id_usuario)->get();

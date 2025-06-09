@@ -29,16 +29,7 @@ class Usuario extends Authenticatable
         'experiencia',
         'educacion',
         'habilidades',
-        'cv_path',
-        // Campos de empleador
-        'nombre_empresa',
-        'logo_empresa',
-        'sector',
-        'sitio_web',
-        'mision',
-        'vision',
-        'numero_empleados',
-        'beneficios'
+        'cv_path'
     ];
 
     protected $hidden = [
@@ -46,8 +37,25 @@ class Usuario extends Authenticatable
         'remember_token',
     ];
 
-    public function getAuthPassword(){
+    public function getAuthPassword()
+    {
         return $this->contrasena;
+    }
+
+    /**
+     * Get the empleador associated with the usuario.
+     */
+    public function empleador()
+    {
+        return $this->hasOne(Empleador::class, 'usuario_id', 'id_usuario');
+    }
+
+    /**
+     * Verifica si el usuario es un empleador
+     */
+    public function esEmpleador()
+    {
+        return $this->rol === 'empleador';
     }
 
     // Método para obtener las ofertas de un empleador
@@ -60,5 +68,11 @@ class Usuario extends Authenticatable
     public function getOfertasCountAttribute()
     {
         return $this->ofertas()->where('estado', 'activa')->count();
+    }
+
+    // Relación con las aplicaciones (para empleados)
+    public function aplicaciones()
+    {
+        return $this->hasMany(Aplicacion::class, 'empleado_id', 'id_usuario');
     }
 }
