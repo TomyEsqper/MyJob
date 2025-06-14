@@ -12,12 +12,19 @@ class Empleador extends Model
     /**
      * La tabla asociada con el modelo.
      *
+     * Este atributo define el nombre de la tabla en la base de datos que
+     * será utilizada por este modelo. En este caso, se asocia con la
+     * tabla 'empleadores'.
+     *
      * @var string
      */
     protected $table = 'empleadores';
 
     /**
      * Los atributos que son asignables de manera masiva.
+     *
+     * Este atributo define los campos de la tabla que pueden ser asignados
+     * de manera masiva (por ejemplo, usando el método create).
      *
      * @var array<int, string>
      */
@@ -41,6 +48,11 @@ class Empleador extends Model
 
     /**
      * Obtener el usuario que posee el empleador.
+     *
+     * Este método establece una relación inversa entre el modelo `Empleador`
+     * y el modelo `Usuario`. Un empleador está asociado a un usuario (empleador).
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function usuario()
     {

@@ -15,8 +15,9 @@
         <div class="container-der-login" style="display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; margin-bottom:0">
             <h1>Bienvenido a <strong>My<span style="color:#258d19;">Job</span></strong></h1>
             <h6>Regístrate para acceder a las oportunidades laborales.</h6>
+
+            <!-- Botón de inicio de sesión con Google -->
             <div style="display: flex; gap: 10px; margin-top: 5%; margin-bottom: 10%;">
-                <!-- Boton de acceder con google -->
                 <a href="{{ route('google.redirect') }}" class="google-btn">
                     <div class="google-icon-wrapper">
                         <img class="google-icon" src="https://developers.google.com/identity/images/g-logo.png" alt="Google logo">
@@ -26,18 +27,19 @@
             </div>
         </div>
 
+        <!-- Selector para cambiar entre Empresa y Usuario -->
         <div class="selector">
             <button id="btn-empresa"><span>Empresa</span></button>
             <button id="btn-usuario" class="activo"><span>Usuario</span></button>
         </div>
 
+        <!-- Formulario de Registro -->
         <div class="container-der-login-formulario mb-4">
             <form id="formulario-registro" method="POST" action="{{ route('register') }}">
                 @csrf
 
                 <!-- Campo oculto para el rol -->
                 <input type="hidden" id="rol" name="rol" value="empleado">
-
 
                 <!-- Formulario de Usuario -->
                 <div id="inputs-usuario" class="inputs-usuario">
@@ -87,8 +89,7 @@
                     </div>
                 </div>
 
-
-
+                <!-- Botón de Envío -->
                 <div style="display: flex; justify-content: space-between; align-items: center; margin: 7%">
                     <button type="submit" id="btn-registro" class="cta btn">
                         <span id="btn-text">Registrarme</span>
@@ -100,12 +101,15 @@
                 </div>
             </form>
         </div>
+
+        <!-- Enlace de Login -->
         <div class="container-der-login-registro mt-3">
             <p>¿Ya tienes una cuenta? <a href="{{ route('login') }}" class="enlaces-etiqueta-a" style="text-decoration: none;">Inicia sesión</a></p>
         </div>
     </div>
 
     <div class="col-md-7 col-12 d-flex justify-content-center align-items-center">
+        <!-- Imagen representativa -->
         <img class="mujer-3d" src="{{asset('images/ilustracion-3d-mujer-programando.png')}}" alt="">
     </div>
 </div>
@@ -151,7 +155,6 @@
             });
         }
     });
-
 </script>
 
 <script>
@@ -194,7 +197,6 @@
                     icon: 'success',
                     title: '¡Registrado!',
                     text: data.message,
-                    background: '#28a745',  // Color de fondo verde
                     confirmButtonColor: '#007bff',  // Color del botón de confirmación
                     timer: 2000,
                     showConfirmButton: false

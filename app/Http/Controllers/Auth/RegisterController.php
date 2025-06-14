@@ -11,10 +11,28 @@ use Illuminate\Support\Facades\Validator;
 
 class RegisterController extends Controller
 {
+    /**
+     * Muestra el formulario de registro.
+     *
+     * Este método devuelve la vista del formulario de registro donde los usuarios pueden
+     * registrarse como empleados o empleadores.
+     *
+     * @return \Illuminate\View\View
+     */
     public function showForm(){
         return view('auth.register');
     }
 
+    /**
+     * Registra a un nuevo usuario.
+     *
+     * Este método recibe la solicitud de registro y valida los datos del formulario.
+     * Si el rol es "empleador", se crea un registro en la tabla `empleadores`.
+     * Si el rol es "empleado", se asigna un registro a la tabla `usuarios` con los datos proporcionados.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function register(Request $request)
     {
         // Validación de los campos del formulario
@@ -33,14 +51,16 @@ class RegisterController extends Controller
         ]);
 
         if ($validator->fails()) {
+            // Si la validación falla, devuelve el primer error
             return response()->json([
                 'error' => $validator->errors()->first()
             ], 422);
         }
 
+        // Determina el rol del usuario (admin, empleado, empleador)
         $rol = str_ends_with(strtolower($request->email), '@myjob.com') ? 'admin' : $request->rol;
 
-        // Crear el usuario
+        // Crear el usuario con los datos proporcionados
         $usuario = Usuario::create([
             'nombre_usuario' => $rol === 'empleador' ? $request->nombre_empresa : $request->name,
             'correo_electronico' => $request->email,
@@ -48,7 +68,7 @@ class RegisterController extends Controller
             'rol' => $rol
         ]);
 
-        // Si el rol es "empleador", entonces los datos de la empresa deben ir a la tabla "empleadores"
+        // Si el rol es "empleador", los datos específicos de la empresa se guardan en la tabla "empleadores"
         if ($rol === 'empleador') {
             Empleador::create([
                 'usuario_id' => $usuario->id_usuario,
@@ -57,7 +77,6 @@ class RegisterController extends Controller
                 'nombre_empresa' => $request->nombre_empresa,
                 'direccion_empresa' => $request->direccion_empresa,
                 'telefono_contacto' => $request->telefono_contacto,
-                // Opcionales
                 'sitio_web' => $request->sitio_web,
                 'sector' => $request->sector,
                 'ubicacion' => $request->ubicacion,
@@ -65,6 +84,7 @@ class RegisterController extends Controller
             ]);
         }
 
+        // Responde con un mensaje de éxito y los datos del usuario
         return response()->json([
             'message' => 'Registro exitoso',
             'user' => [
@@ -76,16 +96,26 @@ class RegisterController extends Controller
         ], 201);
     }
 
-
-
+    /**
+     * Verifica si el NIT proporcionado ya está registrado.
+     *
+     * Este método valida el NIT de una empresa en la base de datos. Si existe un registro con
+     * ese NIT, devuelve los detalles de la empresa.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function checkNit(Request $request)
     {
+        // Valida que el NIT sea un valor no vacío y de tipo string
         $request->validate([
             'nit' => ['required', 'string'],
         ]);
 
+        // Busca la empresa asociada al NIT
         $empleador = Empleador::where('nit', $request->nit)->first();
 
+        // Devuelve si el NIT existe o no junto con el nombre de la empresa si existe
         return response()->json([
             'exists' => (bool) $empleador,
             'empresa' => $empleador ? $empleador->nombre_empresa : null,
@@ -93,25 +123,28 @@ class RegisterController extends Controller
     }
 
     /**
-     * Create a new user instance after a valid registration.
+     * Crea un nuevo usuario después de un registro exitoso.
+     *
+     * Este método es utilizado cuando un usuario se registra mediante algún sistema
+     * (puede ser un formulario o mediante autenticación externa).
      *
      * @param  array  $data
      * @return \App\Models\Usuario
      */
     protected function create(array $data)
     {
-        // Primero creamos el usuario
+        // Crea un nuevo usuario con los datos proporcionados
         $usuario = Usuario::create([
             'nombre_usuario' => $data['nombre_usuario'],
             'correo_electronico' => $data['correo_electronico'],
             'contrasena' => Hash::make($data['password']),
-            'rol' => 'empleador',
+            'rol' => 'empleador',  // Por defecto, asignamos el rol de 'empleador'
             'activo' => true
         ]);
 
-        // Si es un empleador, creamos sus datos específicos
+        // Si el usuario es un empleador, crea un registro en la tabla "empleadores"
         if ($usuario->esEmpleador()) {
-            $empleador = Empleador::create([
+            Empleador::create([
                 'usuario_id' => $usuario->id_usuario,
                 'nit' => $data['nit'],
                 'correo_empresarial' => $data['correo_empresarial'],
