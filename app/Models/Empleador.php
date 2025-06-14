@@ -10,14 +10,14 @@ class Empleador extends Model
     use HasFactory;
 
     /**
-     * The table associated with the model.
+     * La tabla asociada con el modelo.
      *
      * @var string
      */
     protected $table = 'empleadores';
 
     /**
-     * The attributes that are mass assignable.
+     * Los atributos que son asignables de manera masiva.
      *
      * @var array<int, string>
      */
@@ -40,10 +40,10 @@ class Empleador extends Model
     ];
 
     /**
-     * Get the usuario that owns the empleador.
+     * Obtener el usuario que posee el empleador.
      */
     public function usuario()
     {
         return $this->belongsTo(Usuario::class, 'usuario_id', 'id_usuario');
     }
-} 
+}

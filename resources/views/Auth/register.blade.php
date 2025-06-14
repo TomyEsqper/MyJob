@@ -31,12 +31,15 @@
             <button id="btn-usuario" class="activo"><span>Usuario</span></button>
         </div>
 
-        <div><a class="click-btn btn-style2" href="#">Hover me</a></div>
-
         <div class="container-der-login-formulario mb-4">
             <form id="formulario-registro" method="POST" action="{{ route('register') }}">
                 @csrf
 
+                <!-- Campo oculto para el rol -->
+                <input type="hidden" id="rol" name="rol" value="empleado">
+
+
+                <!-- Formulario de Usuario -->
                 <div id="inputs-usuario" class="inputs-usuario">
                     <div class="mb-3">
                         <label for="name_usuario" class="form-label">Nombre</label>
@@ -53,21 +56,38 @@
                     </div>
                 </div>
 
+                <!-- Formulario de Empresa -->
                 <div id="inputs-empresa" class="inputs-empresa" style="display: none;">
                     <div class="mb-3">
-                        <label for="nit_empresa" class="form-label">NIT</label>
-                        <input type="text" class="form-control" name="nit" id="nit_empresa" placeholder="Ingrese su NIT" disabled required>
+                        <label for="name_empresa" class="form-label">Nombre de la Empresa</label>
+                        <input type="text" class="form-control" name="nombre_empresa" id="name_empresa" placeholder="Ingrese el nombre de la empresa" required>
                     </div>
                     <div class="mb-3">
-                        <label for="email_empresa" class="form-label">Correo Electrónico</label>
-                        <input type="email" class="form-control" id="email_empresa" name="email" placeholder="Ingrese su correo electrónico" disabled required>
+                        <label for="nit_empresa" class="form-label">NIT</label>
+                        <input type="text" class="form-control" name="nit" id="nit_empresa" placeholder="Ingrese su NIT" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="correo_empresarial" class="form-label">Correo Empresarial</label>
+                        <input type="email" class="form-control" id="correo_empresarial" name="correo_empresarial" placeholder="Ingrese el correo empresarial" required>
+                        <!-- Campo oculto para email (necesario para el backend) -->
+                        <input type="hidden" id="email_empresa" name="email">
+                    </div>
+                    <div class="mb-3">
+                        <label for="direccion_empresa" class="form-label">Dirección de la Empresa</label>
+                        <input type="text" class="form-control" id="direccion_empresa" name="direccion_empresa" placeholder="Ingrese la dirección de la empresa" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="telefono_contacto" class="form-label">Teléfono de Contacto</label>
+                        <input type="text" class="form-control" id="telefono_contacto" name="telefono_contacto" placeholder="Ingrese el teléfono de contacto" required>
                     </div>
                     <div class="mb-3">
                         <label for="password_empresa" class="form-label">Contraseña</label>
-                        <input type="password" class="form-control" id="password_empresa" name="password" placeholder="Ingrese su contraseña" disabled required>
-                        <input type="password" class="form-control mt-4" id="password_confirmation_empresa" name="password_confirmation" placeholder="Repita su contraseña" disabled required>
+                        <input type="password" class="form-control" id="password_empresa" name="password" placeholder="Ingrese su contraseña" required>
+                        <input type="password" class="form-control mt-4" id="password_confirmation_empresa" name="password_confirmation" placeholder="Repita su contraseña" required>
                     </div>
                 </div>
+
+
 
                 <div style="display: flex; justify-content: space-between; align-items: center; margin: 7%">
                     <button type="submit" id="btn-registro" class="cta btn">
@@ -96,12 +116,20 @@
         const btnUsuario = document.getElementById('btn-usuario');
         const inputsEmpresa = document.getElementById('inputs-empresa');
         const inputsUsuario = document.getElementById('inputs-usuario');
+        const rolField = document.getElementById('rol');
+        // Sincronizar correo_empresarial con email oculto
+        const correoEmpresarial = document.getElementById('correo_empresarial');
+        const emailEmpresa = document.getElementById('email_empresa');
 
-        function toggleSection(showEl, hideEl, showBtn, hideBtn) {
+        // Por defecto, deshabilitar inputs de empresa
+        inputsEmpresa.querySelectorAll('input').forEach(input => input.disabled = true);
+
+        function toggleSection(showEl, hideEl, showBtn, hideBtn, rolValue) {
             showEl.style.display = 'block';
             hideEl.style.display = 'none';
             showBtn.classList.add('activo');
             hideBtn.classList.remove('activo');
+            rolField.value = rolValue;
 
             // Habilitar inputs visibles y deshabilitar ocultos
             showEl.querySelectorAll('input').forEach(input => input.disabled = false);
@@ -109,14 +137,23 @@
         }
 
         btnEmpresa.addEventListener('click', () => {
-            toggleSection(inputsEmpresa, inputsUsuario, btnEmpresa, btnUsuario);
+            toggleSection(inputsEmpresa, inputsUsuario, btnEmpresa, btnUsuario, 'empleador');
         });
 
         btnUsuario.addEventListener('click', () => {
-            toggleSection(inputsUsuario, inputsEmpresa, btnUsuario, btnEmpresa);
+            toggleSection(inputsUsuario, inputsEmpresa, btnUsuario, btnEmpresa, 'empleado');
         });
+
+        // Sincronizar el campo oculto email con correo_empresarial
+        if (correoEmpresarial && emailEmpresa) {
+            correoEmpresarial.addEventListener('input', function () {
+                emailEmpresa.value = correoEmpresarial.value;
+            });
+        }
     });
+
 </script>
+
 <script>
     const form = document.getElementById('formulario-registro');
     const btnRegistro = document.getElementById('btn-registro');
@@ -146,10 +183,25 @@
             const data = await response.json();
 
             if (!response.ok) {
-                Swal.fire({ icon: 'error', title: 'Oops...', text: data.error || 'Ha ocurrido un error.' });
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Registro Fallido',
+                    html: `<p>${data.error}</p><p>Por favor verifica los datos e intenta nuevamente.</p>`,
+                    confirmButtonText: 'Cerrar'
+                });
             } else {
-                Swal.fire({ icon: 'success', title: '¡Registrado!', text: data.message, timer: 2000, showConfirmButton: false })
-                    .then(() => window.location.href = '{{ route("login") }}');
+                Swal.fire({
+                    icon: 'success',
+                    title: '¡Registrado!',
+                    text: data.message,
+                    background: '#28a745',  // Color de fondo verde
+                    confirmButtonColor: '#007bff',  // Color del botón de confirmación
+                    timer: 2000,
+                    showConfirmButton: false
+                }).then(() => {
+                    window.location.href = '{{ route("login") }}';
+                });
+
             }
         } catch (error) {
             console.error(error);
