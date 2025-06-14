@@ -7,22 +7,21 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * Ejecuta la migración.
      */
     public function up(): void
     {
         Schema::create('empleadores', function (Blueprint $table) {
             $table->id();
             $table->foreignId('usuario_id')
-                  ->constrained('usuarios', 'id_usuario')
-                  ->onDelete('cascade');
+                ->constrained('usuarios', 'id_usuario')
+                ->onDelete('cascade');
             $table->string('nit')->unique();
             $table->string('correo_empresarial');
             $table->string('nombre_empresa');
             $table->text('direccion_empresa');
             $table->string('telefono_contacto');
             $table->string('sitio_web')->nullable();
-            // Campos adicionales del formulario
             $table->string('sector')->nullable();
             $table->string('ubicacion')->nullable();
             $table->integer('numero_empleados')->nullable();
@@ -36,10 +35,10 @@ return new class extends Migration
     }
 
     /**
-     * Reverse the migrations.
+     * Revierte la migración.
      */
     public function down(): void
     {
         Schema::dropIfExists('empleadores');
     }
-}; 
+};
