@@ -84,6 +84,7 @@ html, body {
     align-items: center;
     overflow: hidden;
     height: 4rem;
+    margin: 0.3rem;
 }
 .btnContainer button {
     background: #e0e0e0;
@@ -169,15 +170,55 @@ html, body {
 /* ================================
    INLINE PASSWORDS
    ================================ */
-.inputs-usuario-inline,
-.inputs-empresa-inline {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
-    gap: 1rem;
-    width: 100%;
-    box-sizing: border-box;
+/* Botón inline para toggle de contraseña */
+.toggle-password {
+    background: none;
+    border: none;
+    color: #3EA055;
+    font-weight: 600;
+    margin-left: 0.5rem;
+    cursor: pointer;
+    padding: 0;
+    font-size: 0.9rem;
+}
+.toggle-password:focus {
+    outline: none;
 }
 
+
+/* Wrapper that expands when focused */
+.password-field {
+    width: 100%;
+    margin-bottom: 1rem;
+}
+/* Normalized rules container below input */
+.password-rules {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease;
+    margin-top: 0.5rem;
+}
+/* Expand container on focus */
+.password-field.focused .password-rules {
+    max-height: 200px; /* sufficiently large */
+}
+.rule {
+    flex: 1 1 calc(33% - 0.5rem);
+    padding: 0.5rem 1rem;
+    border-radius: 999px;
+    background: #f8d7da;
+    color: #721c24;
+    font-size: 0.875rem;
+    text-align: center;
+    transition: background 0.3s ease, color 0.3s ease;
+}
+.rule.valid {
+    background: #d4edda;
+    color: #155724;
+}
 /* ================================
    PRIMARY CTA BUTTON
    ================================ */

@@ -1,100 +1,117 @@
 <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Registro</title>
-        <link rel="stylesheet" media="all" href="{{ asset('css/loginRegistro.css') }}">
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet"
-              integrity="sha384-DQvkBjpPgn7RC31MCQoOeC9TI2kdqa4+BSgNMNj8v77fdC77Kj5zpWFTJaaAoMbC" crossorigin="anonymous">
-        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    </head>
-    <body>
-    <div class="row">
-        <div class="col-md-5 col-12 p-4 bg-light">
-            <div class="container-der-login" style="display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; margin-bottom:0">
-                <h1>Bienvenido a <strong>My<span style="color:#258d19;">Job</span></strong></h1>
-                <h6>Regístrate para acceder a las oportunidades laborales.</h6>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro</title>
+    <link rel="stylesheet" media="all" href="{{ asset('css/loginRegistro.css') }}">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="login-url" content="{{ route('login') }}">
+    <script src="{{ asset('js/auth/register.js') }}" defer></script>
 
-                <!-- Botón de inicio de sesión con Google -->
-                <div style="display: flex; gap: 10px; margin-top: 5%; margin-bottom: 0%;">
-                    <a href="{{ route('google.redirect') }}" class="google-btn">
-                        <div class="google-icon-wrapper">
-                            <img class="google-icon" src="https://developers.google.com/identity/images/g-logo.png" alt="Google logo">
-                        </div>
-                        <span>Registrarme con Google</span>
-                    </a>
-                </div>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-DQvkBjpPgn7RC31MCQoOeC9TI2kdqa4+BSgNMNj8v77fdC77Kj5zpWFTJaaAoMbC" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+<div class="row">
+    <div class="col-md-5 col-12 p-4 bg-light">
+        <div class="container-der-login" style="display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; margin-bottom:0">
+            <h1>Bienvenido a <strong>My<span style="color:#258d19;">Job</span></strong></h1>
+            <h6>Regístrate para acceder a las oportunidades laborales.</h6>
+
+            <!-- Botón de inicio de sesión con Google -->
+            <div style="display: flex; gap: 10px; margin-top: 5%; margin-bottom: 0%;">
+                <a href="{{ route('google.redirect') }}" class="google-btn">
+                    <div class="google-icon-wrapper">
+                        <img class="google-icon" src="https://developers.google.com/identity/images/g-logo.png" alt="Google logo">
+                    </div>
+                    <span>Registrarme con Google</span>
+                </a>
             </div>
+        </div>
 
-
-            <div class="role-toggle">
-                <div class="btnContainer">
-                    <button id="btn-empresa"><span>Empresa</span></button>
-                </div>
-                <div class="btnContainer">
-                    <button id="btn-usuario" class="activo"><span>Usuario</span></button>
-                </div>
-            </div>
-            <!-- Selector para cambiar entre Empresa y Usuario
-            <div class="selector">
+        <!-- Selector para cambiar entre Empresa y Usuario -->
+        <div class="role-toggle">
+            <div class="btnContainer">
                 <button id="btn-empresa"><span>Empresa</span></button>
+            </div>
+            <div class="btnContainer">
                 <button id="btn-usuario" class="activo"><span>Usuario</span></button>
-            </div>  -->
+            </div>
+        </div>
 
-            <!-- Formulario de Registro -->
-            <div class="container-der-login-formulario mb-4">
-                <form id="formulario-registro" method="POST" action="{{ route('register') }}">
-                    @csrf
+        <!-- Formulario de Registro -->
+        <div class="container-der-login-formulario mb-4">
+            <form id="formulario-registro" method="POST" action="{{ route('register') }}">
+                @csrf
 
-                    <!-- Campo oculto para el rol -->
-                    <input type="hidden" id="rol" name="rol" value="empleado">
+                <!-- Campo oculto para el rol -->
+                <input type="hidden" id="rol" name="rol" value="empleado">
 
-                    <!-- Formulario de Usuario (visible al cargar) -->
-                    <div id="inputs-usuario" class="inputs-usuario" style="display: block;">
-                        <label class="label">
+                <!-- Formulario de Usuario (visible al cargar) -->
+                <div id="inputs-usuario" class="inputs-usuario" style="display: block;">
+                    <label class="label">
                             <span class="icon">
                               <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="none" viewBox="0 0 24 24">
                                 <path stroke="currentColor" stroke-width="1.25" d="M7 17v1a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1a3 3 0 0 0-3-3h-4a3 3 0 0 0-3 3Zm8-9a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
                               </svg>
                             </span>
-                            <input type="text" class="input" name="name" id="name_usuario" placeholder="Ingrese su nombre" autocomplete="off" required/>
-                        </label>
+                        <input type="text" class="input" name="name" id="name_usuario" placeholder="Ingrese su nombre" autocomplete="off" required/>
+                    </label>
 
-                        <label class="label">
+                    <label class="label">
                             <span class="icon">
                               <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M3 8.5l9 6 9-6"/>
                                 <path d="M21 6v12H3V6h18Z"/>
                               </svg>
                             </span>
-                            <input type="email" class="input" name="email" id="email_usuario" placeholder="Ingrese su correo electrónico" autocomplete="off" required/>
-                        </label>
+                        <input type="email" class="input" name="email" id="email_usuario" placeholder="Ingrese su correo electrónico" autocomplete="off" required/>
+                    </label>
 
+                    <!-- Usuario Password Field -->
+                    <div class="password-field">
                         <label class="label">
-                            <span class="icon">
-                              <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round">
-                                <rect x="4" y="11" width="16" height="10" rx="2" ry="2"/>
-                                <path d="M8 11V7a4 4 0 0 1 8 0v4"/>
-                              </svg>
-                            </span>
-                            <input type="password" class="input" id="password_usuario" name="password" placeholder="Ingrese su contraseña" required/>
+                            <input
+                                type="password"
+                                id="password_usuario"
+                                name="password"
+                                class="input"
+                                placeholder="Ingrese su contraseña"
+                                required
+                            />
+                            <button
+                                type="button"
+                                class="toggle-password"
+                                data-target="password_usuario"
+                                aria-label="Mostrar u ocultar contraseña"
+                            >Mostrar</button>
                         </label>
-
-                        <label class="label">
-                            <span class="icon">
-                              <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round">
-                                <rect x="4" y="11" width="16" height="10" rx="2" ry="2"/>
-                                <path d="M8 11V7a4 4 0 0 1 8 0v4"/>
-                              </svg>
-                            </span>
-                            <input type="password" class="input" id="password_confirmation_usuario" name="password_confirmation" placeholder="Repita su contraseña" required/>
-                        </label>
+                        <div class="password-rules">
+                            <div class="rule" data-rule="uppercase">Mayúscula</div>
+                            <div class="rule" data-rule="lowercase">Minúscula</div>
+                            <div class="rule" data-rule="number">Número</div>
+                            <div class="rule" data-rule="special">Especial</div>
+                            <div class="rule" data-rule="length">>= 8 caracteres</div>
+                        </div>
                     </div>
 
-                    <!-- Formulario de Empresa (oculto al cargar) -->
-                    <div id="inputs-empresa" class="inputs-empresa" style="display: none;">
-                        <label class="label">
+
+                    <label class="label">
+                            <span class="icon">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="4" y="11" width="16" height="10" rx="2" ry="2"/>
+                                <path d="M8 11V7a4 4 0 0 1 8 0v4"/>
+                              </svg>
+                            </span>
+                        <input type="password" class="input" id="password_confirmation_usuario" name="password_confirmation" placeholder="Repita su contraseña" required/>
+                    </label>
+                </div>
+
+                <!-- Formulario de Empresa (oculto al cargar) -->
+                <div id="inputs-empresa" class="inputs-empresa" style="display: none;">
+                    <label class="label">
                             <span class="icon">
                               <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M3 21V8a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v13"/>
@@ -103,10 +120,10 @@
                                 <path d="M15 3v4"/>
                               </svg>
                             </span>
-                            <input type="text" id="name_empresa" name="nombre_empresa" class="input" placeholder="Ingrese el nombre de la empresa" required/>
-                        </label>
+                        <input type="text" id="name_empresa" name="nombre_empresa" class="input" placeholder="Ingrese el nombre de la empresa" required/>
+                    </label>
 
-                        <label class="label">
+                    <label class="label">
                             <span class="icon">
                               <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M4 4h16v16H4z"/>
@@ -114,32 +131,32 @@
                                 <circle cx="8" cy="12" r="2"/>
                               </svg>
                             </span>
-                            <input type="text" id="nit_empresa" name="nit" class="input" placeholder="Ingrese su NIT" required/>
-                        </label>
+                        <input type="text" id="nit_empresa" name="nit" class="input" placeholder="Ingrese su NIT" required/>
+                    </label>
 
-                        <label class="label">
+                    <label class="label">
                             <span class="icon">
                               <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M3 8.5l9 6 9-6"/>
                                 <path d="M21 6v12H3V6h18Z"/>
                               </svg>
                             </span>
-                            <input type="email" id="correo_empresarial" name="correo_empresarial" class="input" placeholder="Ingrese el correo empresarial" required/>
-                            <!-- oculto para backend -->
-                            <input type="hidden" id="email_empresa" name="email">
-                        </label>
+                        <input type="email" id="correo_empresarial" name="correo_empresarial" class="input" placeholder="Ingrese el correo empresarial" required/>
+                        <!-- oculto para backend -->
+                        <input type="hidden" id="email_empresa" name="email">
+                    </label>
 
-                        <label class="label">
+                    <label class="label">
                             <span class="icon">
                               <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M12 21s-6-5.686-6-10a6 6 0 0 1 12 0c0 4.314-6 10-6 10z"/>
                                 <circle cx="12" cy="11" r="2"/>
                               </svg>
                             </span>
-                            <input type="text" id="direccion_empresa" name="direccion_empresa" class="input" placeholder="Ingrese la dirección de la empresa" required/>
-                        </label>
+                        <input type="text" id="direccion_empresa" name="direccion_empresa" class="input" placeholder="Ingrese la dirección de la empresa" required/>
+                    </label>
 
-                        <label class="label">
+                    <label class="label">
                             <span class="icon">
                               <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M22 16.92v3a2 2 0 0 1-2.18 2
@@ -158,158 +175,73 @@
                                          A2 2 0 0 1 22 16.92z"/>
                               </svg>
                             </span>
-                            <input type="text" id="telefono_contacto" name="telefono_contacto" class="input" placeholder="Ingrese el teléfono de contacto" required/>
-                        </label>
+                        <input type="text" id="telefono_contacto" name="telefono_contacto" class="input" placeholder="Ingrese el teléfono de contacto" required/>
+                    </label>
 
-                        <div class="inputs-empresa-inline">
+                    <div class="inputs-empresa-inline">
+                        <!-- Empresa Password Field -->
+                        <div class="password-field">
                             <label class="label">
-                              <span class="icon">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2" ry="2"/>
-                                  <path d="M8 11V7a4 4 0 0 1 8 0v4"/>
-                                </svg>
-                              </span>
-                                <input type="password" id="password_empresa" name="password" class="input" placeholder="Ingrese su contraseña" required/>
+                                <input
+                                    type="password"
+                                    id="password_empresa"
+                                    name="password"
+                                    class="input"
+                                    placeholder="Ingrese su contraseña"
+                                    required
+                                />
+                                <button
+                                    type="button"
+                                    class="toggle-password"
+                                    data-target="password_empresa"
+                                    aria-label="Mostrar u ocultar contraseña"
+                                >Mostrar</button>
                             </label>
-                            <label class="label">
+                            <div class="password-rules">
+                                <div class="rule" data-rule="uppercase">Mayúscula</div>
+                                <div class="rule" data-rule="lowercase">Minúscula</div>
+                                <div class="rule" data-rule="number">Número</div>
+                                <div class="rule" data-rule="special">Especial</div>
+                                <div class="rule" data-rule="length">>= 8 caracteres</div>
+                            </div>
+                        </div>
+
+                        <label class="label">
                                   <span class="icon">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round">
                                       <rect x="4" y="11" width="16" height="10" rx="2" ry="2"/>
                                       <path d="M8 11V7a4 4 0 0 1 8 0v4"/>
                                     </svg>
                                   </span>
-                                <input type="password" id="password_confirmation_empresa" name="password_confirmation" class="input" placeholder="Repita su contraseña" required/>
-                            </label>
-                        </div>
+                            <input type="password" id="password_confirmation_empresa" name="password_confirmation" class="input" placeholder="Repita su contraseña" required/>
+                        </label>
                     </div>
+                </div>
 
 
-
-
-            <!-- Botón de Envío -->
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin: 7%">
-                        <button type="submit" id="btn-registro" class="cta btn">
-                            <span id="btn-text">Registrarme</span>
-                            <svg id="btn-icon" width="6%" height="1rem" viewBox="0 0 13 10">
-                                <path d="M1,5 L11,5"></path>
-                                <polyline points="8 1 12 5 8 9"></polyline>
-                            </svg>
-                        </button>
-                    </div>
-                </form>
-            </div>
-
-            <!-- Enlace de Login -->
-            <div class="container-der-login-registro mt-3">
-                <p>¿Ya tienes una cuenta? <a href="{{ route('login') }}" class="enlaces-etiqueta-a" style="text-decoration: none;">Inicia sesión</a></p>
-            </div>
+                <!-- Botón de Envío -->
+                <div style="display: flex; justify-content: space-between; align-items: center; margin: 7%">
+                    <button type="submit" id="btn-registro" class="cta btn">
+                        <span id="btn-text">Registrarme</span>
+                        <svg id="btn-icon" width="6%" height="1rem" viewBox="0 0 13 10">
+                            <path d="M1,5 L11,5"></path>
+                            <polyline points="8 1 12 5 8 9"></polyline>
+                        </svg>
+                    </button>
+                </div>
+            </form>
         </div>
 
-        <div class="col-md-7 col-12 d-flex justify-content-center align-items-center">
-            <!-- Imagen representativa -->
-            <img class="mujer-3d" src="{{asset('images/ilustracion-3d-mujer-programando.png')}}" alt="">
+        <!-- Enlace de Login -->
+        <div class="container-der-login-registro mt-3">
+            <p>¿Ya tienes una cuenta? <a href="{{ route('login') }}" class="enlaces-etiqueta-a" style="text-decoration: none;">Inicia sesión</a></p>
         </div>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const btnEmpresa = document.getElementById('btn-empresa');
-            const btnUsuario = document.getElementById('btn-usuario');
-            const inputsEmpresa = document.getElementById('inputs-empresa');
-            const inputsUsuario = document.getElementById('inputs-usuario');
-            const rolField = document.getElementById('rol');
-            // Sincronizar correo_empresarial con email oculto
-            const correoEmpresarial = document.getElementById('correo_empresarial');
-            const emailEmpresa = document.getElementById('email_empresa');
-
-            // Por defecto, deshabilitar inputs de empresa
-            inputsEmpresa.querySelectorAll('input').forEach(input => input.disabled = true);
-
-            function toggleSection(showEl, hideEl, showBtn, hideBtn, rolValue) {
-                showEl.style.display = 'block';
-                hideEl.style.display = 'none';
-                showBtn.classList.add('activo');
-                hideBtn.classList.remove('activo');
-                rolField.value = rolValue;
-
-                // Habilitar inputs visibles y deshabilitar ocultos
-                showEl.querySelectorAll('input').forEach(input => input.disabled = false);
-                hideEl.querySelectorAll('input').forEach(input => input.disabled = true);
-            }
-
-            btnEmpresa.addEventListener('click', () => {
-                toggleSection(inputsEmpresa, inputsUsuario, btnEmpresa, btnUsuario, 'empleador');
-            });
-
-            btnUsuario.addEventListener('click', () => {
-                toggleSection(inputsUsuario, inputsEmpresa, btnUsuario, btnEmpresa, 'empleado');
-            });
-
-            // Sincronizar el campo oculto email con correo_empresarial
-            if (correoEmpresarial && emailEmpresa) {
-                correoEmpresarial.addEventListener('input', function () {
-                    emailEmpresa.value = correoEmpresarial.value;
-                });
-            }
-        });
-    </script>
-
-    <script>
-        const form = document.getElementById('formulario-registro');
-        const btnRegistro = document.getElementById('btn-registro');
-        const btnText = document.getElementById('btn-text');
-        const btnIcon = document.getElementById('btn-icon');
-
-        form.addEventListener('submit', async function (e) {
-            e.preventDefault();
-
-            // Mostrar estado de carga: deshabilitar botón y ocultar icono
-            btnRegistro.disabled = true;
-            btnText.textContent = 'Registrando...';
-            btnIcon.style.display = 'none';
-
-            const formData = new FormData(this);
-
-            try {
-                const response = await fetch(this.action, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'Accept': 'application/json'
-                    },
-                    body: formData
-                });
-
-                const data = await response.json();
-
-                if (!response.ok) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Registro Fallido',
-                        html: `<p>${data.error}</p><p>Por favor verifica los datos e intenta nuevamente.</p>`,
-                        confirmButtonText: 'Cerrar'
-                    });
-                } else {
-                    Swal.fire({
-                        icon: 'success',
-                        title: '¡Registrado!',
-                        text: data.message,
-                        confirmButtonColor: '#007bff',  // Color del botón de confirmación
-                        timer: 2000,
-                        showConfirmButton: false
-                    }).then(() => {
-                        window.location.href = '{{ route("login") }}';
-                    });
-
-                }
-            } catch (error) {
-                console.error(error);
-                Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo procesar la solicitud.' });
-            } finally {
-                btnRegistro.disabled = false;
-                btnText.textContent = 'Registrarme';
-                btnIcon.style.display = '';
-            }
-        });
-    </script>
-    </body>
-    </html>
+    <div class="col-md-7 col-12 d-flex justify-content-center align-items-center">
+        <!-- Imagen representativa -->
+        <img class="mujer-3d" src="{{asset('images/ilustracion-3d-mujer-programando.png')}}" alt="">
+    </div>
+</div>
+</body>
+</html>

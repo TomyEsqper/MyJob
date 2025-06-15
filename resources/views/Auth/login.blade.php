@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -36,11 +36,22 @@
             </a>
         </div>
 
+        @if($errors->any())
+            <script>
+                document.addEventListener('DOMContentLoaded', function(){
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error al iniciar sesión',
+                        text: '{{ $errors->first() }}'
+                    });
+                });
+            </script>
+        @endif
+
         <!-- Formulario de inicio de sesión -->
         <div class="container-der-login-formulario" style="margin-bottom: 20%;">
             <form id="formulario-login" method="POST" action="{{ route('login') }}">
                 @csrf
-
 
                 <!-- Correo Electrónico -->
                 <label class="label">
@@ -51,18 +62,16 @@
                           <path d="M21 6v12H3V6h18Z"/>
                         </svg>
                       </span>
-                    <input type="email" id="correo_electronico" name="correo_electronico" class="input" placeholder="Ingrese su correo electrónico" required autofocus/>
+                    <input type="email" id="correo_electronico" name="correo_electronico" class="input @error('correo_electronico') is-invalid @enderror" value="{{ old('correo_electronico') }}" placeholder="Ingrese su correo electrónico" required autofocus/>
+
                 </label>
 
                 <!-- Contraseña -->
-                <label class="label">
-                      <span class="icon">
-                          <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round">
-                              <rect x="4" y="11" width="16" height="10" rx="2" ry="2"/>
-                              <path d="M8 11V7a4 4 0 0 1 8 0v4"/>
-                          </svg>
-                      </span>
-                    <input type="password" id="password" name="password" class="input" placeholder="Ingrese su contraseña" required/>
+                <label class="label relative">
+                    <input type="password" id="password" name="password" class="input pr-12" placeholder="Ingrese su contraseña" required/>
+                    <button type="button" class="toggle-password absolute inset-y-0 right-0 pr-3 flex items-center" data-target="password" aria-label="Mostrar u ocultar contraseña">
+                        Mostrar
+                    </button>
                 </label>
 
 
@@ -133,6 +142,19 @@
             });
         }
     }
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('.toggle-password').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const input = document.getElementById(btn.dataset.target);
+                const isPwd = input.type === 'password';
+                input.type = isPwd ? 'text' : 'password';
+                btn.textContent = isPwd ? 'Ocultar' : 'Mostrar';
+            });
+        });
+    });
+
 </script>
 </body>
 </html>
