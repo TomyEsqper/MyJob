@@ -40,21 +40,34 @@
         <div class="container-der-login-formulario" style="margin-bottom: 20%;">
             <form id="formulario-login" method="POST" action="{{ route('login') }}">
                 @csrf
-                <!-- Campo de correo electrónico -->
-                <div class="mb-3">
-                    <label for="email" class="form-label">Correo Electrónico</label>
-                    <input type="email" class="form-control" id="correo_electronico" name="correo_electronico" required autofocus
-                           placeholder="Ingrese su correo electrónico">
-                </div>
-                <!-- Campo de contraseña -->
-                <div class="mb-3">
-                    <label for="password" class="form-label">Contraseña</label>
-                    <input type="password" class="form-control" id="password" name="password" required
-                           placeholder="Ingrese su contraseña">
-                </div>
+
+
+                <!-- Correo Electrónico -->
+                <label class="label">
+                      <span class="icon">
+                        <!-- Heroicon “envelope” outline -->
+                        <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="M3 8.5l9 6 9-6"/>
+                          <path d="M21 6v12H3V6h18Z"/>
+                        </svg>
+                      </span>
+                    <input type="email" id="correo_electronico" name="correo_electronico" class="input" placeholder="Ingrese su correo electrónico" required autofocus/>
+                </label>
+
+                <!-- Contraseña -->
+                <label class="label">
+                      <span class="icon">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round">
+                              <rect x="4" y="11" width="16" height="10" rx="2" ry="2"/>
+                              <path d="M8 11V7a4 4 0 0 1 8 0v4"/>
+                          </svg>
+                      </span>
+                    <input type="password" id="password" name="password" class="input" placeholder="Ingrese su contraseña" required/>
+                </label>
+
 
                 <!-- Botón de inicio de sesión y enlace para recuperación de contraseña -->
-                <div style="display: flex; justify-content: space-between; align-items: center; margin: 6%">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
                     <button type="submit" class="cta btn">
                         <span>Iniciar Sesión</span>
                         <svg width="6%" height="1rem" viewBox="0 0 13 10">
@@ -62,14 +75,13 @@
                             <polyline points="8 1 12 5 8 9"></polyline>
                         </svg>
                     </button>
-                    <p style="margin-top: 3%">¿Haz olvidado tu contraseña?<a href="register.php"
-                                                                             class="enlaces-etiqueta-a" style="text-decoration: none;"> Haz click aquí</a></p>
+                    <p>¿Haz olvidado tu contraseña?<a href="#" class="enlaces-etiqueta-a" style="text-decoration: none;"> Haz click aquí</a></p>
                 </div>
             </form>
         </div>
 
         <!-- Enlace para registro de nuevos usuarios -->
-        <div class="container-der-login-registro">
+        <div class="container-der-login-registro" STYLE="margin-top: -4.6rem;">
             <p>¿No tienes una cuenta? <a href="{{ route('register') }}" class="enlaces-etiqueta-a"
                                          style="text-decoration: none;">Regístrate</a></p>
         </div>

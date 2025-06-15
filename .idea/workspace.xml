@@ -6,15 +6,10 @@
   <component name="ChangeListManager">
     <list default="true" id="e1386fb0-cdc1-4628-8a08-56fe43fdd252" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/Http/Controllers/Auth/LoginController.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Http/Controllers/Auth/LoginController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/Http/Controllers/Auth/RegisterController.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Http/Controllers/Auth/RegisterController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/Http/Controllers/Auth/SocialController.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Http/Controllers/Auth/SocialController.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/Models/Empleador.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Models/Empleador.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/database/migrations/2014_10_12_000000_create_users_table.php" beforeDir="false" afterPath="$PROJECT_DIR$/database/migrations/2014_10_12_000000_create_users_table.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/database/migrations/2024_03_19_create_empleadores_table.php" beforeDir="false" afterPath="$PROJECT_DIR$/database/migrations/2024_03_19_create_empleadores_table.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/database/migrations/2025_05_23_002053_add_empleador_to_usuarios_rol_enum.php" beforeDir="false" afterPath="$PROJECT_DIR$/database/migrations/2025_05_23_002053_add_empleador_to_usuarios_rol_enum.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/public/css/loginRegistro.css" beforeDir="false" afterPath="$PROJECT_DIR$/public/css/loginRegistro.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/resources/views/Auth/login.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/resources/views/Auth/login.blade.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/resources/views/Auth/register.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/resources/views/Auth/register.blade.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/routes/web.php" beforeDir="false" afterPath="$PROJECT_DIR$/routes/web.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -47,6 +42,7 @@
     &quot;accountId&quot;: &quot;7323d910-bead-4edf-ad9b-7b00a78edde3&quot;
   }
 }</component>
+  <component name="PhpDebugGeneral" listening_started="true" />
   <component name="PhpWorkspaceProjectConfiguration" interpreter_name="$PROJECT_DIR$/../../../../xampp/php/php.exe">
     <include_path>
       <path value="$PROJECT_DIR$/vendor/composer" />
@@ -174,7 +170,7 @@
     </include_path>
   </component>
   <component name="ProblemsViewState">
-    <option name="selectedTabId" value="ProjectErrors" />
+    <option name="selectedTabId" value="QODANA_PROBLEMS_VIEW_TAB" />
   </component>
   <component name="ProjectColorInfo">{
   &quot;customColor&quot;: &quot;&quot;,
@@ -188,29 +184,47 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ASKED_MARK_IGNORED_FILES_AS_EXCLUDED": "true",
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "main",
-    "ignore.virus.scanning.warn.message": "true",
-    "junie.onboarding.icon.badge.shown": "true",
-    "last_opened_file_path": "C:/Users/tomye/Dropbox/MyJob",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "run.code.analysis.last.selected.profile": "pProject Default",
-    "settings.editor.selected.configurable": "preferences.pluginManager",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_MARK_IGNORED_FILES_AS_EXCLUDED&quot;: &quot;true&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;LoginRegister&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/tomye/Dropbox/MyJob&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="QodanaCIConfigService">
     <option name="ciType" value="GITHUB" />
     <option name="path" value="$PROJECT_DIR$/.github/workflows/qodana_code_quality.yml" />
+  </component>
+  <component name="QodanaCloudProjectLink">
+    <option name="lastReportId" value="RvmOPl" />
+    <option name="linkedProjectId" value="wwL02" />
+    <option name="linkedProjectName" value="MyJob" />
+    <option name="organizationId" value="200P6" />
+    <option name="userId" value="Rv1mE" />
+  </component>
+  <component name="QodanaHighlightedReportService">
+    <option name="cloudReportPersistedInfo">
+      <CloudReportPersistedInfo>
+        <option name="projectId" value="wwL02" />
+        <option name="reportId" value="RvmOPl" />
+      </CloudReportPersistedInfo>
+    </option>
+  </component>
+  <component name="QodanaIsSelectedPersistenceService">
+    <option name="selectedOrLoading" value="true" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
@@ -231,6 +245,7 @@
       </set>
     </attachedChunks>
   </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="1" Folder0="$PROJECT_DIR$/app/Http/Controllers/Auth" CustomDictionaries="1" CustomDictionary0="$PROJECT_DIR$/app/Http/Controllers/Auth/ResetPasswordController.php" DefaultDictionary="project-level" UseSingleDictionary="true" transferred="false" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
       <changelist id="e1386fb0-cdc1-4628-8a08-56fe43fdd252" name="Changes" comment="" />
@@ -253,7 +268,8 @@
       <workItem from="1748367235594" duration="285000" />
       <workItem from="1748367735825" duration="18000" />
       <workItem from="1748519950012" duration="2288000" />
-      <workItem from="1749939939299" duration="1308000" />
+      <workItem from="1749939939299" duration="1563000" />
+      <workItem from="1750004856655" duration="10895000" />
     </task>
     <servers />
   </component>
