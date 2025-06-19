@@ -84,7 +84,7 @@
                                     <h1 class="h3 mb-2">{{ $oferta->titulo }}</h1>
                                     <p class="text-muted mb-0">
                                         <i class="fas fa-building me-2"></i>
-                                        {{ $oferta->empleador->nombre_empresa ?? 'Empresa no especificada' }}
+                                        {{ $oferta->empleador->empleador->nombre_empresa ?? 'Empresa no especificada' }}
                                     </p>
                                 </div>
                             </div>
@@ -224,13 +224,29 @@
                     <div class="card shadow-sm mb-4 border-0 sticky-top" style="top: 20px;">
                         <div class="card-body">
                             <h5 class="card-title mb-4 text-center">¿Te interesa esta oferta?</h5>
-                            <form action="{{ route('empleado.aplicar', $oferta->id) }}" method="POST">
-                                @csrf
-                                <button type="submit" class="btn btn-primary btn-lg w-100 mb-3 d-flex align-items-center justify-content-center">
-                                    <i class="fas fa-paper-plane me-2"></i>
-                                    Aplicar ahora
-                                </button>
-                            </form>
+                            @php
+                                $yaAplicado = auth()->user() && $oferta->aplicaciones->where('empleado_id', auth()->id())->count() > 0;
+                            @endphp
+                            @if(session('success'))
+                                <div class="alert alert-success">{{ session('success') }}</div>
+                            @endif
+                            @if(session('error'))
+                                <div class="alert alert-danger">{{ session('error') }}</div>
+                            @endif
+                            @if(!$yaAplicado)
+                                <form action="{{ route('empleado.aplicar', $oferta->id) }}" method="POST">
+                                    @csrf
+                                    <button type="submit" class="btn btn-primary btn-lg w-100 mb-3 d-flex align-items-center justify-content-center">
+                                        <i class="fas fa-paper-plane me-2"></i>
+                                        Aplicar ahora
+                                    </button>
+                                </form>
+                            @else
+                                <div class="alert alert-info text-center mb-3">
+                                    <i class="fas fa-check-circle me-2"></i>
+                                    Ya has aplicado a esta oferta.
+                                </div>
+                            @endif
                             <div class="text-center">
                                 <small class="text-muted d-flex align-items-center justify-content-center">
                                     <i class="fas fa-shield-alt me-2"></i>

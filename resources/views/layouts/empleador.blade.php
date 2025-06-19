@@ -141,6 +141,11 @@
         </div>
 
         <nav>
+            <a href="{{ route('empleador.dashboard') }}" class="nav-link {{ request()->routeIs('empleador.dashboard') ? 'active' : '' }}">
+                <i class="fas fa-tachometer-alt text-primary"></i>
+                <span>Dashboard</span>
+            </a>
+
             <a href="{{ route('empleador.ofertas.index') }}" class="nav-link {{ request()->routeIs('empleador.ofertas.*') ? 'active' : '' }}">
                 <i class="fas fa-briefcase text-success"></i>
                 <span>Mis Ofertas</span>

@@ -175,45 +175,49 @@
                                 <a href="#" class="btn btn-sm btn-outline-primary rounded-pill px-3">Ver Todos</a>
                             </div>
                             <div class="card-body p-0">
-                                <div class="user-card d-flex align-items-center p-3 border-bottom">
-                                    <div class="user-avatar bg-light rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
-                                        <i class="fas fa-user text-primary"></i>
+                                @php
+                                    $aplicaciones = collect();
+                                    foreach ($ofertas as $oferta) {
+                                        foreach ($oferta->aplicaciones as $aplicacion) {
+                                            $aplicaciones->push($aplicacion);
+                                        }
+                                    }
+                                    $aplicaciones = $aplicaciones->sortByDesc('created_at')->take(10);
+                                @endphp
+                                @forelse($aplicaciones as $aplicacion)
+                                    <div class="user-card d-flex align-items-center p-3 border-bottom">
+                                        <div class="user-avatar bg-light rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                                            <i class="fas fa-user text-primary"></i>
+                                        </div>
+                                        <div class="user-info flex-grow-1">
+                                            <h5 class="mb-1 fw-medium">{{ $aplicacion->empleado->nombre_usuario }}</h5>
+                                            <p class="mb-0 text-muted small">
+                                                <i class="fas fa-envelope me-1"></i>{{ $aplicacion->empleado->correo_electronico }}
+                                                @if($aplicacion->empleado->profesion)
+                                                    • <i class="fas fa-briefcase me-1 text-success"></i>{{ $aplicacion->empleado->profesion }}
+                                                @endif
+                                                @if($aplicacion->empleado->ubicacion)
+                                                    • <i class="fas fa-map-marker-alt me-1"></i>{{ $aplicacion->empleado->ubicacion }}
+                                                @endif
+                                            </p>
+                                        </div>
+                                        <div class="user-actions">
+                                            <a href="{{ route('empleador.candidato.perfil', $aplicacion->empleado->id_usuario) }}" class="btn btn-sm btn-outline-primary me-2 rounded-pill">
+                                                <i class="fas fa-user-circle me-1"></i>Ver Perfil
+                                            </a>
+                                            @if($aplicacion->empleado->cv_path)
+                                            <a href="{{ asset($aplicacion->empleado->cv_path) }}" target="_blank" class="btn btn-sm btn-outline-primary rounded-pill">
+                                                <i class="fas fa-file-alt me-1"></i>Ver CV
+                                            </a>
+                                            @endif
+                                        </div>
                                     </div>
-                                    <div class="user-info flex-grow-1">
-                                        <h5 class="mb-1 fw-medium">Juan Pérez</h5>
-                                        <p class="mb-0 text-muted small"><i class="fas fa-code me-1"></i>Desarrollador Frontend • <i class="fas fa-briefcase me-1 text-success"></i>5 años exp. • <i class="fas fa-map-marker-alt me-1"></i>Madrid</p>
+                                @empty
+                                    <div class="p-4 text-center text-muted">
+                                        <i class="fas fa-user fa-3x mb-3 text-light"></i>
+                                        <p class="mb-0">No hay candidatos recientes.</p>
                                     </div>
-                                    <div class="user-actions">
-                                        <button class="btn btn-sm btn-outline-primary me-2 rounded-pill"><i class="fas fa-file-alt me-1"></i>Ver CV</button>
-                                        <button class="btn btn-sm btn-primary rounded-pill"><i class="fas fa-envelope me-1"></i>Contactar</button>
-                                    </div>
-                                </div>
-                                <div class="user-card d-flex align-items-center p-3 border-bottom">
-                                    <div class="user-avatar bg-light rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
-                                        <i class="fas fa-user text-primary"></i>
-                                    </div>
-                                    <div class="user-info flex-grow-1">
-                                        <h5 class="mb-1 fw-medium">María García</h5>
-                                        <p class="mb-0 text-muted small"><i class="fas fa-paint-brush me-1"></i>Diseñadora UX/UI • <i class="fas fa-briefcase me-1 text-success"></i>3 años exp. • <i class="fas fa-map-marker-alt me-1"></i>Barcelona</p>
-                                    </div>
-                                    <div class="user-actions">
-                                        <button class="btn btn-sm btn-outline-primary me-2 rounded-pill"><i class="fas fa-file-alt me-1"></i>Ver CV</button>
-                                        <button class="btn btn-sm btn-primary rounded-pill"><i class="fas fa-envelope me-1"></i>Contactar</button>
-                                    </div>
-                                </div>
-                                <div class="user-card d-flex align-items-center p-3">
-                                    <div class="user-avatar bg-light rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
-                                        <i class="fas fa-user text-primary"></i>
-                                    </div>
-                                    <div class="user-info flex-grow-1">
-                                        <h5 class="mb-1 fw-medium">Carlos Rodríguez</h5>
-                                        <p class="mb-0 text-muted small"><i class="fas fa-laptop-code me-1"></i>Desarrollador Full Stack • <i class="fas fa-briefcase me-1 text-success"></i>7 años exp. • <i class="fas fa-globe me-1"></i>Remoto</p>
-                                    </div>
-                                    <div class="user-actions">
-                                        <button class="btn btn-sm btn-outline-primary me-2 rounded-pill"><i class="fas fa-file-alt me-1"></i>Ver CV</button>
-                                        <button class="btn btn-sm btn-primary rounded-pill"><i class="fas fa-envelope me-1"></i>Contactar</button>
-                                    </div>
-                                </div>
+                                @endforelse
                             </div>
                         </div>
                     </div>

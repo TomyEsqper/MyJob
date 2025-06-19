@@ -213,7 +213,7 @@
                                         <h4 class="mb-1 text-primary">{{ $oferta->titulo }}</h4>
                                         <p class="mb-2 text-muted">
                                             <i class="fas fa-building me-2"></i>
-                                            {{ $oferta->empleador->nombre_empresa ?? 'Empresa desconocida' }}
+                                            {{ $oferta->empleador->empleador->nombre_empresa ?? 'Empresa desconocida' }}
                                         </p>
                                         <div class="d-flex flex-wrap gap-3">
                                             <span class="text-muted small">
@@ -233,7 +233,7 @@
                                 </div>
                                 <div class="col-md-auto mt-3 mt-md-0">
                                     <div class="job-actions d-flex gap-2 justify-content-md-end">
-                                        <a href="{{ route('ofertas.show', ['oferta' => $oferta->id]) }}" 
+                                        <a href="{{ route('empleador.ofertas.show', ['oferta' => $oferta->id]) }}" 
                                            class="btn btn-outline-primary btn-sm">
                                             <i class="fas fa-eye me-1"></i> Ver Detalle
                                         </a>
