@@ -13,8 +13,8 @@
         <div class="row">
             <!-- Sidebar -->
             <div class="col-auto p-0 sidebar">
-            <div class="logo d-flex align-items-center p-3">
-                    <img src="{{ asset('images/logo.png') }}" alt="Logo" height="50" >
+                <div class="logo d-flex align-items-center p-3">
+                    <img src="{{ asset('images/logo.png') }}" alt="Logo" height="50">
                     <!-- <span class="ms-2 fw-bold">Myjob</span> -->
                 </div>
                 <ul class="nav flex-column mt-4">
@@ -24,7 +24,7 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="#" class="nav-link">
+                        <a href="{{ route('empleado.aplicaciones') }}" class="nav-link">
                             <i class="fas fa-briefcase text-success"></i> Mis Aplicaciones
                         </a>
                     </li>
@@ -114,7 +114,7 @@
                                 <i class="fas fa-paper-plane"></i>
                             </div>
                             <div class="content">
-                                <h3>12</h3>
+                                <h3>{{ $aplicacionesEnviadas }}</h3>
                                 <p>Aplicaciones Enviadas</p>
                             </div>
                         </div>
@@ -125,7 +125,7 @@
                                 <i class="fas fa-eye"></i>
                             </div>
                             <div class="content">
-                                <h3>45</h3>
+                                <h3>{{ $vistasPerfilCount }}</h3>
                                 <p>Vistas de Perfil</p>
                             </div>
                         </div>
@@ -136,7 +136,7 @@
                                 <i class="fas fa-check-circle"></i>
                             </div>
                             <div class="content">
-                                <h3>3</h3>
+                                <h3>{{ $entrevistasCount }}</h3>
                                 <p>Entrevistas Programadas</p>
                             </div>
                         </div>
@@ -147,45 +147,44 @@
                 <div class="card mb-4">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <h5 class="mb-0">Aplicaciones Recientes</h5>
-                        <a href="#" class="btn btn-sm btn-outline-light">Ver Todas</a>
+                        <a href="{{ route('empleado.aplicaciones') }}" class="btn btn-sm btn-outline-light">Ver Todas</a>
                     </div>
                     <div class="card-body p-0">
-                        <div class="job-card">
-                            <div class="company-logo">
-                                <i class="fas fa-building"></i>
+                        @forelse($aplicacionesRecientes as $aplicacion)
+                            <div class="job-card">
+                                <div class="company-logo">
+                                    @if($aplicacion->oferta->empleador->empleador && $aplicacion->oferta->empleador->empleador->logo_empresa)
+                                        <img src="{{ asset($aplicacion->oferta->empleador->empleador->logo_empresa) }}" alt="Logo" class="rounded" width="40" height="40">
+                                    @else
+                                        <i class="fas fa-building"></i>
+                                    @endif
+                                </div>
+                                <div class="job-info">
+                                    <h4>{{ $aplicacion->oferta->titulo }}</h4>
+                                    <p>{{ $aplicacion->oferta->empleador->nombre_usuario }} • {{ $aplicacion->oferta->ubicacion }} • {{ $aplicacion->created_at->diffForHumans() }}</p>
+                                </div>
+                                <div class="job-actions">
+                                    @switch($aplicacion->estado)
+                                        @case('aceptada')
+                                            <span class="badge bg-success">Entrevista</span>
+                                            @break
+                                        @case('revisada')
+                                            <span class="badge bg-warning text-dark">En Revisión</span>
+                                            @break
+                                        @case('rechazada')
+                                            <span class="badge bg-danger">No Seleccionado</span>
+                                            @break
+                                        @default
+                                            <span class="badge bg-secondary">Pendiente</span>
+                                    @endswitch
+                                </div>
                             </div>
-                            <div class="job-info">
-                                <h4>Desarrollador Frontend</h4>
-                                <p>TechSolutions Inc. • Madrid • Hace 2 días</p>
+                        @empty
+                            <div class="text-center py-5">
+                                <i class="fas fa-briefcase fa-3x text-muted mb-3"></i>
+                                <p class="text-muted mb-0">No hay aplicaciones recientes</p>
                             </div>
-                            <div class="job-actions">
-                                <span class="badge bg-success">Entrevista</span>
-                            </div>
-                        </div>
-                        <div class="job-card">
-                            <div class="company-logo">
-                                <i class="fas fa-laptop-code"></i>
-                            </div>
-                            <div class="job-info">
-                                <h4>Diseñador UX/UI</h4>
-                                <p>Creative Studio • Barcelona • Hace 3 días</p>
-                            </div>
-                            <div class="job-actions">
-                                <span class="badge bg-warning text-dark">En Revisión</span>
-                            </div>
-                        </div>
-                        <div class="job-card">
-                            <div class="company-logo">
-                                <i class="fas fa-code"></i>
-                            </div>
-                            <div class="job-info">
-                                <h4>Desarrollador Full Stack</h4>
-                                <p>InnovaTech • Valencia • Hace 5 días</p>
-                            </div>
-                            <div class="job-actions">
-                                <span class="badge bg-secondary">Enviada</span>
-                            </div>
-                        </div>
+                        @endforelse
                     </div>
                 </div>
 
@@ -233,7 +232,7 @@
                                 </div>
                                 <div class="col-md-auto mt-3 mt-md-0">
                                     <div class="job-actions d-flex gap-2 justify-content-md-end">
-                                        <a href="{{ route('empleador.ofertas.show', ['oferta' => $oferta->id]) }}" 
+                                        <a href="{{ route('empleado.ofertas.show', $oferta) }}" 
                                            class="btn btn-outline-primary btn-sm">
                                             <i class="fas fa-eye me-1"></i> Ver Detalle
                                         </a>
@@ -248,10 +247,10 @@
                             </div>
                         </div>
                         @empty
-                        <div class="p-4 text-center text-muted">
-                            <i class="fas fa-briefcase fa-3x mb-3 text-light"></i>
-                            <p class="mb-0">No hay ofertas disponibles en este momento.</p>
-                        </div>
+                            <div class="p-4 text-center text-muted">
+                                <i class="fas fa-briefcase fa-3x mb-3 text-light"></i>
+                                <p class="mb-0">No hay ofertas disponibles en este momento.</p>
+                            </div>
                         @endforelse
                     </div>
                 </div>

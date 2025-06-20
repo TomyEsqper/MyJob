@@ -1,9 +1,9 @@
 <?php return array(
     'root' => array(
         'name' => 'laravel/laravel',
-        'pretty_version' => 'dev-main',
-        'version' => 'dev-main',
-        'reference' => '22a70dc49add2dc82df17843e3d1648da792d138',
+        'pretty_version' => 'dev-oferta-empresa-empleado',
+        'version' => 'dev-oferta-empresa-empleado',
+        'reference' => '7a6a71be4f8fa7b1bad931ac95ce374a0c097565',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -530,9 +530,9 @@
             'dev_requirement' => false,
         ),
         'laravel/laravel' => array(
-            'pretty_version' => 'dev-main',
-            'version' => 'dev-main',
-            'reference' => '22a70dc49add2dc82df17843e3d1648da792d138',
+            'pretty_version' => 'dev-oferta-empresa-empleado',
+            'version' => 'dev-oferta-empresa-empleado',
+            'reference' => '7a6a71be4f8fa7b1bad931ac95ce374a0c097565',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

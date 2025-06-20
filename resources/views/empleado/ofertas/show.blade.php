@@ -74,8 +74,8 @@
                         <div class="card-body">
                             <div class="d-flex align-items-center mb-4">
                                 <div class="company-logo bg-light rounded-circle p-3 me-4 d-flex align-items-center justify-content-center" style="width: 100px; height: 100px;">
-                                    @if($oferta->empleador && $oferta->empleador->logo_empresa)
-                                        <img src="{{ $oferta->empleador->logo_empresa }}" alt="Logo" class="img-fluid rounded-circle" style="max-width: 80px; max-height: 80px;">
+                                    @if($oferta->empleador && $oferta->empleador->empleador && $oferta->empleador->empleador->logo_empresa)
+                                        <img src="{{ asset($oferta->empleador->empleador->logo_empresa) }}" alt="Logo {{ $oferta->empleador->empleador->nombre_empresa }}" class="img-fluid rounded-circle" style="max-width: 80px; max-height: 80px;">
                                     @else
                                         <i class="fas fa-building text-primary" style="font-size: 2.5rem;"></i>
                                     @endif
@@ -84,8 +84,14 @@
                                     <h1 class="h3 mb-2">{{ $oferta->titulo }}</h1>
                                     <p class="text-muted mb-0">
                                         <i class="fas fa-building me-2"></i>
-                                        {{ $oferta->empleador->empleador->nombre_empresa ?? 'Empresa no especificada' }}
+                                        <strong>{{ $oferta->empleador->empleador->nombre_empresa ?? 'Empresa no especificada' }}</strong>
                                     </p>
+                                    @if($oferta->empleador->empleador->sector)
+                                        <p class="text-muted mb-0 mt-1">
+                                            <i class="fas fa-industry me-2"></i>
+                                            {{ $oferta->empleador->empleador->sector }}
+                                        </p>
+                                    @endif
                                 </div>
                             </div>
 
@@ -174,47 +180,99 @@
                             <h5 class="card-title border-bottom pb-2">
                                 <i class="fas fa-building me-2"></i>Sobre la empresa
                             </h5>
-                            <p class="card-text">{{ $oferta->empleador->descripcion ?? 'No hay descripción disponible.' }}</p>
+                            
+                            <div class="company-info mb-4">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="company-logo-sm bg-light rounded-circle p-2 me-3">
+                                        @if($oferta->empleador && $oferta->empleador->empleador && $oferta->empleador->empleador->logo_empresa)
+                                            <img src="{{ asset($oferta->empleador->empleador->logo_empresa) }}" alt="Logo" class="rounded-circle" width="50" height="50">
+                                        @else
+                                            <i class="fas fa-building text-primary" style="font-size: 1.5rem;"></i>
+                                        @endif
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-0">{{ $oferta->empleador->empleador->nombre_empresa ?? 'Empresa no especificada' }}</h6>
+                                        @if($oferta->empleador->empleador->fecha_fundacion)
+                                            <small class="text-muted">Fundada en {{ $oferta->empleador->empleador->fecha_fundacion->format('Y') }}</small>
+                                        @endif
+                                    </div>
+                                </div>
+                                
+                                <p class="card-text">{{ $oferta->empleador->empleador->descripcion ?? 'No hay descripción disponible.' }}</p>
+                            </div>
                             
                             <div class="row g-3 mt-3">
-                                @if($oferta->empleador->sector)
+                                @if($oferta->empleador->empleador->sector)
                                 <div class="col-md-6">
                                     <div class="d-flex align-items-center">
                                         <i class="fas fa-industry text-secondary me-2"></i>
                                         <div>
                                             <small class="text-muted d-block">Sector</small>
-                                            <strong>{{ $oferta->empleador->sector }}</strong>
+                                            <strong>{{ $oferta->empleador->empleador->sector }}</strong>
                                         </div>
                                     </div>
                                 </div>
                                 @endif
 
-                                @if($oferta->empleador->sitio_web)
+                                @if($oferta->empleador->empleador->tamano_empresa)
+                                <div class="col-md-6">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fas fa-users text-info me-2"></i>
+                                        <div>
+                                            <small class="text-muted d-block">Tamaño de la empresa</small>
+                                            <strong>{{ $oferta->empleador->empleador->tamano_empresa }}</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                                @endif
+
+                                @if($oferta->empleador->empleador->sitio_web)
                                 <div class="col-md-6">
                                     <div class="d-flex align-items-center">
                                         <i class="fas fa-globe text-primary me-2"></i>
                                         <div>
                                             <small class="text-muted d-block">Sitio web</small>
-                                            <a href="{{ $oferta->empleador->sitio_web }}" target="_blank" class="text-decoration-none">
-                                                {{ $oferta->empleador->sitio_web }}
+                                            <a href="{{ $oferta->empleador->empleador->sitio_web }}" target="_blank" class="text-decoration-none">
+                                                {{ $oferta->empleador->empleador->sitio_web }}
                                             </a>
                                         </div>
                                     </div>
                                 </div>
                                 @endif
 
-                                @if($oferta->empleador->ubicacion)
+                                @if($oferta->empleador->empleador->ubicacion)
                                 <div class="col-md-6">
                                     <div class="d-flex align-items-center">
                                         <i class="fas fa-map-marked-alt text-danger me-2"></i>
                                         <div>
                                             <small class="text-muted d-block">Ubicación principal</small>
-                                            <strong>{{ $oferta->empleador->ubicacion }}</strong>
+                                            <strong>{{ $oferta->empleador->empleador->ubicacion }}</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                                @endif
+
+                                @if($oferta->empleador->empleador->linkedin_empresa)
+                                <div class="col-md-6">
+                                    <div class="d-flex align-items-center">
+                                        <i class="fab fa-linkedin text-primary me-2"></i>
+                                        <div>
+                                            <small class="text-muted d-block">LinkedIn</small>
+                                            <a href="{{ $oferta->empleador->empleador->linkedin_empresa }}" target="_blank" class="text-decoration-none">
+                                                Ver perfil
+                                            </a>
                                         </div>
                                     </div>
                                 </div>
                                 @endif
                             </div>
+
+                            @if($oferta->empleador->empleador->cultura_empresa)
+                            <div class="mt-4">
+                                <h6 class="mb-3"><i class="fas fa-heart me-2"></i>Cultura empresarial</h6>
+                                <p class="mb-0">{{ $oferta->empleador->empleador->cultura_empresa }}</p>
+                            </div>
+                            @endif
                         </div>
                     </div>
                 </div>

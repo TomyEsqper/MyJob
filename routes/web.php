@@ -55,6 +55,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/actualizar-habilidades', [EmpleadoController::class, 'actualizarHabilidades'])->name('actualizar-habilidades');
         Route::get('/aplicaciones', [EmpleadoController::class, 'aplicaciones'])->name('aplicaciones');
         Route::post('/aplicaciones/{oferta}', [EmpleadoController::class, 'aplicar'])->name('aplicar');
+        Route::get('/ofertas/{oferta}', [EmpleadoController::class, 'verOferta'])->name('ofertas.show');
         Route::get('/buscar', [EmpleadoController::class, 'buscar'])->name('buscar');
         Route::get('/cv', [EmpleadoController::class, 'cv'])->name('cv');
         Route::get('/notificaciones', [EmpleadoController::class, 'notificaciones'])->name('notificaciones');
@@ -80,6 +81,8 @@ Route::middleware(['auth'])->group(function () {
 
         // Rutas de candidatos
         Route::get('/candidatos', [EmpleadorController::class, 'candidatos'])->name('candidatos');
+        Route::get('/candidatos/{usuario}', [EmpleadorController::class, 'verCandidato'])->name('candidato.perfil');
+        Route::put('/aplicaciones/{aplicacion}', [EmpleadorController::class, 'actualizarAplicacion'])->name('aplicaciones.actualizar');
 
         // Rutas de estadísticas
         Route::get('/estadisticas', [EmpleadorController::class, 'estadisticas'])->name('estadisticas');
