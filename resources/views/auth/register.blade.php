@@ -7,6 +7,8 @@
     <link rel="stylesheet" media="all" href="{{ asset('css/loginRegistro.css') }}">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="login-url" content="{{ route('login') }}">
+    <meta name="google-redirect-url"
+          content="{{ route('google.redirect') }}">
     <script src="{{ asset('js/auth/register.js') }}" defer></script>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet"
@@ -21,10 +23,15 @@
             <h6>Regístrate para acceder a las oportunidades laborales.</h6>
 
             <!-- Botón de inicio de sesión con Google -->
-            <div style="display: flex; gap: 10px; margin-top: 5%; margin-bottom: 0%;">
-                <a href="{{ route('google.redirect') }}" class="google-btn">
+            <div style="display: flex; gap: 10px; margin-top: 5%;">
+                <a href="#"
+                   id="btn-google"
+                   data-base-url="{{ route('google.redirect') }}"
+                   class="google-btn">
                     <div class="google-icon-wrapper">
-                        <img class="google-icon" src="https://developers.google.com/identity/images/g-logo.png" alt="Google logo">
+                        <img class="google-icon"
+                             src="https://developers.google.com/identity/images/g-logo.png"
+                             alt="Google logo">
                     </div>
                     <span>Registrarme con Google</span>
                 </a>
@@ -34,10 +41,10 @@
         <!-- Selector para cambiar entre Empresa y Usuario -->
         <div class="role-toggle">
             <div class="btnContainer">
-                <button id="btn-empresa"><span>Empresa</span></button>
+                <button type="button" id="btn-empresa"><span>Empresa</span></button>
             </div>
             <div class="btnContainer">
-                <button id="btn-usuario" class="activo"><span>Usuario</span></button>
+                <button type="button" id="btn-usuario" class="activo"><span>Usuario</span></button>
             </div>
         </div>
 
@@ -48,6 +55,7 @@
 
                 <!-- Campo oculto para el rol -->
                 <input type="hidden" id="rol" name="rol" value="empleado">
+
 
                 <!-- Formulario de Usuario (visible al cargar) -->
                 <div id="inputs-usuario" class="inputs-usuario" style="display: block;">
