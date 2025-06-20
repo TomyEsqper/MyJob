@@ -126,15 +126,27 @@
                     <div class="col-md-4">
                         <div class="card">
                             <div class="card-body text-center">
-                                <img src="{{ Auth::user()->foto_perfil ?? asset('images/default-user.png') }}" class="rounded-circle mb-3" width="150" id="preview-foto">
+                                <div class="profile-photo-container">
+                                    <img src="{{ Auth::user()->foto_perfil ?? asset('images/default-user.png') }}" 
+                                         class="rounded-circle mb-3" 
+                                         width="150" 
+                                         height="150"
+                                         style="object-fit: cover;"
+                                         id="preview-foto"
+                                         alt="Foto de perfil">
+                                    <div class="profile-photo-overlay" onclick="document.getElementById('foto').click()">
+                                        <i class="fas fa-camera"></i>
+                                    </div>
+                                </div>
                                 <h5 class="card-title">{{ Auth::user()->nombre_usuario }}</h5>
                                 <p class="card-text text-muted">{{ Auth::user()->profesion ?? 'Profesión no especificada' }}</p>
                                 <form action="{{ route('empleado.actualizar-foto') }}" method="POST" enctype="multipart/form-data" id="foto-form">
                                     @csrf
                                     <input type="file" name="foto" id="foto" class="d-none" accept="image/*">
-                                    <button type="button" class="btn btn-primary btn-sm" onclick="document.getElementById('foto').click()">
-                                        <i class="fas fa-edit"></i> Editar Foto
-                                    </button>
+                                    <div class="mt-2 text-muted small">
+                                        <i class="fas fa-info-circle"></i>
+                                        Haz clic en la foto para cambiarla
+                                    </div>
                                 </form>
                             </div>
                         </div>
@@ -291,105 +303,103 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Manejo del formulario de información
-        const editInfoBtn = document.getElementById('edit-info-btn');
-        const cancelEditBtn = document.getElementById('cancel-edit-btn');
-        const formButtons = document.getElementById('form-buttons');
-        const infoForm = document.getElementById('info-form');
-        let formInputs = infoForm.querySelectorAll('input, textarea');
+        document.addEventListener('DOMContentLoaded', function() {
+            // Manejar la subida de foto de perfil
+            const fotoInput = document.getElementById('foto');
+            const fotoPreview = document.getElementById('preview-foto');
+            const fotoForm = document.getElementById('foto-form');
 
-        editInfoBtn.addEventListener('click', () => {
-            formInputs.forEach(input => input.removeAttribute('readonly'));
-            formButtons.classList.remove('d-none');
-            editInfoBtn.classList.add('d-none');
-        });
+            fotoInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    // Validar el tipo de archivo
+                    if (!file.type.startsWith('image/')) {
+                        alert('Por favor, selecciona un archivo de imagen válido.');
+                        return;
+                    }
 
-        cancelEditBtn.addEventListener('click', () => {
-            formInputs.forEach(input => input.setAttribute('readonly', true));
-            formButtons.classList.add('d-none');
-            editInfoBtn.classList.remove('d-none');
-        });
+                    // Validar el tamaño del archivo (máximo 2MB)
+                    if (file.size > 2 * 1024 * 1024) {
+                        alert('La imagen no debe superar los 2MB.');
+                        return;
+                    }
 
-        // Manejo de la foto de perfil
-        const fotoInput = document.getElementById('foto');
-        const fotoPreview = document.getElementById('preview-foto');
-        const fotoForm = document.getElementById('foto-form');
+                    // Mostrar previsualización
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        fotoPreview.src = e.target.result;
+                    }
+                    reader.readAsDataURL(file);
 
-        fotoInput.addEventListener('change', () => {
-            const file = fotoInput.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    fotoPreview.src = e.target.result;
+                    // Enviar el formulario automáticamente
+                    fotoForm.submit();
                 }
-                reader.readAsDataURL(file);
-                fotoForm.submit();
-            }
-        });
+            });
 
-        // Manejo del CV
-        const cvInput = document.getElementById('cv');
-        const cvForm = document.getElementById('cv-form');
+            // Manejar la subida de CV
+            const cvInput = document.getElementById('cv');
+            const cvForm = document.getElementById('cv-form');
 
-        cvInput.addEventListener('change', () => {
-            if (cvInput.files[0]) {
-                cvForm.submit();
-            }
-        });
+            cvInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    // Validar el tipo de archivo
+                    const allowedTypes = ['.pdf', '.doc', '.docx'];
+                    const fileExtension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'));
+                    if (!allowedTypes.includes(fileExtension)) {
+                        alert('Por favor, selecciona un archivo PDF o Word.');
+                        return;
+                    }
 
-        // Manejo de habilidades
-        const addHabilidadBtn = document.getElementById('add-habilidad-btn');
-        const habilidadesList = document.getElementById('habilidades-list');
-        const saveHabilidadesBtn = document.getElementById('save-habilidades-btn');
-        const habilidadesModal = document.getElementById('habilidadesModal');
-        const skillsContainer = document.getElementById('skills-container');
+                    // Validar el tamaño del archivo (máximo 10MB)
+                    if (file.size > 10 * 1024 * 1024) {
+                        alert('El CV no debe superar los 10MB.');
+                        return;
+                    }
 
-        addHabilidadBtn.addEventListener('click', () => {
-            const div = document.createElement('div');
-            div.className = 'input-group mb-2';
-            div.innerHTML = `
-                <input type="text" class="form-control" name="habilidades[]" placeholder="Nueva habilidad">
-                <button type="button" class="btn btn-danger remove-habilidad">
-                    <i class="fas fa-times"></i>
-                </button>
-            `;
-            habilidadesList.appendChild(div);
-        });
+                    // Enviar el formulario automáticamente
+                    cvForm.submit();
+                }
+            });
 
-        habilidadesList.addEventListener('click', (e) => {
-            if (e.target.closest('.remove-habilidad')) {
-                e.target.closest('.input-group').remove();
-            }
-        });
+            // Manejar la edición de información personal
+            const editInfoBtn = document.getElementById('edit-info-btn');
+            const cancelEditBtn = document.getElementById('cancel-edit-btn');
+            const formButtons = document.getElementById('form-buttons');
+            const infoForm = document.getElementById('info-form');
+            let originalFormData = new FormData(infoForm);
 
-        saveHabilidadesBtn.addEventListener('click', async () => {
-            const habilidades = Array.from(habilidadesList.querySelectorAll('input[name="habilidades[]"]'))
-                .map(input => input.value.trim())
-                .filter(value => value !== '');
+            editInfoBtn.addEventListener('click', function() {
+                // Habilitar todos los campos del formulario
+                infoForm.querySelectorAll('input, textarea').forEach(field => {
+                    field.removeAttribute('readonly');
+                });
+                
+                // Mostrar botones de guardar/cancelar
+                formButtons.classList.remove('d-none');
+                // Ocultar botón de editar
+                editInfoBtn.classList.add('d-none');
+            });
 
-            try {
-                const response = await fetch('{{ route("empleado.actualizar-habilidades") }}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                    },
-                    body: JSON.stringify({ habilidades })
+            cancelEditBtn.addEventListener('click', function() {
+                // Restaurar valores originales
+                for (let pair of originalFormData.entries()) {
+                    const field = infoForm.elements[pair[0]];
+                    if (field) {
+                        field.value = pair[1];
+                    }
+                }
+
+                // Deshabilitar campos
+                infoForm.querySelectorAll('input, textarea').forEach(field => {
+                    field.setAttribute('readonly', true);
                 });
 
-                const data = await response.json();
-
-                if (data.success) {
-                    skillsContainer.innerHTML = habilidades
-                        .map(habilidad => `<span class="badge bg-primary me-2 mb-2">${habilidad}</span>`)
-                        .join('');
-                    
-                    const modal = bootstrap.Modal.getInstance(habilidadesModal);
-                    modal.hide();
-                }
-            } catch (error) {
-                console.error('Error:', error);
-            }
+                // Ocultar botones de guardar/cancelar
+                formButtons.classList.add('d-none');
+                // Mostrar botón de editar
+                editInfoBtn.classList.remove('d-none');
+            });
         });
     </script>
 </body>

@@ -22,7 +22,17 @@ class OfertaController extends Controller
      */
     public function create()
     {
-        return view('empleador.ofertas.create');
+        $nivelesExperiencia = Oferta::getNivelesExperiencia();
+        $modalidadesTrabajo = Oferta::getModalidadesTrabajo();
+        $categorias = Oferta::getCategorias();
+        $beneficiosDisponibles = Oferta::getBeneficiosDisponibles();
+        
+        return view('empleador.ofertas.create', compact(
+            'nivelesExperiencia',
+            'modalidadesTrabajo',
+            'categorias',
+            'beneficiosDisponibles'
+        ));
     }
 
     /**
@@ -32,13 +42,20 @@ class OfertaController extends Controller
     {
         $request->validate([
             'titulo' => 'required|string|max:255',
-            'descripcion' => 'required|string',
-            'requisitos' => 'required|string',
+            'descripcion' => 'required|string|min:100',
+            'requisitos' => 'required|string|min:50',
             'salario' => 'nullable|numeric|min:0',
+            'salario_max' => 'nullable|numeric|min:0|gt:salario',
             'ubicacion' => 'required|string|max:255',
             'tipo_contrato' => 'required|string|max:255',
             'jornada' => 'required|string|max:255',
             'estado' => 'required|in:activa,inactiva',
+            'nivel_experiencia' => 'required|string|in:' . implode(',', array_keys(Oferta::getNivelesExperiencia())),
+            'categoria' => 'required|string|in:' . implode(',', array_keys(Oferta::getCategorias())),
+            'beneficios' => 'nullable|array',
+            'beneficios.*' => 'in:' . implode(',', array_keys(Oferta::getBeneficiosDisponibles())),
+            'modalidad_trabajo' => 'required|string|in:' . implode(',', array_keys(Oferta::getModalidadesTrabajo())),
+            'fecha_limite' => 'nullable|date|after:today'
         ]);
 
         $oferta = new Oferta($request->all());
@@ -68,7 +85,19 @@ class OfertaController extends Controller
         if ($oferta->empleador_id !== Auth::id()) {
             abort(403);
         }
-        return view('empleador.ofertas.edit', compact('oferta'));
+
+        $nivelesExperiencia = Oferta::getNivelesExperiencia();
+        $modalidadesTrabajo = Oferta::getModalidadesTrabajo();
+        $categorias = Oferta::getCategorias();
+        $beneficiosDisponibles = Oferta::getBeneficiosDisponibles();
+        
+        return view('empleador.ofertas.edit', compact(
+            'oferta',
+            'nivelesExperiencia',
+            'modalidadesTrabajo',
+            'categorias',
+            'beneficiosDisponibles'
+        ));
     }
 
     /**
@@ -82,13 +111,20 @@ class OfertaController extends Controller
 
         $request->validate([
             'titulo' => 'required|string|max:255',
-            'descripcion' => 'required|string',
-            'requisitos' => 'required|string',
+            'descripcion' => 'required|string|min:100',
+            'requisitos' => 'required|string|min:50',
             'salario' => 'nullable|numeric|min:0',
+            'salario_max' => 'nullable|numeric|min:0|gt:salario',
             'ubicacion' => 'required|string|max:255',
             'tipo_contrato' => 'required|string|max:255',
             'jornada' => 'required|string|max:255',
             'estado' => 'required|in:activa,inactiva',
+            'nivel_experiencia' => 'required|string|in:' . implode(',', array_keys(Oferta::getNivelesExperiencia())),
+            'categoria' => 'required|string|in:' . implode(',', array_keys(Oferta::getCategorias())),
+            'beneficios' => 'nullable|array',
+            'beneficios.*' => 'in:' . implode(',', array_keys(Oferta::getBeneficiosDisponibles())),
+            'modalidad_trabajo' => 'required|string|in:' . implode(',', array_keys(Oferta::getModalidadesTrabajo())),
+            'fecha_limite' => 'nullable|date|after:today'
         ]);
 
         $oferta->update($request->all());

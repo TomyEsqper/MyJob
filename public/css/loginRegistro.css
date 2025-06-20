@@ -1,196 +1,345 @@
+/* ================================
+   RESPONSIVE LAYOUT & ANIMATIONS
+   (Login & Register pages)
+   ================================ */
+
+/* Ensure full height background on right column */
+html, body {
+    height: 100%;
+}
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: stretch;
+    min-height: 100vh;
+}
+.col-md-5 {
+    background-color: #f8f9fa; /* match inline bg-light */
+}
+
+/* Personaje 3D centrado y escalable */
 .mujer-3d {
-  display: block;
-  animation: flotar 3s ease-in-out infinite;
-  width: 30rem;
-  height: auto;
+    display: block;
+    animation: flotar 3s ease-in-out infinite;
+    width: 100%;
+    max-width: 30rem;
+    height: auto;
+    margin: 0 auto;
 }
-
-/* Animación de flotación */
 @keyframes flotar {
-  0% {
-      transform: translateY(0);
-  }
-  50% {
-      transform: translateY(-10px);
-  }
-  100% {
-      transform: translateY(0);
-  }
+    0%   { transform: translateY(0); }
+    50%  { transform: translateY(-1rem); }
+    100% { transform: translateY(0); }
 }
 
-.selector {
-    display: flex;
-    width: 90%;            /* ocupa 90% del ancho de la pantalla */
-    max-width: 500px;      /* pero no pase de 500px */
-    height: 80px;          /* altura fija para control */
+/* ================================
+   LOGIN GRID & RESPONSIVE TWEAKS
+   ================================ */
+.col-md-7, .col-md-5 {
+    box-sizing: border-box;
+    padding: 1rem;
+}
+@media (max-width: 768px) {
+    .row {
+        flex-direction: column-reverse;
+    }
+    .col-md-7, .col-md-5 {
+        width: 100%;
+        padding: 0.5rem;
+    }
+    .container-der-login-formulario {
+        padding: 0 1rem;
+    }
+    .label {
+        width: 100%;
+    }
+    .cta {
+        margin: 2rem auto;
+    }
+    .enlaces-etiqueta-a {
+        display: block;
+        margin-top: 1rem;
+    }
 }
 
-.selector button {
-    width: 50%;            /* cada uno toma la mitad */
-    border: none;
-    background: #3EA055;
-    color: white;
-    cursor: pointer;
-    font-size: 1rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background-color 0.3s, box-shadow 0.3s;
-    padding: 0;            /* sin padding extra */
-}
-
-/* Trapecio izquierdo */
-#btn-empresa {
-    clip-path: polygon(10% 0%, 100% 0%, 85% 100%, 0% 100%);
-}
-/* Trapecio derecho */
-#btn-usuario {
-    clip-path: polygon(0% 0%, 90% 0%, 100% 100%, 15% 100%);
-}
-
-/* Hover */
-.selector button:hover {
-    background: #91dfa4;
-}
-
-/* Activo */
-.selector button.active {
-    background: #258d19;
-    box-shadow: inset 0 0 8px rgba(0,0,0,0.2);
-}
-
-/* Estado activo (seleccionado) */
-.btn-trap.active {
-    background-color: #258d19;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-}
-
-
-button.activo {
-    background-color: #4ea93b;
-    color: #fff;
-}
-.click-btn {
-    display: flex;
-    width: 120px;
-    height: 40px;
-    justify-content: center;
-    align-items: center;
-    margin: 0.5rem;
-    line-height: 35px;
-    border: 1px solid;
-    border-radius: 5px;
-    text-align: center;
-    font-size: 16px;
-    color: #000;
-    text-decoration: none;
-    transition: all 0.35s;
+/* ================================
+   ROLE SELECTOR (Empresa / Usuario)
+   ================================ */
+.role-toggle {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+    gap: 1rem;
+    width: 90%;
+    max-width: 40rem;
+    margin: 6% auto;
     box-sizing: border-box;
 }
-
-
-.btn-iconos{
-  display: block;
-  border-radius: 3rem;
-  border-color: dimgrey;
-  margin-right: 3%;
-  padding: 2%;
+.btnContainer {
+    background: #e0e0e0;
+    box-shadow: 0.375rem 0.375rem 1rem #bebebe,
+    -0.375rem -0.375rem 1rem #ffffff9a;
+    border-radius: 1rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    height: 4rem;
+    margin: 0.3rem;
+}
+.btnContainer button {
+    background: #e0e0e0;
+    font-size: 1rem;
+    font-weight: 600;
+    width: 95%;
+    height: 85%;
+    border: none;
+    border-radius: 0.875rem;
+    transition: all 0.25s ease-in-out;
+    cursor: pointer;
+    outline: none;
+}
+.btnContainer button:hover {
+    box-shadow: inset 0.3125rem 0.3125rem 0.25rem #c0c0c0,
+    inset -0.3125rem -0.3125rem 0.25rem #dddddd;
+    font-weight: 400;
+    color: #333;
+}
+.btnContainer button.activo {
+    box-shadow: inset 0.3125rem 0.3125rem 0.5rem rgba(0,0,0,0.2);
 }
 
-.btn-iconos:hover{
-  background-color: #91dfa4;
-  color: white;
-  transition: all 0.3s ease-in-out;
+/* ================================
+   INPUTS (Login & Register forms)
+   ================================ */
+.container {
+    width: 100%;
+    padding: 0 1rem;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.label {
+    position: relative;
+    width: 100%;
+    margin: 1rem 0;
+    display: flex;
+    align-items: center;
+    border: 0.125rem solid #c5c5c5;
+    border-radius: 0.375rem;
+    padding: 1rem 0.625rem;
+    box-sizing: border-box;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+.label .input {
+    flex: 1;
+    background-color: transparent;
+    border: none;
+    outline: none;
+    color: #000;
+    font-size: 1rem;
+    padding-right: 2.5rem;
+    box-sizing: border-box;
+    transition: background-color 0.3s ease;
+}
+.label .icon {
+    position: absolute;
+    top: 50%;
+    right: 0.75rem;
+    transform: translateY(-50%);
+    transition: color 0.3s ease, transform 0.6s ease-in-out;
+    color: #373737;
+    pointer-events: none;
+}
+.label:focus-within {
+    border-color: #3EA055;
+    box-shadow: 0 0 0.5rem rgba(62,160,85,0.3);
+}
+@keyframes icon-spin {
+    from { transform: translateY(-50%) rotate(0deg); }
+    to   { transform: translateY(-50%) rotate(360deg); }
+}
+.label:focus-within .icon {
+    color: #3EA055;
+    animation: icon-spin 0.6s ease-in-out;
+}
+.label:hover {
+    border-color: #4ea93b;
 }
 
-.btn-iconos:active{
-  transform: scale(0.9);
-  transition: all 0.3s ease-in-out;
+/* ================================
+   INLINE PASSWORDS
+   ================================ */
+/* Botón inline para toggle de contraseña */
+.toggle-password {
+    background: none;
+    border: none;
+    color: #3EA055;
+    font-weight: 600;
+    margin-left: 0.5rem;
+    cursor: pointer;
+    padding: 0;
+    font-size: 0.9rem;
+}
+.toggle-password:focus {
+    outline: none;
 }
 
 
-.enlaces-etiqueta-a{
-  color: #3EA055;
+/* Wrapper that expands when focused */
+.password-field {
+    width: 100%;
+    margin-bottom: 1rem;
 }
+/* Normalized rules container below input */
+.password-rules {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease;
+    margin-top: 0.5rem;
+}
+/* Expand container on focus */
+.password-field.focused .password-rules {
+    max-height: 200px; /* sufficiently large */
+}
+.rule {
+    flex: 1 1 calc(33% - 0.5rem);
+    padding: 0.5rem 1rem;
+    border-radius: 999px;
+    background: #f8d7da;
+    color: #721c24;
+    font-size: 0.875rem;
+    text-align: center;
+    transition: background 0.3s ease, color 0.3s ease;
+}
+.rule.valid {
+    background: #d4edda;
+    color: #155724;
+}
+/* ================================
+   PRIMARY CTA BUTTON
+   ================================ */
 .cta {
-  position: relative;
-  margin: auto;
-  padding: 19px 22px;
-  transition: all 0.2s ease;
+    position: relative;
+    margin: 1rem auto;
+    padding: 1.1875rem 1.375rem;
+    transition: all 0.2s ease;
+    max-width: 12rem;
 }
 .cta:before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  display: block;
-  border-radius: 28px;
-  background-color: #6AA121;
-  width: 56px;
-  height: 56px;
-  transition: all 0.3s ease;
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    border-radius: 1.75rem;
+    background-color: #6AA121;
+    width: 3.5rem;
+    height: 3.5rem;
+    transition: all 0.3s ease;
 }
 .cta span {
-  position: relative;
-  font-size: 16px;
-  line-height: 18px;
-  font-weight: 900;
-  letter-spacing: 0.25em;
-  text-transform: uppercase;
-  vertical-align: middle;
+    position: relative;
+    font-size: 1rem;
+    line-height: 1.125rem;
+    font-weight: 900;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    vertical-align: middle;
 }
-
 .cta svg {
-  position: relative;
-  top: 0;
-  margin-left: 10px;
-  fill: none;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  stroke: #111;
-  stroke-width: 2;
-  transform: translateX(-5px);
-  transition: all 0.3s ease;
+    position: relative;
+    top: 0;
+    margin-left: 0.625rem;
+    fill: none;
+    stroke: #111;
+    stroke-width: 0.125rem;
+    transform: translateX(-0.3125rem);
+    transition: all 0.3s ease;
 }
 .cta:hover:before {
-  width: 100%;
-  background: #3EA055;
+    width: 100%;
+    background: #3EA055;
 }
-
 .cta:hover svg {
-  transform: translateX(0);
+    transform: translateX(0);
 }
 .cta:active {
-  transform: scale(0.96);
+    transform: scale(0.96);
 }
 
+/* ================================
+   GOOGLE SIGN-IN BUTTON
+   ================================ */
 .google-btn {
     display: inline-flex;
     align-items: center;
-    background-color: #ffffff;
+    background-color: #fff;
     color: #757575;
-    border: 1px solid #dcdcdc;
-    border-radius: 4px;
+    border: 0.0625rem solid #dcdcdc;
+    border-radius: 0.25rem;
     font-family: 'Roboto', sans-serif;
-    font-size: 14px;
+    font-size: 0.875rem;
     text-decoration: none;
-    padding: 10px 15px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 0.625rem 0.9375rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.1);
     transition: background-color 0.3s, box-shadow 0.3s;
+    margin: 1rem auto;
 }
-
 .google-btn:hover {
     background-color: #f7f7f7;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+    box-shadow: 0 0.25rem 0.375rem rgba(0,0,0,0.15);
 }
-
 .google-icon-wrapper {
-    width: 18px;
-    height: 18px;
-    margin-right: 10px;
+    width: 1.125rem;
+    height: 1.125rem;
+    margin-right: 0.625rem;
 }
-
 .google-icon {
     width: 100%;
     height: 100%;
+}
+
+/* ================================
+   LINKS
+   ================================ */
+.enlaces-etiqueta-a {
+    color: #3EA055;
+}
+
+/* ================================
+   GLOBAL RESPONSIVE ADJUSTMENTS
+   ================================ */
+@media (max-width: 768px) {
+    .role-toggle {
+        gap: 0.5rem;
+        margin: 4% auto;
+    }
+    .btnContainer {
+        height: 3.5rem;
+    }
+    .btnContainer button {
+        font-size: 0.9rem;
+    }
+    .inputs-empresa-inline,
+    .inputs-usuario-inline {
+        grid-template-columns: 1fr;
+    }
+}
+@media (max-width: 480px) {
+    .mujer-3d {
+        max-width: 20rem;
+    }
+    .role-toggle {
+        grid-template-columns: 1fr;
+        width: 100%;
+    }
+    .btnContainer {
+        height: 3rem;
+    }
+    .btnContainer button {
+        font-size: 0.8rem;
+    }
 }

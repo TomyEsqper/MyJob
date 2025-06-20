@@ -5,50 +5,91 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 
+/**
+ * Controlador de autenticación (Login) con mensajes de validación personalizados.
+ *
+ * @package App\Http\Controllers\Auth
+ */
 class LoginController extends Controller
 {
+    /**
+     * Muestra el formulario de inicio de sesión.
+     *
+     * @return \Illuminate\View\View
+     */
     public function showLoginForm()
     {
         return view('auth.login');
     }
+
+    /**
+     * Autentica al usuario con las credenciales proporcionadas.
+     *
+     * Valida los campos y muestra mensajes claros en español.
+     * Si las credenciales son válidas, redirige según el rol.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function login(Request $request)
     {
+        // Mensajes de validación personalizados
+        $messages = [
+            'correo_electronico.required' => 'El correo electrónico es obligatorio.',
+            'correo_electronico.email'    => 'Debes ingresar una dirección de correo válida.',
+            'password.required'           => 'La contraseña es obligatoria.',
+        ];
+
+        // Validar inputs con overrides
         $credentials = $request->validate([
             'correo_electronico' => ['required', 'email'],
-            'password' => ['required'],
-        ]);
+            'password'           => ['required'],
+        ], $messages);
 
-        if (Auth::attempt(['correo_electronico' => $credentials['correo_electronico'], 'password' => $credentials['password']])) {
+        // Intentar autenticación
+        if (Auth::attempt([
+            'correo_electronico' => $credentials['correo_electronico'],
+            'password'          => $credentials['password'],
+        ])) {
             $request->session()->regenerate();
-
             $user = Auth::user();
-            if ($user->rol === 'admin') {
-                return redirect()->intended('/admin/dashboard');
-            } elseif ($user->rol === 'empleado') {
-                return redirect()->intended('/empleado/dashboard');
-            } elseif ($user->rol === 'empleador') {
-                return redirect()->intended('/empleador/dashboard');
-            }else{
-                return redirect()->intended('/');
+
+            // Redirigir según rol
+            switch ($user->rol) {
+                case 'admin':
+                    return redirect()->intended('/admin/dashboard');
+                case 'empleado':
+                    return redirect()->intended('/empleado/dashboard');
+                case 'empleador':
+                    return redirect()->intended('/empleador/dashboard');
+                default:
+                    return redirect()->intended('/');
             }
         }
 
-        return back()->withErrors([
-            'correo_electronico' => 'Las credenciales proporcionadas son incorrectas.',
-        ])->onlyInput('correo_electronico');
+        // Credenciales incorrectas
+        return back()
+            ->withErrors(['correo_electronico' => 'Las credenciales proporcionadas son incorrectas.'])
+            ->onlyInput('correo_electronico');
     }
 
+    /**
+     * Inicia sesión mediante Google.
+     *
+     * Valida el JWT de Google y autentica al usuario.
+     *
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function googleLogin(Request $request)
     {
         $credential = $request->input('credential');
-        // Aquí validas el JWT con el cliente Google,
-        // extraes email, creas/obtienes usuario y haces Auth::login($user)
-        // Luego rediriges igual que en login():
+        // Aquí valida JWT, crea/obtiene usuario y hace Auth::login($user)
         return response()->json([
             'message' => '¡Bienvenido con Google!',
-            'rol' => Auth::user()->rol
+            'rol'     => Auth::user()->rol,
         ]);
     }
-
 }

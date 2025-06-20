@@ -118,7 +118,7 @@
                                     <i class="fas fa-briefcase"></i>
                                 </div>
                                 <div class="content">
-                                    <h3 class="mb-1 fw-bold">{{ count($ofertas) }}</h3>
+                                    <h3 class="mb-1 fw-bold">{{ $totalOfertas }}</h3>
                                     <p class="mb-0 text-muted">Ofertas Activas</p>
                                 </div>
                             </div>
@@ -131,7 +131,7 @@
                                     <i class="fas fa-users"></i>
                                 </div>
                                 <div class="content">
-                                    <h3 class="mb-1 fw-bold">124</h3>
+                                    <h3 class="mb-1 fw-bold">{{ $totalCandidatos }}</h3>
                                     <p class="mb-0 text-muted">Candidatos Totales</p>
                                 </div>
                             </div>
@@ -144,7 +144,7 @@
                                     <i class="fas fa-eye"></i>
                                 </div>
                                 <div class="content">
-                                    <h3 class="mb-1 fw-bold">1,458</h3>
+                                    <h3 class="mb-1 fw-bold">{{ $totalVistas }}</h3>
                                     <p class="mb-0 text-muted">Vistas de Ofertas</p>
                                 </div>
                             </div>
@@ -157,7 +157,7 @@
                                     <i class="fas fa-handshake"></i>
                                 </div>
                                 <div class="content">
-                                    <h3 class="mb-1 fw-bold">12</h3>
+                                    <h3 class="mb-1 fw-bold">{{ $totalContrataciones }}</h3>
                                     <p class="mb-0 text-muted">Contrataciones</p>
                                 </div>
                             </div>
@@ -172,48 +172,92 @@
                         <div class="card h-100 border-0 shadow-sm rounded">
                             <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
                                 <h5 class="mb-0 fw-bold"><i class="fas fa-users me-2 text-primary"></i>Candidatos Recientes</h5>
-                                <a href="#" class="btn btn-sm btn-outline-primary rounded-pill px-3">Ver Todos</a>
+                                <a href="{{ route('empleador.candidatos') }}" class="btn btn-sm btn-outline-primary rounded-pill px-3">Ver Todos</a>
                             </div>
                             <div class="card-body p-0">
-                                <div class="user-card d-flex align-items-center p-3 border-bottom">
-                                    <div class="user-avatar bg-light rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
-                                        <i class="fas fa-user text-primary"></i>
+                                @forelse($aplicacionesRecientes as $aplicacion)
+                                    <div class="user-card d-flex align-items-center p-3 border-bottom">
+                                        <div class="user-avatar me-3">
+                                            @if($aplicacion->empleado->foto_perfil)
+                                                <img src="{{ asset($aplicacion->empleado->foto_perfil) }}" 
+                                                     class="rounded-circle" width="50" height="50"
+                                                     style="object-fit: cover;">
+                                            @else
+                                                <div class="bg-light rounded-circle d-flex align-items-center justify-content-center" 
+                                                     style="width: 50px; height: 50px;">
+                                                    <i class="fas fa-user text-primary"></i>
+                                                </div>
+                                            @endif
+                                        </div>
+                                        <div class="user-info flex-grow-1">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <h6 class="mb-0">{{ $aplicacion->empleado->nombre_usuario }}</h6>
+                                                <span class="badge bg-{{ $aplicacion->estado === 'pendiente' ? 'warning' : ($aplicacion->estado === 'aceptada' ? 'success' : 'danger') }}">
+                                                    {{ ucfirst($aplicacion->estado) }}
+                                                </span>
+                                            </div>
+                                            <p class="mb-0 text-muted small">
+                                                <i class="fas fa-briefcase me-1"></i>
+                                                Aplicó a: {{ $aplicacion->oferta->titulo }}
+                                                <span class="mx-2">•</span>
+                                                <i class="fas fa-clock me-1"></i>
+                                                {{ $aplicacion->created_at->diffForHumans() }}
+                                            </p>
+                                        </div>
+                                        <div class="user-actions">
+                                            <div class="btn-group">
+                                                <a href="{{ route('empleador.candidato.perfil', $aplicacion->empleado->id_usuario) }}" 
+                                                   class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-eye me-1"></i>Ver Perfil
+                                                </a>
+                                                <button type="button" 
+                                                        class="btn btn-sm btn-outline-primary dropdown-toggle dropdown-toggle-split" 
+                                                        data-bs-toggle="dropdown">
+                                                </button>
+                                                <ul class="dropdown-menu dropdown-menu-end">
+                                                    @if($aplicacion->empleado->cv_path)
+                                                        <li>
+                                                            <a class="dropdown-item" href="{{ asset($aplicacion->empleado->cv_path) }}" target="_blank">
+                                                                <i class="fas fa-file-pdf me-1"></i> Ver CV
+                                                            </a>
+                                                        </li>
+                                                    @endif
+                                                    <li>
+                                                        <a class="dropdown-item" href="mailto:{{ $aplicacion->empleado->correo_electronico }}">
+                                                            <i class="fas fa-envelope me-1"></i> Contactar
+                                                        </a>
+                                                    </li>
+                                                    <li><hr class="dropdown-divider"></li>
+                                                    <li>
+                                                        <form action="{{ route('empleador.aplicaciones.actualizar', $aplicacion->id) }}" method="POST">
+                                                            @csrf
+                                                            @method('PUT')
+                                                            <input type="hidden" name="estado" value="aceptada">
+                                                            <button type="submit" class="dropdown-item text-success">
+                                                                <i class="fas fa-check me-1"></i> Aceptar
+                                                            </button>
+                                                        </form>
+                                                    </li>
+                                                    <li>
+                                                        <form action="{{ route('empleador.aplicaciones.actualizar', $aplicacion->id) }}" method="POST">
+                                                            @csrf
+                                                            @method('PUT')
+                                                            <input type="hidden" name="estado" value="rechazada">
+                                                            <button type="submit" class="dropdown-item text-danger">
+                                                                <i class="fas fa-times me-1"></i> Rechazar
+                                                            </button>
+                                                        </form>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="user-info flex-grow-1">
-                                        <h5 class="mb-1 fw-medium">Juan Pérez</h5>
-                                        <p class="mb-0 text-muted small"><i class="fas fa-code me-1"></i>Desarrollador Frontend • <i class="fas fa-briefcase me-1 text-success"></i>5 años exp. • <i class="fas fa-map-marker-alt me-1"></i>Madrid</p>
+                                @empty
+                                    <div class="p-4 text-center text-muted">
+                                        <i class="fas fa-users fa-3x mb-3 text-light"></i>
+                                        <p class="mb-0">No hay candidatos recientes.</p>
                                     </div>
-                                    <div class="user-actions">
-                                        <button class="btn btn-sm btn-outline-primary me-2 rounded-pill"><i class="fas fa-file-alt me-1"></i>Ver CV</button>
-                                        <button class="btn btn-sm btn-primary rounded-pill"><i class="fas fa-envelope me-1"></i>Contactar</button>
-                                    </div>
-                                </div>
-                                <div class="user-card d-flex align-items-center p-3 border-bottom">
-                                    <div class="user-avatar bg-light rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
-                                        <i class="fas fa-user text-primary"></i>
-                                    </div>
-                                    <div class="user-info flex-grow-1">
-                                        <h5 class="mb-1 fw-medium">María García</h5>
-                                        <p class="mb-0 text-muted small"><i class="fas fa-paint-brush me-1"></i>Diseñadora UX/UI • <i class="fas fa-briefcase me-1 text-success"></i>3 años exp. • <i class="fas fa-map-marker-alt me-1"></i>Barcelona</p>
-                                    </div>
-                                    <div class="user-actions">
-                                        <button class="btn btn-sm btn-outline-primary me-2 rounded-pill"><i class="fas fa-file-alt me-1"></i>Ver CV</button>
-                                        <button class="btn btn-sm btn-primary rounded-pill"><i class="fas fa-envelope me-1"></i>Contactar</button>
-                                    </div>
-                                </div>
-                                <div class="user-card d-flex align-items-center p-3">
-                                    <div class="user-avatar bg-light rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
-                                        <i class="fas fa-user text-primary"></i>
-                                    </div>
-                                    <div class="user-info flex-grow-1">
-                                        <h5 class="mb-1 fw-medium">Carlos Rodríguez</h5>
-                                        <p class="mb-0 text-muted small"><i class="fas fa-laptop-code me-1"></i>Desarrollador Full Stack • <i class="fas fa-briefcase me-1 text-success"></i>7 años exp. • <i class="fas fa-globe me-1"></i>Remoto</p>
-                                    </div>
-                                    <div class="user-actions">
-                                        <button class="btn btn-sm btn-outline-primary me-2 rounded-pill"><i class="fas fa-file-alt me-1"></i>Ver CV</button>
-                                        <button class="btn btn-sm btn-primary rounded-pill"><i class="fas fa-envelope me-1"></i>Contactar</button>
-                                    </div>
-                                </div>
+                                @endforelse
                             </div>
                         </div>
                     </div>

@@ -8,6 +8,10 @@ use Illuminate\Support\Facades\Auth;
 use App\Traits\UploadTrait;
 use App\Models\Usuario;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
+use Intervention\Image\Facades\Image;
+use App\Models\Aplicacion;
 
 class EmpleadoController extends Controller
 {
@@ -15,8 +19,34 @@ class EmpleadoController extends Controller
 
     public function dashboard()
     {
-        $ofertas = Oferta::all(); // Obtiene todas las ofertas disponibles
-        return view('empleado.dashboard', compact('ofertas'));
+        $usuario = Auth::user();
+        
+        // Get statistics
+        $aplicacionesEnviadas = $usuario->aplicaciones()->count();
+        $vistasPerfilCount = 45; // TODO: Implement profile views tracking
+        $entrevistasCount = $usuario->aplicaciones()->where('estado', 'aceptada')->count();
+        
+        // Get recent applications
+        $aplicacionesRecientes = $usuario->aplicaciones()
+            ->with(['oferta.empleador'])
+            ->orderBy('created_at', 'desc')
+            ->take(5)
+            ->get();
+
+        // Get available job offers
+        $ofertas = Oferta::with(['empleador.empleador'])
+            ->where('estado', 'activa')
+            ->orderBy('created_at', 'desc')
+            ->take(5)
+            ->get();
+
+        return view('empleado.dashboard', compact(
+            'aplicacionesEnviadas',
+            'vistasPerfilCount',
+            'entrevistasCount',
+            'aplicacionesRecientes',
+            'ofertas'
+        ));
     }
 
     public function perfil()
@@ -45,25 +75,101 @@ class EmpleadoController extends Controller
 
     public function actualizarFoto(Request $request)
     {
-        $request->validate([
-            'foto' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048'
-        ]);
+        Log::info('Iniciando actualización de foto');
+        
+        try {
+            DB::beginTransaction();
+            
+            $request->validate([
+                'foto' => [
+                    'required',
+                    'image',
+                    'mimes:jpeg,png,jpg,gif',
+                    'max:2048',
+                    'dimensions:min_width=150,min_height=150,max_width=2000,max_height=2000'
+                ]
+            ], [
+                'foto.required' => 'Por favor, selecciona una foto.',
+                'foto.image' => 'El archivo debe ser una imagen.',
+                'foto.mimes' => 'La foto debe ser de tipo: jpeg, png, jpg o gif.',
+                'foto.max' => 'La foto no debe pesar más de 2MB.',
+                'foto.dimensions' => 'La foto debe tener un tamaño mínimo de 150x150 píxeles y máximo de 2000x2000 píxeles.'
+            ]);
 
-        $usuario = Auth::user();
+            Log::info('Validación pasada correctamente');
+            
+            $usuario = Auth::user();
+            Log::info('Usuario obtenido', [
+                'id' => $usuario->id_usuario,
+                'foto_actual' => $usuario->foto_perfil
+            ]);
 
-        if ($request->hasFile('foto')) {
-            // Eliminar foto anterior si existe
-            if ($usuario->foto_perfil) {
-                Storage::delete('public/fotos/' . basename($usuario->foto_perfil));
+            if ($request->hasFile('foto')) {
+                $file = $request->file('foto');
+                
+                Log::info('Archivo de foto recibido', [
+                    'nombre_original' => $file->getClientOriginalName(),
+                    'mime_type' => $file->getMimeType(),
+                    'tamaño' => $file->getSize()
+                ]);
+                
+                // Eliminar foto anterior si existe
+                if ($usuario->foto_perfil) {
+                    $oldPath = str_replace('/storage/', 'public/', $usuario->foto_perfil);
+                    Log::info('Intentando eliminar foto anterior', ['path' => $oldPath]);
+                    if (Storage::exists($oldPath)) {
+                        Storage::delete($oldPath);
+                        Log::info('Foto anterior eliminada correctamente');
+                    } else {
+                        Log::warning('No se encontró la foto anterior para eliminar');
+                    }
+                }
+
+                // Guardar nueva foto
+                $fileName = time() . '_' . $file->getClientOriginalName();
+                Log::info('Intentando guardar nueva foto', ['fileName' => $fileName]);
+                
+                // Asegurarse de que el directorio existe
+                Storage::makeDirectory('public/fotos');
+                
+                $path = $file->storeAs('public/fotos', $fileName);
+                Log::info('Foto guardada', ['path' => $path]);
+                
+                if (!Storage::exists($path)) {
+                    throw new \Exception('El archivo no se guardó correctamente');
+                }
+                
+                // Actualizar la ruta en la base de datos
+                $usuario->foto_perfil = '/storage/' . str_replace('public/', '', $path);
+                Log::info('Actualizando ruta en base de datos', ['url' => $usuario->foto_perfil]);
+                
+                $saved = $usuario->save();
+                Log::info('Resultado del guardado', [
+                    'saved' => $saved,
+                    'usuario' => $usuario->toArray()
+                ]);
+
+                if (!$saved) {
+                    throw new \Exception('No se pudo guardar en la base de datos');
+                }
+
+                DB::commit();
+                Log::info('Transacción completada correctamente');
+
+                return redirect()->back()->with('success', 'Foto actualizada correctamente');
             }
 
-            // Guardar nueva foto
-            $path = $request->file('foto')->store('public/fotos');
-            $usuario->foto_perfil = Storage::url($path);
-            $usuario->save();
-        }
+            Log::warning('No se recibió archivo de foto');
+            return redirect()->back()->with('error', 'No se ha seleccionado ninguna foto');
 
-        return redirect()->back()->with('success', 'Foto actualizada correctamente');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error al procesar la foto', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return redirect()->back()->with('error', 'Error al procesar la foto: ' . $e->getMessage());
+        }
     }
 
     public function actualizarHabilidades(Request $request)
@@ -119,5 +225,37 @@ class EmpleadoController extends Controller
         ]);
 
         return redirect()->back()->with('success', 'Has aplicado exitosamente a la oferta.');
+    }
+
+    public function verOferta(Oferta $oferta)
+    {
+        // Cargar las relaciones necesarias
+        $oferta->load([
+            'empleador.empleador', // Cargar el usuario empleador y sus datos de empleador
+            'aplicaciones' => function ($query) {
+                $query->where('empleado_id', Auth::id());
+            }
+        ]);
+
+        return view('empleado.ofertas.show', compact('oferta'));
+    }
+
+    public function aplicaciones(Request $request)
+    {
+        $usuario = Auth::user();
+        
+        $query = $usuario->aplicaciones()
+            ->with(['oferta.empleador'])
+            ->orderBy('created_at', 'desc');
+            
+        // Filtrar por estado si se especifica
+        if ($request->filled('estado')) {
+            $query->where('estado', $request->estado);
+        }
+        
+        // Obtener las aplicaciones paginadas
+        $aplicaciones = $query->paginate(10);
+        
+        return view('empleado.aplicaciones', compact('aplicaciones'));
     }
 }
