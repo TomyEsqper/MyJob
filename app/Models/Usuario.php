@@ -75,4 +75,21 @@ class Usuario extends Authenticatable
     {
         return $this->hasMany(Aplicacion::class, 'empleado_id', 'id_usuario');
     }
+
+    /**
+     * Override para el sistema de reseteo de contraseña de Laravel
+     * Devuelve el correo personalizado.
+     */
+    public function getEmailForPasswordReset()
+    {
+        return $this->correo_electronico;
+    }
+
+    /**
+     * Historial de contraseñas del usuario
+     */
+    public function passwordHistories()
+    {
+        return $this->hasMany(\App\Models\UsuarioPasswordHistory::class, 'usuario_id', 'id_usuario');
+    }
 }
