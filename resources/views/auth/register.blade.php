@@ -13,7 +13,23 @@
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-DQvkBjpPgn7RC31MCQoOeC9TI2kdqa4+BSgNMNj8v77fdC77Kj5zpWFTJaaAoMbC" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        .help-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: #6c757d;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 14px;
+        }
+    </style>
 </head>
 <body>
 <div class="row">
@@ -23,7 +39,7 @@
             <h6>Regístrate para acceder a las oportunidades laborales.</h6>
 
             <!-- Botón de inicio de sesión con Google -->
-            <div style="display: flex; gap: 10px; margin-top: 5%;">
+            <div style="display: flex; align-items: center; gap: 10px; margin-top: 5%;">
                 <a href="#"
                    id="btn-google"
                    data-base-url="{{ route('google.redirect') }}"
@@ -35,6 +51,7 @@
                     </div>
                     <span>Registrarme con Google</span>
                 </a>
+                <span class="help-icon" data-bs-toggle="tooltip" data-bs-placement="top" title="Según la opción que elijas (Usuario o Empresa), se te asignará un rol en el sistema.">?</span>
             </div>
         </div>
 

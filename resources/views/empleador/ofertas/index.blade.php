@@ -1,5 +1,8 @@
 @extends('layouts.empleador')
 
+@section('page-title', 'Mis Ofertas de Trabajo')
+@section('page-description', 'Gestiona tus ofertas de trabajo publicadas')
+
 @section('content')
 <div class="container-fluid">
     <div class="d-flex justify-content-between align-items-center mb-4">

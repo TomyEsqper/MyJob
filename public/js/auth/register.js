@@ -2,6 +2,11 @@ const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute
 const loginUrl  = document.querySelector('meta[name="login-url"]').getAttribute('content');
 
 document.addEventListener('DOMContentLoaded', function () {
+    // Initialize tooltips
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
     const btnEmpresa     = document.getElementById('btn-empresa');
     const btnUsuario     = document.getElementById('btn-usuario');
     const inputsEmpresa  = document.getElementById('inputs-empresa');

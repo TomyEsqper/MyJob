@@ -1,4 +1,7 @@
-@extends('layouts.app')
+@extends('layouts.empleador')
+
+@section('page-title', 'Perfil del Candidato')
+@section('page-description', 'Revisa el perfil completo del candidato')
 
 @section('content')
 <div class="container-fluid">
