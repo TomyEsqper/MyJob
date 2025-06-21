@@ -56,7 +56,7 @@
                 <!-- Correo Electrónico -->
                 <label class="label">
                       <span class="icon">
-                        <!-- Heroicon “envelope” outline -->
+                        <!-- Heroicon envelope outline -->
                         <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round">
                           <path d="M3 8.5l9 6 9-6"/>
                           <path d="M21 6v12H3V6h18Z"/>
@@ -84,7 +84,7 @@
                             <polyline points="8 1 12 5 8 9"></polyline>
                         </svg>
                     </button>
-                    <p>¿Haz olvidado tu contraseña?<a href="#" class="enlaces-etiqueta-a" style="text-decoration: none;"> Haz click aquí</a></p>
+                    <p>¿Haz olvidado tu contraseña?<a href="{{ route('password.request') }}" class="enlaces-etiqueta-a" style="text-decoration: none;"> Haz click aquí</a></p>
                 </div>
             </form>
         </div>
