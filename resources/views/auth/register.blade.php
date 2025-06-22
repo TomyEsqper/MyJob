@@ -82,7 +82,7 @@
                                 <path stroke="currentColor" stroke-width="1.25" d="M7 17v1a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1a3 3 0 0 0-3-3h-4a3 3 0 0 0-3 3Zm8-9a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
                               </svg>
                             </span>
-                        <input type="text" class="input" name="name" id="name_usuario" placeholder="Ingrese su nombre" autocomplete="off" required/>
+                        <input type="text" class="input" name="name" id="name_usuario" placeholder="Ingrese su nombre" autocomplete="off" data-required="true" required/>
                     </label>
 
                     <label class="label">
@@ -92,7 +92,7 @@
                                 <path d="M21 6v12H3V6h18Z"/>
                               </svg>
                             </span>
-                        <input type="email" class="input" name="email" id="email_usuario" placeholder="Ingrese su correo electrónico" autocomplete="off" required/>
+                        <input type="email" class="input" name="email" id="email_usuario" placeholder="Ingrese su correo electrónico" autocomplete="off" data-required="true" required/>
                     </label>
 
                     <!-- Usuario Password Field -->
@@ -104,6 +104,7 @@
                                 name="password"
                                 class="input"
                                 placeholder="Ingrese su contraseña"
+                                data-required="true"
                                 required
                             />
                             <button
@@ -130,7 +131,7 @@
                                 <path d="M8 11V7a4 4 0 0 1 8 0v4"/>
                               </svg>
                             </span>
-                        <input type="password" class="input" id="password_confirmation_usuario" name="password_confirmation" placeholder="Repita su contraseña" required/>
+                        <input type="password" class="input" id="password_confirmation_usuario" name="password_confirmation" placeholder="Repita su contraseña" data-required="true" required/>
                     </label>
                 </div>
 
@@ -145,7 +146,7 @@
                                 <path d="M15 3v4"/>
                               </svg>
                             </span>
-                        <input type="text" id="name_empresa" name="nombre_empresa" class="input" placeholder="Ingrese el nombre de la empresa" required/>
+                        <input type="text" id="name_empresa" name="nombre_empresa" class="input" placeholder="Ingrese el nombre de la empresa" data-required="true" required/>
                     </label>
 
                     <label class="label">
@@ -156,7 +157,7 @@
                                 <circle cx="8" cy="12" r="2"/>
                               </svg>
                             </span>
-                        <input type="text" id="nit_empresa" name="nit" class="input" placeholder="Ingrese su NIT" required/>
+                        <input type="text" id="nit_empresa" name="nit" class="input" placeholder="Ingrese su NIT" data-required="true" required/>
                     </label>
 
                     <label class="label">
@@ -166,7 +167,7 @@
                                 <path d="M21 6v12H3V6h18Z"/>
                               </svg>
                             </span>
-                        <input type="email" id="correo_empresarial" name="correo_empresarial" class="input" placeholder="Ingrese el correo empresarial" required/>
+                        <input type="email" id="correo_empresarial" name="correo_empresarial" class="input" placeholder="Ingrese el correo empresarial" data-required="true" required/>
                         <!-- oculto para backend -->
                         <input type="hidden" id="email_empresa" name="email">
                     </label>
@@ -178,7 +179,7 @@
                                 <circle cx="12" cy="11" r="2"/>
                               </svg>
                             </span>
-                        <input type="text" id="direccion_empresa" name="direccion_empresa" class="input" placeholder="Ingrese la dirección de la empresa" required/>
+                        <input type="text" id="direccion_empresa" name="direccion_empresa" class="input" placeholder="Ingrese la dirección de la empresa" data-required="true" required/>
                     </label>
 
                     <label class="label">
@@ -200,7 +201,7 @@
                                          A2 2 0 0 1 22 16.92z"/>
                               </svg>
                             </span>
-                        <input type="text" id="telefono_contacto" name="telefono_contacto" class="input" placeholder="Ingrese el teléfono de contacto" required/>
+                        <input type="text" id="telefono_contacto" name="telefono_contacto" class="input" placeholder="Ingrese el teléfono de contacto" data-required="true" required/>
                     </label>
 
                     <div class="inputs-empresa-inline">
@@ -210,9 +211,10 @@
                                 <input
                                     type="password"
                                     id="password_empresa"
-                                    name="password"
+                                    name="password_empresa"
                                     class="input"
                                     placeholder="Ingrese su contraseña"
+                                    data-required="true"
                                     required
                                 />
                                 <button
@@ -238,7 +240,7 @@
                                       <path d="M8 11V7a4 4 0 0 1 8 0v4"/>
                                     </svg>
                                   </span>
-                            <input type="password" id="password_confirmation_empresa" name="password_confirmation" class="input" placeholder="Repita su contraseña" required/>
+                            <input type="password" id="password_confirmation_empresa" name="password_confirmation_empresa" class="input" placeholder="Repita su contraseña" data-required="true" required/>
                         </label>
                     </div>
                 </div>

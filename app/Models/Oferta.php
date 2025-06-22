@@ -14,6 +14,7 @@ class Oferta extends Model
         'titulo',
         'descripcion',
         'requisitos',
+        'responsabilidades',
         'salario',
         'salario_max',
         'ubicacion',

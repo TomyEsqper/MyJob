@@ -47,6 +47,15 @@ class Empleador extends Model
     ];
 
     /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'beneficios' => 'array',
+    ];
+
+    /**
      * Obtener el usuario que posee el empleador.
      *
      * Este método establece una relación inversa entre el modelo `Empleador`

@@ -41,7 +41,8 @@ class RegisterController extends Controller
         $rules = [
             'name'               => 'required_if:rol,empleado|string|max:255',
             'email'              => 'required|string|email|max:255|unique:usuarios,correo_electronico',
-            'password'           => 'required|string|min:8|confirmed',
+            'password'           => 'required_if:rol,empleado|string|min:8|confirmed',
+            'password_empresa'   => 'required_if:rol,empleador|string|min:8|confirmed',
             'rol'                => 'required|in:empleado,empleador',
             'nit'                => 'required_if:rol,empleador|string|max:255|unique:empleadores,nit',
             'nombre_empresa'     => 'required_if:rol,empleador|string|max:255|unique:empleadores,nombre_empresa',
@@ -60,9 +61,13 @@ class RegisterController extends Controller
             'email.email'                => 'El correo debe tener un formato válido.',
             'email.unique'               => 'Este correo ya está registrado.',
 
-            'password.required'          => 'La contraseña es obligatoria.',
+            'password.required_if'       => 'La contraseña es obligatoria para empleados.',
             'password.min'               => 'La contraseña debe tener al menos 8 caracteres.',
             'password.confirmed'         => 'La confirmación de la contraseña no coincide.',
+
+            'password_empresa.required_if' => 'La contraseña es obligatoria para empleadores.',
+            'password_empresa.min'         => 'La contraseña debe tener al menos 8 caracteres.',
+            'password_empresa.confirmed'   => 'La confirmación de la contraseña no coincide.',
 
             'rol.required'               => 'Debe seleccionar un rol.',
             'rol.in'                     => 'El rol seleccionado no es válido.',
@@ -104,11 +109,14 @@ class RegisterController extends Controller
             ? 'admin'
             : $request->rol;
 
+        // Determinar qué contraseña usar según el rol
+        $password = $rol === 'empleador' ? $request->password_empresa : $request->password;
+
         // Creación del registro en la tabla usuarios.
         $usuario = Usuario::create([
             'nombre_usuario'     => $rol === 'empleador' ? $request->nombre_empresa : $request->name,
             'correo_electronico' => $request->email,
-            'contrasena'         => Hash::make($request->password),
+            'contrasena'         => Hash::make($password),
             'rol'                => $rol,
         ]);
 

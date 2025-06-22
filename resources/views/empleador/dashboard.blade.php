@@ -101,7 +101,7 @@
                             </p>
                         </div>
                         <div class="user-actions">
-                            <a href="{{ route('empleador.candidatos.show', $aplicacion->empleado) }}" 
+                            <a href="{{ route('empleador.candidato.perfil', $aplicacion->empleado) }}"
                                class="btn btn-sm btn-outline-primary">
                                 <i class="fas fa-eye"></i>
                             </a>

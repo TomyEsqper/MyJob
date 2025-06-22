@@ -86,7 +86,7 @@ Route::middleware(['auth'])->group(function () {
 
         // Rutas de estadísticas
         Route::get('/estadisticas', [EmpleadorController::class, 'estadisticas'])->name('estadisticas');
-
+        
         // Rutas de notificaciones
         Route::get('/notificaciones', [EmpleadorController::class, 'notificaciones'])->name('notificaciones');
 

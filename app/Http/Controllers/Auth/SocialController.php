@@ -28,39 +28,36 @@ class SocialController extends Controller
     {
         $googleUser = Socialite::driver('google')->stateless()->user();
 
-        // 3) Recuperar el rol elegido, y luego limpiar la sesión
-        $rol = session('rol', 'empleado');
-        session()->forget('rol');
-
-        // 4) Crear o actualizar usuario, asignando el rol que recogimos
-        $user = Usuario::where('google_id', $googleUser->getId())
-            ->orWhere('correo_electronico', $googleUser->getEmail())
-            ->first();
+        // Verificar si el usuario ya existe
+        $user = Usuario::where('correo_electronico', $googleUser->getEmail())->first();
 
         if ($user) {
+            // El usuario ya existe, así que lo autenticamos
             $user->update([
-                'google_id'     => $googleUser->getId(),
-                'google_token'  => $googleUser->token,
-                'foto_perfil'   => $googleUser->getAvatar(),
-                'rol'           => $rol,            // <— Actualizar rol
+                'google_id' => $googleUser->getId(),
+                'google_token' => $googleUser->token,
             ]);
+            Auth::login($user, true);
         } else {
+            // El usuario no existe, es un nuevo registro
+            $rol = session('rol', 'empleado');
+            session()->forget('rol');
+
             $user = Usuario::create([
                 'nombre_usuario'     => $googleUser->getName() ?? Str::before($googleUser->getEmail(), '@'),
                 'correo_electronico' => $googleUser->getEmail(),
                 'contrasena'         => bcrypt(Str::random(16)),
-                'rol'                => $rol,        // <— Usar el rol de sesión
-                'activo'             => false,
-                'token_activacion'   => Str::random(60),
+                'rol'                => $rol,
+                'activo'             => true,
                 'google_id'          => $googleUser->getId(),
                 'google_token'       => $googleUser->token,
                 'foto_perfil'        => $googleUser->getAvatar(),
             ]);
+            
+            Auth::login($user, true);
         }
 
-        Auth::login($user, true);
-
-        // 5) Redirección según rol
+        // Redirección unificada según el rol del usuario
         if ($user->rol === 'admin') {
             return redirect()->intended('/admin/dashboard');
         } elseif ($user->rol === 'empleado') {

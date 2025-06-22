@@ -107,18 +107,18 @@
         <div class="card-body">
             <div class="row">
                 <div class="col-md-6 mb-3">
-                    <label for="salario" class="form-label">Salario mínimo *</label>
+                    <label for="salario" class="form-label">Salario mínimo</label>
                     <div class="input-group has-validation">
                         <span class="input-group-text"><i class="fas fa-euro-sign"></i></span>
-                        <input type="number" class="form-control" id="salario" name="salario" value="{{ old('salario') }}" placeholder="Salario mínimo anual" step="0.01" min="0" max="99999999.99" required>
+                        <input type="number" class="form-control" id="salario" name="salario" value="{{ old('salario') }}" placeholder="Salario mínimo anual" step="0.01" min="0" max="99999999.99">
                         <div class="invalid-feedback" id="salario-error"></div>
                     </div>
                 </div>
                 <div class="col-md-6 mb-3">
-                    <label for="salario_max" class="form-label">Salario máximo *</label>
+                    <label for="salario_max" class="form-label">Salario máximo</label>
                     <div class="input-group has-validation">
                         <span class="input-group-text"><i class="fas fa-euro-sign"></i></span>
-                        <input type="number" class="form-control" id="salario_max" name="salario_max" value="{{ old('salario_max') }}" placeholder="Salario máximo anual" step="0.01" min="0" max="99999999.99" required>
+                        <input type="number" class="form-control" id="salario_max" name="salario_max" value="{{ old('salario_max') }}" placeholder="Salario máximo anual" step="0.01" min="0" max="99999999.99">
                         <div class="invalid-feedback" id="salario_max-error"></div>
                     </div>
                 </div>
@@ -172,15 +172,16 @@
             <div class="row">
                 <div class="col-md-6 mb-3">
                     <label for="fecha_limite" class="form-label">Fecha límite de aplicación</label>
-                    <input type="date" class="form-control" id="fecha_limite" name="fecha_limite" value="{{ old('fecha_limite') }}" min="{{ date('Y-m-d', strtotime('+1 day')) }}">
+                    <input type="date" class="form-control" id="fecha_limite" name="fecha_limite" value="{{ old('fecha_limite') }}" min="{{ date('Y-m-d') }}">
                     <div class="invalid-feedback" id="fecha_limite-error"></div>
                 </div>
                 <div class="col-md-6 mb-3">
-                    <label class="form-label">Estado de la oferta *</label>
-                    <div class="form-check form-switch fs-5">
-                        <input class="form-check-input" type="checkbox" name="estado" value="activa" id="estadoSwitch" {{ old('estado', 'activa') == 'activa' ? 'checked' : '' }}>
-                        <label class="form-check-label" for="estadoSwitch" id="estadoLabel">Activa</label>
-                    </div>
+                    <label for="estado" class="form-label">Estado de la oferta *</label>
+                    <select class="form-select" id="estado" name="estado" required>
+                        <option value="activa" {{ old('estado', 'activa') == 'activa' ? 'selected' : '' }}>Activa</option>
+                        <option value="inactiva" {{ old('estado') == 'inactiva' ? 'selected' : '' }}>Inactiva</option>
+                    </select>
+                    <div class="invalid-feedback" id="estado-error"></div>
                 </div>
             </div>
         </div>
@@ -200,125 +201,38 @@
 @push('scripts')
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    const estadoSwitch = document.getElementById('estadoSwitch');
-    const estadoLabel = document.getElementById('estadoLabel');
-
-    function updateLabel() {
-        estadoLabel.textContent = estadoSwitch.checked ? 'Activa' : 'Inactiva';
-    }
-    updateLabel();
-    estadoSwitch.addEventListener('change', updateLabel);
-
-    // --- FORM VALIDATION ---
     const form = document.getElementById('createOfertaForm');
-    const inputs = form.querySelectorAll('input[required]:not(#salario):not(#salario_max), select[required], textarea[required]');
-    const salaryMinInput = document.getElementById('salario');
-    const salaryMaxInput = document.getElementById('salario_max');
-
-    function showError(input, message) {
-        input.classList.add('is-invalid');
-        const errorDiv = document.getElementById(input.id + '-error');
-        if (errorDiv) {
-            errorDiv.textContent = message;
-        }
-    }
-
-    function clearError(input) {
-        input.classList.remove('is-invalid');
-        const errorDiv = document.getElementById(input.id + '-error');
-        if (errorDiv) {
-            errorDiv.textContent = '';
-        }
-    }
-
-    function validateField(input) {
-        clearError(input);
-        if (input.hasAttribute('required') && !input.value.trim()) {
-            showError(input, 'Este campo es obligatorio.');
-            return false;
-        }
-        if (input.hasAttribute('maxlength') && input.value.length > parseInt(input.getAttribute('maxlength'))) {
-            showError(input, `No puede exceder los ${input.getAttribute('maxlength')} caracteres.`);
-            return false;
-        }
-        return true;
-    }
-
-    function validateSalaries() {
-        clearError(salaryMinInput);
-        clearError(salaryMaxInput);
-
-        const minSalaryValue = salaryMinInput.value.trim();
-        const maxSalaryValue = salaryMaxInput.value.trim();
-        const minSalary = parseFloat(minSalaryValue);
-        const maxSalary = parseFloat(maxSalaryValue);
-        const maxLimit = 99999999.99;
-
-        let isValid = true;
-
-        // Validar Salario Mínimo
-        if (minSalaryValue === '') {
-            showError(salaryMinInput, 'El salario mínimo es obligatorio.');
-            isValid = false;
-        } else if (isNaN(minSalary) || minSalary < 0) {
-            showError(salaryMinInput, 'Debe ser un número positivo.');
-            isValid = false;
-        } else if (minSalary > maxLimit) {
-            showError(salaryMinInput, 'El valor no puede superar 99,999,999.99.');
-            isValid = false;
-        }
-
-        // Validar Salario Máximo
-        if (maxSalaryValue === '') {
-            showError(salaryMaxInput, 'El salario máximo es obligatorio.');
-            isValid = false;
-        } else if (isNaN(maxSalary) || maxSalary < 0) {
-            showError(salaryMaxInput, 'Debe ser un número positivo.');
-            isValid = false;
-        } else if (maxSalary > maxLimit) {
-            showError(salaryMaxInput, 'El valor no puede superar 99,999,999.99.');
-            isValid = false;
-        }
-
-        // Comparar salarios si ambos son válidos hasta ahora
-        if (isValid && minSalaryValue !== '' && maxSalaryValue !== '') {
-            if (maxSalary < minSalary) {
-                showError(salaryMaxInput, 'El salario máximo no puede ser menor que el mínimo.');
-                isValid = false;
-            }
-        }
-        
-        return isValid;
-    }
-
-    inputs.forEach(input => {
-        input.addEventListener('blur', () => validateField(input));
-    });
-
-    [salaryMinInput, salaryMaxInput].forEach(input => {
-        input.addEventListener('blur', validateSalaries);
-    });
-
+    
+    // Debug: log cuando se envía el formulario
     form.addEventListener('submit', function(event) {
+        console.log('Formulario enviado');
+        console.log('Datos del formulario:', new FormData(form));
+        
+        // Permitir que el formulario se envíe normalmente
+        // Comentamos la validación por ahora para debug
+        /*
         let formIsValid = true;
+        const inputs = form.querySelectorAll('input[required]:not(#salario):not(#salario_max), select[required], textarea[required]');
+        const salaryMinInput = document.getElementById('salario');
+        const salaryMaxInput = document.getElementById('salario_max');
 
         inputs.forEach(input => {
-            if (!validateField(input)) {
+            if (!input.value.trim()) {
+                input.classList.add('is-invalid');
                 formIsValid = false;
+            } else {
+                input.classList.remove('is-invalid');
             }
         });
 
-        if (!validateSalaries()) {
-            formIsValid = false;
-        }
-
         if (!formIsValid) {
             event.preventDefault();
-            const firstError = form.querySelector('.is-invalid');
-            if (firstError) {
-                firstError.focus();
-            }
+            console.log('Formulario inválido, previniendo envío');
+            return;
         }
+        */
+        
+        console.log('Formulario válido, permitiendo envío');
     });
 });
 </script>

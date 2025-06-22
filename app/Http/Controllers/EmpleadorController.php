@@ -14,27 +14,28 @@ class EmpleadorController extends Controller
 {
     public function dashboard()
     {
+        $userId = Auth::user()->id_usuario;
         // Obtener estadísticas del empleador
-        $totalOfertas = Oferta::where('empleador_id', Auth::id())->count();
-        $ofertasActivas = Oferta::where('empleador_id', Auth::id())->where('estado', 'activa')->count();
-        $totalAplicaciones = Aplicacion::whereHas('oferta', function($query) {
-            $query->where('empleador_id', Auth::id());
+        $totalOfertas = Oferta::where('empleador_id', $userId)->count();
+        $ofertasActivas = Oferta::where('empleador_id', $userId)->where('estado', 'activa')->count();
+        $totalAplicaciones = Aplicacion::whereHas('oferta', function($query) use ($userId) {
+            $query->where('empleador_id', $userId);
         })->count();
         $totalCandidatos = $totalAplicaciones; // Para compatibilidad con la vista
-        $totalContrataciones = Aplicacion::whereHas('oferta', function($query) {
-            $query->where('empleador_id', Auth::id());
+        $totalContrataciones = Aplicacion::whereHas('oferta', function($query) use ($userId) {
+            $query->where('empleador_id', $userId);
         })->where('estado', 'aceptada')->count();
         $totalVistas = 0; // Inicializar en 0, puedes sumar si tienes la columna en el futuro
 
         // Ofertas recientes
-        $ofertasRecientes = Oferta::where('empleador_id', Auth::id())
+        $ofertasRecientes = Oferta::where('empleador_id', $userId)
             ->orderBy('created_at', 'desc')
             ->take(5)
             ->get();
 
         // Aplicaciones recientes
-        $aplicacionesRecientes = Aplicacion::whereHas('oferta', function($query) {
-            $query->where('empleador_id', Auth::id());
+        $aplicacionesRecientes = Aplicacion::whereHas('oferta', function($query) use ($userId) {
+            $query->where('empleador_id', $userId);
         })->with(['empleado', 'oferta'])
             ->orderBy('created_at', 'desc')
             ->take(5)
@@ -64,8 +65,9 @@ class EmpleadorController extends Controller
             abort(403, 'No tienes permiso para ver esta página');
         }
 
+        $userId = Auth::user()->id_usuario;
         // Obtener todas las ofertas del empleador
-        $ofertas = Oferta::where('empleador_id', Auth::id())->get();
+        $ofertas = Oferta::where('empleador_id', $userId)->get();
 
         // Si no hay ofertas, mostrar mensaje
         if ($ofertas->isEmpty()) {
@@ -103,12 +105,82 @@ class EmpleadorController extends Controller
 
     public function estadisticas()
     {
-        $ofertas = Oferta::where('empleador_id', Auth::id())->get();
+        $userId = Auth::user()->id_usuario;
+        // Obtener todas las ofertas del empleador
+        $ofertas = Oferta::where('empleador_id', $userId)->get();
+        
+        // Estadísticas básicas
         $totalOfertas = $ofertas->count();
         $ofertasActivas = $ofertas->where('estado', 'activa')->count();
-        $totalCandidatos = Aplicacion::whereIn('oferta_id', $ofertas->pluck('id'))->count();
+        $ofertasInactivas = $ofertas->where('estado', 'inactiva')->count();
         
-        return view('empleador.estadisticas', compact('totalOfertas', 'ofertasActivas', 'totalCandidatos'));
+        // Estadísticas de aplicaciones
+        $aplicaciones = Aplicacion::whereIn('oferta_id', $ofertas->pluck('id'))->get();
+        $totalPostulaciones = $aplicaciones->count();
+        $aplicacionesPendientes = $aplicaciones->where('estado', 'pendiente')->count();
+        $aplicacionesAceptadas = $aplicaciones->where('estado', 'aceptada')->count();
+        $aplicacionesRechazadas = $aplicaciones->where('estado', 'rechazada')->count();
+        
+        // Calcular promedio de postulantes por oferta
+        $promedioPostulantes = $totalOfertas > 0 ? round($totalPostulaciones / $totalOfertas, 1) : 0;
+        
+        // Estadísticas por mes (últimos 6 meses)
+        $estadisticasMensuales = [];
+        for ($i = 5; $i >= 0; $i--) {
+            $fecha = now()->subMonths($i);
+            $mes = $fecha->format('M Y');
+            
+            $aplicacionesMes = Aplicacion::whereIn('oferta_id', $ofertas->pluck('id'))
+                ->whereYear('created_at', $fecha->year)
+                ->whereMonth('created_at', $fecha->month)
+                ->count();
+                
+            $ofertasMes = Oferta::where('empleador_id', $userId)
+                ->whereYear('created_at', $fecha->year)
+                ->whereMonth('created_at', $fecha->month)
+                ->count();
+                
+            $estadisticasMensuales[] = [
+                'mes' => $mes,
+                'aplicaciones' => $aplicacionesMes,
+                'ofertas' => $ofertasMes
+            ];
+        }
+        
+        // Top 5 ofertas con más aplicaciones
+        $topOfertas = Oferta::where('empleador_id', $userId)
+            ->withCount('aplicaciones')
+            ->orderBy('aplicaciones_count', 'desc')
+            ->take(5)
+            ->get();
+            
+        // Estadísticas de candidatos por estado
+        $estadosCandidatos = [
+            'pendiente' => $aplicacionesPendientes,
+            'aceptada' => $aplicacionesAceptadas,
+            'rechazada' => $aplicacionesRechazadas
+        ];
+        
+        // Estadísticas de ofertas por estado
+        $estadosOfertas = [
+            'activa' => $ofertasActivas,
+            'inactiva' => $ofertasInactivas
+        ];
+        
+        return view('empleador.estadisticas', compact(
+            'totalOfertas',
+            'ofertasActivas',
+            'ofertasInactivas',
+            'totalPostulaciones',
+            'aplicacionesPendientes',
+            'aplicacionesAceptadas',
+            'aplicacionesRechazadas',
+            'promedioPostulantes',
+            'estadisticasMensuales',
+            'topOfertas',
+            'estadosCandidatos',
+            'estadosOfertas'
+        ));
     }
 
     public function notificaciones()
@@ -146,16 +218,17 @@ class EmpleadorController extends Controller
         $empleador = $usuario->empleador;
 
         if (!$empleador) {
-            return redirect()->back()->with('error', 'No se encontró información del empleador');
+            $empleador = new Empleador();
+            $empleador->usuario_id = $usuario->id_usuario;
         }
 
         // Actualizar información básica
         $empleador->nombre_empresa = $request->nombre_empresa;
-        $empleador->sector = $request->industria; // Usar sector en lugar de industria
+        $empleador->sector = $request->industria; 
         $empleador->ubicacion = $request->ubicacion;
         $empleador->descripcion = $request->descripcion;
         $empleador->sitio_web = $request->sitio_web;
-        $empleador->telefono_contacto = $request->telefono; // Usar telefono_contacto
+        $empleador->telefono_contacto = $request->telefono;
 
         // Manejar logo si se subió
         if ($request->hasFile('logo')) {
@@ -182,6 +255,10 @@ class EmpleadorController extends Controller
 
         $empleador = Auth::user()->empleador;
 
+        if (!$empleador) {
+             return redirect()->back()->with('error', 'No se encontró información del empleador');
+        }
+
         if ($request->hasFile('logo')) {
             // Eliminar logo anterior si existe
             if ($empleador->logo_empresa) {
@@ -190,7 +267,7 @@ class EmpleadorController extends Controller
 
             // Guardar nuevo logo
             $path = $request->file('logo')->store('public/logos');
-            $empleador->logo_empresa = Storage::url($path);
+            $empleador->logo_empresa = str_replace('public/', '', $path);
             $empleador->save();
         }
 
@@ -200,13 +277,18 @@ class EmpleadorController extends Controller
     public function actualizarBeneficios(Request $request)
     {
         $request->validate([
-            'beneficios' => 'required|array',
-            'beneficios.*' => 'required|string|max:255'
+            'beneficios' => 'nullable|array',
+            'beneficios.*' => 'string|max:255'
         ]);
 
-        $usuario = Auth::user();
-        $usuario->beneficios = implode(',', $request->beneficios);
-        $usuario->save();
+        $empleador = Auth::user()->empleador;
+
+        if (!$empleador) {
+             return redirect()->back()->with('error', 'No se encontró información del empleador');
+        }
+
+        $empleador->beneficios = $request->beneficios ?? [];
+        $empleador->save();
 
         return response()->json(['success' => true, 'message' => 'Beneficios actualizados correctamente']);
     }
@@ -227,7 +309,7 @@ class EmpleadorController extends Controller
 
             // Guardar nuevo avatar
             $path = $request->file('avatar')->store('public/avatars');
-            $usuario->foto_perfil = Storage::url($path);
+            $usuario->foto_perfil = str_replace('public/', '', $path);
             $usuario->save();
         }
 
@@ -245,9 +327,10 @@ class EmpleadorController extends Controller
         }
 
         // Cargar las aplicaciones del candidato a las ofertas del empleador actual
+        $userId = Auth::user()->id_usuario;
         $aplicaciones = $usuario->aplicaciones()
-            ->whereHas('oferta', function ($query) {
-                $query->where('empleador_id', Auth::id());
+            ->whereHas('oferta', function ($query) use ($userId) {
+                $query->where('empleador_id', $userId);
             })
             ->with('oferta')
             ->get();
@@ -261,7 +344,7 @@ class EmpleadorController extends Controller
     public function actualizarAplicacion(Request $request, Aplicacion $aplicacion)
     {
         // Verificar que la oferta pertenezca al empleador actual
-        if ($aplicacion->oferta->empleador_id !== Auth::id()) {
+        if ($aplicacion->oferta->empleador_id !== Auth::user()->id_usuario) {
             abort(403);
         }
 

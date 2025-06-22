@@ -19,18 +19,53 @@
                 <img src="{{ asset('images/logo.png') }}" alt="Logo" height="50">
             </div>
             <ul class="nav flex-column">
-                <li class="nav-item"><a href="{{ route('empleador.dashboard') }}" class="nav-link {{ request()->routeIs('empleador.dashboard') ? 'active' : '' }}"><i class="fas fa-home"></i> Dashboard</a></li>
-                <li class="nav-item"><a href="{{ route('empleador.ofertas.index') }}" class="nav-link {{ request()->routeIs('empleador.ofertas.*') ? 'active' : '' }}"><i class="fas fa-briefcase"></i> Mis Ofertas</a></li>
-                <li class="nav-item"><a href="{{ route('empleador.candidatos') }}" class="nav-link {{ request()->routeIs('empleador.candidatos.*') ? 'active' : '' }}"><i class="fas fa-users"></i> Candidatos</a></li>
-                <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-chart-line"></i> Estadísticas</a></li>
-                <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-bell"></i> Notificaciones</a></li>
-                <li class="nav-item"><a href="{{ route('empleador.perfil') }}" class="nav-link {{ request()->routeIs('empleador.perfil') ? 'active' : '' }}"><i class="fas fa-building"></i> Mi Empresa</a></li>
-                <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-cog"></i> Configuración</a></li>
-                <li class="nav-item mt-5">
-                    <form action="{{ route('logout') }}" method="POST" class="nav-link">
-                        @csrf
-                        <button type="submit" class="btn btn-link text-danger p-0"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</button>
-                    </form>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('empleador.dashboard') ? 'active' : '' }}" href="{{ route('empleador.dashboard') }}">
+                        <i class="fas fa-fw fa-home"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('empleador.ofertas.*') ? 'active' : '' }}" href="{{ route('empleador.ofertas.index') }}">
+                        <i class="fas fa-fw fa-briefcase"></i>
+                        <span>Mis Ofertas</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('empleador.candidatos*') ? 'active' : '' }}" href="{{ route('empleador.candidatos') }}">
+                        <i class="fas fa-fw fa-users"></i>
+                        <span>Candidatos</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('empleador.estadisticas') ? 'active' : '' }}" href="{{ route('empleador.estadisticas') }}">
+                        <i class="fas fa-fw fa-chart-bar"></i>
+                        <span>Estadísticas</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('empleador.notificaciones') ? 'active' : '' }}" href="{{ route('empleador.notificaciones') }}">
+                        <i class="fas fa-fw fa-bell"></i>
+                        <span>Notificaciones</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('empleador.perfil') || request()->routeIs('empleador.empresa') ? 'active' : '' }}" href="{{ route('empleador.perfil') }}">
+                        <i class="fas fa-fw fa-building"></i>
+                        <span>Mi Empresa</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('empleador.configuracion') ? 'active' : '' }}" href="{{ route('empleador.configuracion') }}">
+                        <i class="fas fa-fw fa-cog"></i>
+                        <span>Configuración</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-danger" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                        <i class="fas fa-fw fa-sign-out-alt"></i>
+                        <span>Cerrar Sesión</span>
+                    </a>
                 </li>
             </ul>
         </aside>

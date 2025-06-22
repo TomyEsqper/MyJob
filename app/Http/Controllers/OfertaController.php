@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Oferta;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class OfertaController extends Controller
 {
@@ -13,7 +14,7 @@ class OfertaController extends Controller
      */
     public function index()
     {
-        $ofertas = Oferta::where('empleador_id', Auth::id())->get();
+        $ofertas = Oferta::where('empleador_id', Auth::user()->id_usuario)->get();
         return view('empleador.ofertas.index', compact('ofertas'));
     }
 
@@ -40,12 +41,18 @@ class OfertaController extends Controller
      */
     public function store(Request $request)
     {
+        Log::info('Datos recibidos en store:', $request->all());
+        Log::info('Usuario autenticado:', ['user_id' => Auth::user()->id_usuario ?? 'null', 'user' => Auth::user()]);
+        Log::info('Beneficios recibidos:', ['beneficios' => $request->input('beneficios')]);
+        Log::info('Estado recibido:', ['estado' => $request->input('estado')]);
+        
         $request->validate([
             'titulo' => 'required|string|max:255',
             'descripcion' => 'required|string|min:100',
             'requisitos' => 'required|string|min:50',
+            'responsabilidades' => 'nullable|string|max:2000',
             'salario' => 'nullable|numeric|min:0',
-            'salario_max' => 'nullable|numeric|min:0|gt:salario',
+            'salario_max' => 'nullable|numeric|min:0',
             'ubicacion' => 'required|string|max:255',
             'tipo_contrato' => 'required|string|max:255',
             'jornada' => 'required|string|max:255',
@@ -55,15 +62,70 @@ class OfertaController extends Controller
             'beneficios' => 'nullable|array',
             'beneficios.*' => 'in:' . implode(',', array_keys(Oferta::getBeneficiosDisponibles())),
             'modalidad_trabajo' => 'required|string|in:' . implode(',', array_keys(Oferta::getModalidadesTrabajo())),
-            'fecha_limite' => 'nullable|date|after:today'
+            'fecha_limite' => 'nullable|date|after_or_equal:today'
         ]);
 
-        $oferta = new Oferta($request->all());
-        $oferta->empleador_id = Auth::id();
-        $oferta->save();
+        Log::info('Validación pasada correctamente');
 
-        return redirect()->route('empleador.ofertas.index')
-            ->with('success', 'Oferta creada correctamente');
+        // Validación personalizada para salarios
+        if ($request->filled('salario') && $request->filled('salario_max')) {
+            if ($request->salario_max <= $request->salario) {
+                Log::error('Error en validación de salarios');
+                return back()->withErrors(['salario_max' => 'El salario máximo debe ser mayor que el salario mínimo.'])->withInput();
+            }
+        }
+
+        // Manejar beneficios vacíos
+        $beneficios = $request->input('beneficios');
+        if (empty($beneficios)) {
+            $beneficios = [];
+        }
+
+        // Manejar responsabilidades vacías
+        $responsabilidades = $request->input('responsabilidades');
+        if (empty($responsabilidades)) {
+            $responsabilidades = null;
+        }
+
+        // Manejar fecha_limite vacía
+        $fecha_limite = $request->input('fecha_limite');
+        if (empty($fecha_limite)) {
+            $fecha_limite = null;
+        }
+
+        // Manejar salarios vacíos
+        $salario = $request->input('salario');
+        if (empty($salario)) {
+            $salario = null;
+        }
+        $salario_max = $request->input('salario_max');
+        if (empty($salario_max)) {
+            $salario_max = null;
+        }
+
+        try {
+            $data = $request->all();
+            $data['beneficios'] = $beneficios;
+            $data['responsabilidades'] = $responsabilidades;
+            $data['fecha_limite'] = $fecha_limite;
+            $data['salario'] = $salario;
+            $data['salario_max'] = $salario_max;
+            
+            Log::info('Datos finales para crear oferta:', $data);
+            Log::info('Empleador ID:', ['empleador_id' => Auth::user()->id_usuario]);
+            
+            $oferta = new Oferta($data);
+            $oferta->empleador_id = Auth::user()->id_usuario;
+            $oferta->save();
+            
+            Log::info('Oferta creada exitosamente', ['oferta_id' => $oferta->id]);
+
+            return redirect()->route('empleador.ofertas.index')
+                ->with('success', 'Oferta creada correctamente');
+        } catch (\Exception $e) {
+            Log::error('Error al crear oferta: ' . $e->getMessage());
+            return back()->withErrors(['error' => 'Error al crear la oferta: ' . $e->getMessage()])->withInput();
+        }
     }
 
     /**
@@ -71,7 +133,7 @@ class OfertaController extends Controller
      */
     public function show(Oferta $oferta)
     {
-        if ($oferta->empleador_id !== Auth::id()) {
+        if ($oferta->empleador_id !== Auth::user()->id_usuario) {
             abort(403);
         }
         return view('empleador.ofertas.show', compact('oferta'));
@@ -82,7 +144,7 @@ class OfertaController extends Controller
      */
     public function edit(Oferta $oferta)
     {
-        if ($oferta->empleador_id !== Auth::id()) {
+        if ($oferta->empleador_id !== Auth::user()->id_usuario) {
             abort(403);
         }
 
@@ -105,7 +167,7 @@ class OfertaController extends Controller
      */
     public function update(Request $request, Oferta $oferta)
     {
-        if ($oferta->empleador_id !== Auth::id()) {
+        if ($oferta->empleador_id !== Auth::user()->id_usuario) {
             abort(403);
         }
 
@@ -113,8 +175,9 @@ class OfertaController extends Controller
             'titulo' => 'required|string|max:255',
             'descripcion' => 'required|string|min:100',
             'requisitos' => 'required|string|min:50',
+            'responsabilidades' => 'nullable|string|max:2000',
             'salario' => 'nullable|numeric|min:0',
-            'salario_max' => 'nullable|numeric|min:0|gt:salario',
+            'salario_max' => 'nullable|numeric|min:0',
             'ubicacion' => 'required|string|max:255',
             'tipo_contrato' => 'required|string|max:255',
             'jornada' => 'required|string|max:255',
@@ -124,10 +187,52 @@ class OfertaController extends Controller
             'beneficios' => 'nullable|array',
             'beneficios.*' => 'in:' . implode(',', array_keys(Oferta::getBeneficiosDisponibles())),
             'modalidad_trabajo' => 'required|string|in:' . implode(',', array_keys(Oferta::getModalidadesTrabajo())),
-            'fecha_limite' => 'nullable|date|after:today'
+            'fecha_limite' => 'nullable|date|after_or_equal:today'
         ]);
 
-        $oferta->update($request->all());
+        // Validación personalizada para salarios
+        if ($request->filled('salario') && $request->filled('salario_max')) {
+            if ($request->salario_max <= $request->salario) {
+                return back()->withErrors(['salario_max' => 'El salario máximo debe ser mayor que el salario mínimo.'])->withInput();
+            }
+        }
+
+        // Manejar beneficios vacíos
+        $beneficios = $request->input('beneficios');
+        if (empty($beneficios)) {
+            $beneficios = [];
+        }
+
+        // Manejar responsabilidades vacías
+        $responsabilidades = $request->input('responsabilidades');
+        if (empty($responsabilidades)) {
+            $responsabilidades = null;
+        }
+
+        // Manejar fecha_limite vacía
+        $fecha_limite = $request->input('fecha_limite');
+        if (empty($fecha_limite)) {
+            $fecha_limite = null;
+        }
+
+        // Manejar salarios vacíos
+        $salario = $request->input('salario');
+        if (empty($salario)) {
+            $salario = null;
+        }
+        $salario_max = $request->input('salario_max');
+        if (empty($salario_max)) {
+            $salario_max = null;
+        }
+
+        $data = $request->all();
+        $data['beneficios'] = $beneficios;
+        $data['responsabilidades'] = $responsabilidades;
+        $data['fecha_limite'] = $fecha_limite;
+        $data['salario'] = $salario;
+        $data['salario_max'] = $salario_max;
+        
+        $oferta->update($data);
 
         return redirect()->route('empleador.ofertas.index')
             ->with('success', 'Oferta actualizada correctamente');
@@ -138,7 +243,7 @@ class OfertaController extends Controller
      */
     public function destroy(Oferta $oferta)
     {
-        if ($oferta->empleador_id !== Auth::id()) {
+        if ($oferta->empleador_id !== Auth::user()->id_usuario) {
             abort(403);
         }
 

@@ -156,5 +156,17 @@
     });
 
 </script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        @if (session('error'))
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: "{{ session('error') }}",
+                confirmButtonText: 'Entendido'
+            });
+        @endif
+    });
+</script>
 </body>
 </html>
