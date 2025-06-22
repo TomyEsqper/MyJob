@@ -4,46 +4,51 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Models\Oferta;
-use App\Traits\UploadTrait;
-use App\Models\Usuario;
 use Illuminate\Support\Facades\Storage;
+use App\Models\Oferta;
 use App\Models\Aplicacion;
+use App\Models\Usuario;
 use App\Models\Empleador;
 
 class EmpleadorController extends Controller
 {
-    use UploadTrait;
-
     public function dashboard()
     {
-        // Obtener las ofertas con sus aplicaciones y empleados
-        $ofertas = Auth::user()->ofertas()->with(['aplicaciones.empleado'])->get();
-        
-        // Calcular estadísticas
-        $totalOfertas = $ofertas->count();
-        $totalCandidatos = $ofertas->sum(function($oferta) {
-            return $oferta->aplicaciones->count();
-        });
-        $totalVistas = $ofertas->sum('vistas') ?? 0;
-        $totalContrataciones = $ofertas->sum(function($oferta) {
-            return $oferta->aplicaciones->where('estado', 'aceptada')->count();
-        });
+        // Obtener estadísticas del empleador
+        $totalOfertas = Oferta::where('empleador_id', Auth::id())->count();
+        $ofertasActivas = Oferta::where('empleador_id', Auth::id())->where('estado', 'activa')->count();
+        $totalAplicaciones = Aplicacion::whereHas('oferta', function($query) {
+            $query->where('empleador_id', Auth::id());
+        })->count();
+        $totalCandidatos = $totalAplicaciones; // Para compatibilidad con la vista
+        $totalContrataciones = Aplicacion::whereHas('oferta', function($query) {
+            $query->where('empleador_id', Auth::id());
+        })->where('estado', 'aceptada')->count();
+        $totalVistas = 0; // Inicializar en 0, puedes sumar si tienes la columna en el futuro
 
-        // Obtener las aplicaciones más recientes
-        $aplicacionesRecientes = collect();
-        foreach ($ofertas as $oferta) {
-            $aplicacionesRecientes = $aplicacionesRecientes->concat($oferta->aplicaciones);
-        }
-        $aplicacionesRecientes = $aplicacionesRecientes->sortByDesc('created_at')->take(5);
+        // Ofertas recientes
+        $ofertasRecientes = Oferta::where('empleador_id', Auth::id())
+            ->orderBy('created_at', 'desc')
+            ->take(5)
+            ->get();
+
+        // Aplicaciones recientes
+        $aplicacionesRecientes = Aplicacion::whereHas('oferta', function($query) {
+            $query->where('empleador_id', Auth::id());
+        })->with(['empleado', 'oferta'])
+            ->orderBy('created_at', 'desc')
+            ->take(5)
+            ->get();
 
         return view('empleador.dashboard', compact(
-            'ofertas',
             'totalOfertas',
+            'ofertasActivas',
+            'totalAplicaciones',
             'totalCandidatos',
-            'totalVistas',
             'totalContrataciones',
-            'aplicacionesRecientes'
+            'totalVistas',
+            'aplicacionesRecientes',
+            'ofertasRecientes'
         ));
     }
 
@@ -60,7 +65,7 @@ class EmpleadorController extends Controller
         }
 
         // Obtener todas las ofertas del empleador
-        $ofertas = Auth::user()->ofertas;
+        $ofertas = Oferta::where('empleador_id', Auth::id())->get();
 
         // Si no hay ofertas, mostrar mensaje
         if ($ofertas->isEmpty()) {
@@ -118,7 +123,8 @@ class EmpleadorController extends Controller
 
     public function perfil()
     {
-        return view('empleador.perfil');
+        $empleador = auth()->user();
+        return view('empleador.perfil', compact('empleador'));
     }
 
     /**
@@ -127,14 +133,43 @@ class EmpleadorController extends Controller
     public function actualizarPerfil(Request $request)
     {
         $request->validate([
-            'nombre_usuario' => 'required|string|max:255',
+            'nombre_empresa' => 'required|string|max:100',
+            'industria' => 'required|string|max:50',
+            'ubicacion' => 'required|string|max:100',
+            'descripcion' => 'nullable|string|max:500',
+            'sitio_web' => 'nullable|url|max:200',
             'telefono' => 'nullable|string|max:20',
-            'ubicacion' => 'nullable|string|max:255',
-            'descripcion' => 'nullable|string',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg|max:5120', // 5MB
         ]);
 
         $usuario = Auth::user();
-        $usuario->update($request->all());
+        $empleador = $usuario->empleador;
+
+        if (!$empleador) {
+            return redirect()->back()->with('error', 'No se encontró información del empleador');
+        }
+
+        // Actualizar información básica
+        $empleador->nombre_empresa = $request->nombre_empresa;
+        $empleador->sector = $request->industria; // Usar sector en lugar de industria
+        $empleador->ubicacion = $request->ubicacion;
+        $empleador->descripcion = $request->descripcion;
+        $empleador->sitio_web = $request->sitio_web;
+        $empleador->telefono_contacto = $request->telefono; // Usar telefono_contacto
+
+        // Manejar logo si se subió
+        if ($request->hasFile('logo')) {
+            // Eliminar logo anterior si existe
+            if ($empleador->logo_empresa) {
+                Storage::delete('public/' . $empleador->logo_empresa);
+            }
+
+            // Guardar nuevo logo
+            $path = $request->file('logo')->store('public/logos');
+            $empleador->logo_empresa = str_replace('public/', '', $path);
+        }
+
+        $empleador->save();
 
         return redirect()->back()->with('success', 'Perfil actualizado correctamente');
     }

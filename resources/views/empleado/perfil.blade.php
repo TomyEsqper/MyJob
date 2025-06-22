@@ -1,406 +1,339 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Perfil Empleado</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="{{ asset('css/empleado.css') }}">
-</head>
-<body>
-    <div class="container-fluid">
-        <div class="row">
-            <!-- Sidebar -->
-            <div class="col-auto p-0 sidebar">
-                <div class="logo d-flex align-items-center p-3">
-                    <img src="{{ asset('images/logo.png') }}" alt="Logo" height="50">
+@extends('layouts.empleado')
+
+@section('page-title', 'Mi Perfil')
+@section('page-description', 'Actualiza tu información personal y profesional.')
+
+@section('content')
+
+@if (session('success'))
+<div class="alert alert-success alert-dismissible fade show" role="alert">
+    {{ session('success') }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+@endif
+
+@if ($errors->any())
+<div class="alert alert-danger">
+    <ul class="mb-0">
+        @foreach ($errors->all() as $error)
+            <li>{{ $error }}</li>
+        @endforeach
+    </ul>
+</div>
+@endif
+
+<form action="{{ route('empleado.perfil.update', $empleado->id) }}" method="POST" enctype="multipart/form-data" id="perfilForm">
+    @csrf
+    @method('PUT')
+
+    <div class="row">
+        <!-- Columna principal de formularios -->
+        <div class="col-lg-8">
+            <!-- Tarjeta de Información Personal -->
+            <div class="card form-section-card">
+                <div class="card-header">Información Personal</div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="nombre" class="form-label">Nombre *</label>
+                            <input type="text" class="form-control" name="nombre" id="nombre" value="{{ old('nombre', $empleado->user->nombre) }}" required maxlength="50">
+                            <div class="invalid-feedback" id="nombre-error"></div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="apellidos" class="form-label">Apellidos *</label>
+                            <input type="text" class="form-control" name="apellidos" id="apellidos" value="{{ old('apellidos', $empleado->user->apellidos) }}" required maxlength="100">
+                            <div class="invalid-feedback" id="apellidos-error"></div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="telefono" class="form-label">Teléfono</label>
+                            <input type="tel" class="form-control" name="telefono" id="telefono" value="{{ old('telefono', $empleado->telefono) }}" maxlength="20">
+                            <div class="invalid-feedback" id="telefono-error"></div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="ciudad" class="form-label">Ciudad</label>
+                            <input type="text" class="form-control" name="ciudad" id="ciudad" value="{{ old('ciudad', $empleado->ciudad) }}" maxlength="100">
+                            <div class="invalid-feedback" id="ciudad-error"></div>
+                        </div>
+                    </div>
                 </div>
-                <ul class="nav flex-column mt-4">
-                    <li class="nav-item">
-                        <a href="{{ route('empleado.dashboard') }}" class="nav-link">
-                            <i class="fas fa-home"></i> Dashboard
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{{ route('empleado.aplicaciones') }}" class="nav-link">
-                            <i class="fas fa-briefcase text-success"></i> Mis Aplicaciones
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{{ route('empleado.buscar') }}" class="nav-link">
-                            <i class="fas fa-search"></i> Buscar Empleos
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{{ route('empleado.cv') }}" class="nav-link">
-                            <i class="fas fa-file-alt"></i> Mi CV
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{{ route('empleado.notificaciones') }}" class="nav-link">
-                            <i class="fas fa-bell"></i> Notificaciones
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{{ route('empleado.perfil') }}" class="nav-link active">
-                            <i class="fas fa-user"></i> Mi Perfil
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{{ route('empleado.configuracion') }}" class="nav-link">
-                            <i class="fas fa-cog"></i> Configuración
-                        </a>
-                    </li>
-                    <li class="nav-item mt-5">
-                        <form action="{{ route('logout') }}" method="POST" class="nav-link">
-                            @csrf
-                            <button type="submit" class="btn btn-link text-danger p-0">
-                                <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
-                            </button>
-                        </form>
-                    </li>
-                </ul>
             </div>
 
-            <!-- Main Content -->
-            <div class="col main-content">
-                <!-- Header -->
-                <div class="header">
-                    <h4 class="mb-0">Mi Perfil</h4>
-                    <div class="user-profile">
-                        <div class="dropdown">
-                            <a href="#" class="dropdown-toggle text-decoration-none" data-bs-toggle="dropdown">
-                                <i class="fas fa-bell text-muted"></i>
-                                <span class="badge rounded-pill bg-danger">3</span>
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-end">
-                                <li><a class="dropdown-item" href="#">Notificación 1</a></li>
-                                <li><a class="dropdown-item" href="#">Notificación 2</a></li>
-                                <li><a class="dropdown-item" href="#">Notificación 3</a></li>
-                            </ul>
-                        </div>
-                        <div class="dropdown ms-3">
-                            <a href="#" class="dropdown-toggle text-decoration-none d-flex align-items-center" data-bs-toggle="dropdown">
-                                @auth
-                                    <img src="{{ Auth::user()->foto_perfil ?? asset('images/default-user.png') }}" class="rounded-circle m-2" width="30">
-                                    <span>{{ Auth::user()->nombre_usuario }}</span>
-                                @endauth
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-end">
-                                <li><a class="dropdown-item" href="{{ route('empleado.perfil') }}">Mi Perfil</a></li>
-                                <li><a class="dropdown-item" href="{{ route('empleado.configuracion') }}">Configuración</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <form action="{{ route('logout') }}" method="POST">
-                                        @csrf
-                                        <button type="submit" class="dropdown-item text-danger">Cerrar Sesión</button>
-                                    </form>
-                                </li>
-                            </ul>
-                        </div>
+            <!-- Tarjeta de Experiencia Profesional -->
+            <div class="card form-section-card">
+                <div class="card-header">Experiencia y Habilidades</div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="profesion" class="form-label">Profesión / Titular</label>
+                        <input type="text" class="form-control" name="profesion" id="profesion" value="{{ old('profesion', $empleado->profesion) }}" placeholder="Ej: Desarrollador Web Full Stack" maxlength="100">
+                        <div class="invalid-feedback" id="profesion-error"></div>
                     </div>
-                </div>
-
-                @if(session('success'))
-                    <div class="alert alert-success alert-dismissible fade show" role="alert">
-                        {{ session('success') }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    <div class="mb-3">
+                        <label for="resumen_profesional" class="form-label">Resumen Profesional</label>
+                        <textarea class="form-control" name="resumen_profesional" id="resumen_profesional" rows="4" maxlength="1000">{{ old('resumen_profesional', $empleado->resumen_profesional) }}</textarea>
+                        <div class="invalid-feedback" id="resumen_profesional-error"></div>
                     </div>
-                @endif
-
-                @if($errors->any())
-                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                        <ul class="mb-0">
-                            @foreach($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                @endif
-
-                <!-- Profile Content -->
-                <div class="row">
-                    <div class="col-md-4">
-                        <div class="card">
-                            <div class="card-body text-center">
-                                <div class="profile-photo-container">
-                                    <img src="{{ Auth::user()->foto_perfil ?? asset('images/default-user.png') }}" 
-                                         class="rounded-circle mb-3" 
-                                         width="150" 
-                                         height="150"
-                                         style="object-fit: cover;"
-                                         id="preview-foto"
-                                         alt="Foto de perfil">
-                                    <div class="profile-photo-overlay" onclick="document.getElementById('foto').click()">
-                                        <i class="fas fa-camera"></i>
-                                    </div>
-                                </div>
-                                <h5 class="card-title">{{ Auth::user()->nombre_usuario }}</h5>
-                                <p class="card-text text-muted">{{ Auth::user()->profesion ?? 'Profesión no especificada' }}</p>
-                                <form action="{{ route('empleado.actualizar-foto') }}" method="POST" enctype="multipart/form-data" id="foto-form">
-                                    @csrf
-                                    <input type="file" name="foto" id="foto" class="d-none" accept="image/*">
-                                    <div class="mt-2 text-muted small">
-                                        <i class="fas fa-info-circle"></i>
-                                        Haz clic en la foto para cambiarla
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-
-                        <div class="card mt-3">
-                            <div class="card-body">
-                                <h6 class="card-title">Información de Contacto</h6>
-                                <p class="mb-2">
-                                    <i class="fas fa-envelope text-muted me-2"></i>
-                                    {{ Auth::user()->correo_electronico }}
-                                </p>
-                                <p class="mb-2">
-                                    <i class="fas fa-phone text-muted me-2"></i>
-                                    {{ Auth::user()->telefono ?? 'No especificado' }}
-                                </p>
-                                <p class="mb-0">
-                                    <i class="fas fa-map-marker-alt text-muted me-2"></i>
-                                    {{ Auth::user()->ubicacion ?? 'No especificada' }}
-                                </p>
-                            </div>
-                        </div>
-
-                        <div class="card mt-3">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <h6 class="card-title mb-0">Curriculum Vitae</h6>
-                                    <form action="{{ route('empleado.actualizar-cv') }}" method="POST" enctype="multipart/form-data" id="cv-form">
-                                        @csrf
-                                        <input type="file" name="cv" id="cv" class="d-none" accept=".pdf,.doc,.docx">
-                                        <button type="button" class="btn btn-primary btn-sm" onclick="document.getElementById('cv').click()">
-                                            <i class="fas fa-upload"></i> Subir CV
-                                        </button>
-                                    </form>
-                                </div>
-                                @if(Auth::user()->cv_path)
-                                    <div class="mt-3">
-                                        <a href="{{ Auth::user()->cv_path }}" target="_blank" class="btn btn-outline-primary btn-sm w-100">
-                                            <i class="fas fa-file-pdf"></i> Ver CV
-                                        </a>
-                                    </div>
-                                @endif
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-md-8">
-                        <div class="card">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between align-items-center mb-4">
-                                    <h5 class="card-title">Información Personal</h5>
-                                    <button class="btn btn-primary btn-sm" id="edit-info-btn">
-                                        <i class="fas fa-edit"></i> Editar
-                                    </button>
-                                </div>
-                                
-                                <form action="{{ route('empleado.actualizar-perfil') }}" method="POST" id="info-form">
-                                    @csrf
-                                    <div class="mb-3">
-                                        <label class="form-label">Nombre Completo</label>
-                                        <input type="text" name="nombre_usuario" class="form-control" value="{{ Auth::user()->nombre_usuario }}" readonly>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">Profesión</label>
-                                        <input type="text" name="profesion" class="form-control" value="{{ Auth::user()->profesion ?? '' }}" readonly>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">Teléfono</label>
-                                        <input type="text" name="telefono" class="form-control" value="{{ Auth::user()->telefono ?? '' }}" readonly>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">Ubicación</label>
-                                        <input type="text" name="ubicacion" class="form-control" value="{{ Auth::user()->ubicacion ?? '' }}" readonly>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">Sobre Mí</label>
-                                        <textarea name="descripcion" class="form-control" rows="4" readonly>{{ Auth::user()->descripcion ?? '' }}</textarea>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">Experiencia</label>
-                                        <textarea name="experiencia" class="form-control" rows="4" readonly>{{ Auth::user()->experiencia ?? '' }}</textarea>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">Educación</label>
-                                        <textarea name="educacion" class="form-control" rows="4" readonly>{{ Auth::user()->educacion ?? '' }}</textarea>
-                                    </div>
-                                    <div class="text-end d-none" id="form-buttons">
-                                        <button type="button" class="btn btn-secondary me-2" id="cancel-edit-btn">Cancelar</button>
-                                        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-
-                        <div class="card mt-3">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between align-items-center mb-4">
-                                    <h5 class="card-title">Habilidades</h5>
-                                    <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#habilidadesModal">
-                                        <i class="fas fa-plus"></i> Añadir
-                                    </button>
-                                </div>
-                                <div class="skills" id="skills-container">
-                                    @foreach(explode(',', Auth::user()->habilidades ?? '') as $habilidad)
-                                        @if(trim($habilidad) != '')
-                                            <span class="badge bg-primary me-2 mb-2">{{ trim($habilidad) }}</span>
-                                        @endif
-                                    @endforeach
-                                </div>
-                            </div>
-                        </div>
+                    <div class="mb-3">
+                        <label for="habilidades" class="form-label">Habilidades (separadas por comas)</label>
+                        <input type="text" class="form-control" name="habilidades" id="habilidades" value="{{ old('habilidades', is_array($empleado->habilidades) ? implode(', ', $empleado->habilidades) : $empleado->habilidades) }}" placeholder="Ej: PHP, Laravel, Vue.js, MySQL" maxlength="300">
+                        <div class="invalid-feedback" id="habilidades-error"></div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Modal Habilidades -->
-    <div class="modal fade" id="habilidadesModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Gestionar Habilidades</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="habilidades-form">
-                        <div class="mb-3">
-                            <label class="form-label">Habilidades Actuales</label>
-                            <div id="habilidades-list">
-                                @foreach(explode(',', Auth::user()->habilidades ?? '') as $habilidad)
-                                    @if(trim($habilidad) != '')
-                                        <div class="input-group mb-2">
-                                            <input type="text" class="form-control" name="habilidades[]" value="{{ trim($habilidad) }}">
-                                            <button type="button" class="btn btn-danger remove-habilidad">
-                                                <i class="fas fa-times"></i>
-                                            </button>
-                                        </div>
-                                    @endif
-                                @endforeach
+        <!-- Columna lateral para Foto y CV -->
+        <div class="col-lg-4">
+            <!-- Tarjeta para Foto de Perfil -->
+            <div class="card form-section-card">
+                <div class="card-header">Foto de Perfil</div>
+                <div class="card-body text-center">
+                    <form action="{{ route('empleado.actualizar-foto') }}" method="POST" enctype="multipart/form-data" id="fotoPerfilForm">
+                        @csrf
+                        @if ($empleado->user->foto_perfil)
+                            <img src="{{ Str::startsWith($empleado->user->foto_perfil, 'http') ? $empleado->user->foto_perfil : asset('storage/' . $empleado->user->foto_perfil) }}" alt="Foto de Perfil" class="img-fluid rounded-circle mb-3" style="width: 150px; height: 150px; object-fit: cover;">
+                        @else
+                            <div class="bg-secondary rounded-circle mb-3 d-flex justify-content-center align-items-center" style="width: 150px; height: 150px;">
+                                <i class="fas fa-user fa-3x text-white"></i>
                             </div>
-                            <button type="button" class="btn btn-secondary btn-sm mt-2" id="add-habilidad-btn">
-                                <i class="fas fa-plus"></i> Agregar Habilidad
-                            </button>
+                        @endif
+                        <label for="foto_perfil" class="form-label">Cambiar Foto</label>
+                        <input type="file" class="form-control" name="foto_perfil" id="foto_perfil_upload" accept=".jpg,.jpeg,.png" required>
+                        <div class="invalid-feedback" id="foto_perfil_upload-error"></div>
+                        <button type="submit" class="btn btn-secondary btn-sm mt-3" id="submitFotoBtn" style="display: none;">
+                            <i class="fas fa-camera me-2"></i>Actualizar Foto
+                        </button>
+                        <div id="uploadSpinner" style="display: none;" class="mt-3">
+                            <div class="spinner-border spinner-border-sm" role="status">
+                                <span class="visually-hidden">Cargando...</span>
+                            </div>
+                            <span class="ms-2">Actualizando foto...</span>
                         </div>
                     </form>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                    <button type="button" class="btn btn-primary" id="save-habilidades-btn">Guardar Cambios</button>
+            </div>
+
+            <!-- Tarjeta para CV -->
+            <div class="card form-section-card">
+                <div class="card-header">Currículum Vitae (CV)</div>
+                <div class="card-body">
+                    <label for="cv" class="form-label">Subir nuevo CV</label>
+                    <input type="file" class="form-control" name="cv" id="cv" accept=".pdf,.doc,.docx">
+                    <div class="form-text">Formatos permitidos: PDF, DOC, DOCX (máx. 10MB)</div>
+                    <div class="invalid-feedback" id="cv-error"></div>
+                    @if ($empleado->cv_path)
+                    <div class="mt-3">
+                        <a href="{{ asset('storage/' . $empleado->cv_path) }}" target="_blank" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-eye me-2"></i>Ver CV Actual
+                        </a>
+                    </div>
+                    @endif
                 </div>
             </div>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Manejar la subida de foto de perfil
-            const fotoInput = document.getElementById('foto');
-            const fotoPreview = document.getElementById('preview-foto');
-            const fotoForm = document.getElementById('foto-form');
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">
+            <i class="fas fa-save me-2"></i>Actualizar Perfil
+        </button>
+    </div>
+</form>
 
-            fotoInput.addEventListener('change', function(e) {
-                const file = e.target.files[0];
-                if (file) {
-                    // Validar el tipo de archivo
-                    if (!file.type.startsWith('image/')) {
-                        alert('Por favor, selecciona un archivo de imagen válido.');
-                        return;
-                    }
-
-                    // Validar el tamaño del archivo (máximo 2MB)
-                    if (file.size > 2 * 1024 * 1024) {
-                        alert('La imagen no debe superar los 2MB.');
-                        return;
-                    }
-
-                    // Mostrar previsualización
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        fotoPreview.src = e.target.result;
-                    }
-                    reader.readAsDataURL(file);
-
-                    // Enviar el formulario automáticamente
-                    fotoForm.submit();
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const mainForm = document.getElementById('perfilForm');
+    const fotoForm = document.getElementById('fotoPerfilForm');
+    const inputs = mainForm.querySelectorAll('input:not([type="file"]), textarea');
+    
+    // Función para mostrar error
+    function showError(input, message) {
+        input.classList.add('is-invalid');
+        const errorDiv = document.getElementById(input.id + '-error');
+        if (errorDiv) {
+            errorDiv.textContent = message;
+        }
+    }
+    
+    // Función para limpiar error
+    function clearError(input) {
+        input.classList.remove('is-invalid');
+        const errorDiv = document.getElementById(input.id + '-error');
+        if (errorDiv) {
+            errorDiv.textContent = '';
+        }
+    }
+    
+    // Validar teléfono (formato básico)
+    function isValidPhone(phone) {
+        if (!phone) return true; // Opcional
+        const phoneRegex = /^[\+]?[0-9\s\-\(\)]{7,20}$/;
+        return phoneRegex.test(phone);
+    }
+    
+    // Validar archivo de imagen
+    function isValidImageFile(file) {
+        if (!file) return true; // Opcional
+        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+        const maxSize = 5 * 1024 * 1024; // 5MB
+        
+        if (!allowedTypes.includes(file.type)) {
+            return false;
+        }
+        
+        if (file.size > maxSize) {
+            return false;
+        }
+        
+        return true;
+    }
+    
+    // Validar archivo CV
+    function isValidCVFile(file) {
+        if (!file) return true; // Opcional
+        const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+        const maxSize = 10 * 1024 * 1024; // 10MB
+        
+        if (!allowedTypes.includes(file.type)) {
+            return false;
+        }
+        
+        if (file.size > maxSize) {
+            return false;
+        }
+        
+        return true;
+    }
+    
+    // Validar campo individual
+    function validateField(input) {
+        const value = input.value.trim();
+        
+        // Limpiar error previo
+        clearError(input);
+        
+        // Validar campos requeridos
+        if (input.hasAttribute('required') && !value) {
+            showError(input, 'Este campo es obligatorio.');
+            return false;
+        }
+        
+        // Validar longitud máxima
+        if (input.hasAttribute('maxlength') && value.length > parseInt(input.getAttribute('maxlength'))) {
+            showError(input, `Máximo ${input.getAttribute('maxlength')} caracteres.`);
+            return false;
+        }
+        
+        // Validaciones específicas
+        switch (input.id) {
+            case 'telefono':
+                if (value && !isValidPhone(value)) {
+                    showError(input, 'Ingresa un número de teléfono válido.');
+                    return false;
                 }
-            });
-
-            // Manejar la subida de CV
-            const cvInput = document.getElementById('cv');
-            const cvForm = document.getElementById('cv-form');
-
-            cvInput.addEventListener('change', function(e) {
-                const file = e.target.files[0];
-                if (file) {
-                    // Validar el tipo de archivo
-                    const allowedTypes = ['.pdf', '.doc', '.docx'];
-                    const fileExtension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'));
-                    if (!allowedTypes.includes(fileExtension)) {
-                        alert('Por favor, selecciona un archivo PDF o Word.');
-                        return;
-                    }
-
-                    // Validar el tamaño del archivo (máximo 10MB)
-                    if (file.size > 10 * 1024 * 1024) {
-                        alert('El CV no debe superar los 10MB.');
-                        return;
-                    }
-
-                    // Enviar el formulario automáticamente
-                    cvForm.submit();
-                }
-            });
-
-            // Manejar la edición de información personal
-            const editInfoBtn = document.getElementById('edit-info-btn');
-            const cancelEditBtn = document.getElementById('cancel-edit-btn');
-            const formButtons = document.getElementById('form-buttons');
-            const infoForm = document.getElementById('info-form');
-            let originalFormData = new FormData(infoForm);
-
-            editInfoBtn.addEventListener('click', function() {
-                // Habilitar todos los campos del formulario
-                infoForm.querySelectorAll('input, textarea').forEach(field => {
-                    field.removeAttribute('readonly');
-                });
+                break;
                 
-                // Mostrar botones de guardar/cancelar
-                formButtons.classList.remove('d-none');
-                // Ocultar botón de editar
-                editInfoBtn.classList.add('d-none');
-            });
-
-            cancelEditBtn.addEventListener('click', function() {
-                // Restaurar valores originales
-                for (let pair of originalFormData.entries()) {
-                    const field = infoForm.elements[pair[0]];
-                    if (field) {
-                        field.value = pair[1];
+            case 'foto_perfil_upload':
+                if (input.files.length > 0 && !isValidImageFile(input.files[0])) {
+                    const file = input.files[0];
+                    if (!['image/jpeg', 'image/jpg', 'image/png'].includes(file.type)) {
+                        showError(input, 'Solo se permiten archivos JPG y PNG.');
+                    } else if (file.size > 5 * 1024 * 1024) {
+                        showError(input, 'La imagen no puede pesar más de 5MB.');
                     }
+                    return false;
                 }
-
-                // Deshabilitar campos
-                infoForm.querySelectorAll('input, textarea').forEach(field => {
-                    field.setAttribute('readonly', true);
-                });
-
-                // Ocultar botones de guardar/cancelar
-                formButtons.classList.add('d-none');
-                // Mostrar botón de editar
-                editInfoBtn.classList.remove('d-none');
-            });
+                break;
+                
+            case 'cv':
+                if (input.files.length > 0 && !isValidCVFile(input.files[0])) {
+                    const file = input.files[0];
+                    if (!['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'].includes(file.type)) {
+                        showError(input, 'Solo se permiten archivos PDF, DOC y DOCX.');
+                    } else if (file.size > 10 * 1024 * 1024) {
+                        showError(input, 'El archivo no puede ser mayor a 10MB.');
+                    }
+                    return false;
+                }
+                break;
+        }
+        
+        return true;
+    }
+    
+    // Event listeners para validación en tiempo real
+    inputs.forEach(input => {
+        input.addEventListener('blur', () => validateField(input));
+        input.addEventListener('input', () => {
+            if (input.classList.contains('is-invalid')) {
+                validateField(input);
+            }
         });
-    </script>
-</body>
-</html> 
+    });
+    
+    // Validación al enviar el formulario
+    mainForm.addEventListener('submit', function(e) {
+        let isValid = true;
+        
+        // Validar todos los campos
+        inputs.forEach(input => {
+            if (!validateField(input)) {
+                isValid = false;
+            }
+        });
+        
+        if (!isValid) {
+            e.preventDefault();
+            // Mostrar mensaje de error general
+            const firstError = mainForm.querySelector('.is-invalid');
+            if (firstError) {
+                firstError.focus();
+            }
+        }
+    });
+
+    // Auto-submit para el formulario de la foto de perfil
+    const fotoInput = document.getElementById('foto_perfil_upload');
+    const submitFotoBtn = document.getElementById('submitFotoBtn');
+    const uploadSpinner = document.getElementById('uploadSpinner');
+
+    fotoInput.addEventListener('change', function() {
+        // Validar que se seleccionó un archivo
+        if (this.files.length > 0) {
+            // Mostrar spinner y ocultar botón (aunque ya esté oculto)
+            uploadSpinner.style.display = 'block';
+            submitFotoBtn.style.display = 'none';
+
+            // Enviar el formulario
+            fotoForm.submit();
+        }
+    });
+
+    // Validación para el formulario de la foto de perfil (se mantiene por si acaso)
+    fotoForm.addEventListener('submit', function(e) {
+        clearError(fotoInput);
+        if (fotoInput.files.length === 0) {
+            e.preventDefault();
+            showError(fotoInput, 'Por favor, selecciona una imagen.');
+            return;
+        }
+        
+        const file = fotoInput.files[0];
+        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+        const maxSize = 5 * 1024 * 1024; // 5MB
+
+        if (!allowedTypes.includes(file.type)) {
+            e.preventDefault();
+            showError(fotoInput, 'Solo se permiten archivos JPG y PNG.');
+            return;
+        }
+
+        if (file.size > maxSize) {
+            e.preventDefault();
+            showError(fotoInput, 'La imagen no puede pesar más de 5MB.');
+            // Ocultar spinner si hay error
+            uploadSpinner.style.display = 'none';
+        }
+    });
+});
+</script>
+@endsection 

@@ -75,101 +75,25 @@ class EmpleadoController extends Controller
 
     public function actualizarFoto(Request $request)
     {
-        Log::info('Iniciando actualización de foto');
-        
-        try {
-            DB::beginTransaction();
-            
-            $request->validate([
-                'foto' => [
-                    'required',
-                    'image',
-                    'mimes:jpeg,png,jpg,gif',
-                    'max:2048',
-                    'dimensions:min_width=150,min_height=150,max_width=2000,max_height=2000'
-                ]
-            ], [
-                'foto.required' => 'Por favor, selecciona una foto.',
-                'foto.image' => 'El archivo debe ser una imagen.',
-                'foto.mimes' => 'La foto debe ser de tipo: jpeg, png, jpg o gif.',
-                'foto.max' => 'La foto no debe pesar más de 2MB.',
-                'foto.dimensions' => 'La foto debe tener un tamaño mínimo de 150x150 píxeles y máximo de 2000x2000 píxeles.'
-            ]);
+        $request->validate([
+            'foto_perfil' => 'required|image|mimes:jpeg,png,jpg|max:5120', // 5MB
+        ]);
 
-            Log::info('Validación pasada correctamente');
-            
-            $usuario = Auth::user();
-            Log::info('Usuario obtenido', [
-                'id' => $usuario->id_usuario,
-                'foto_actual' => $usuario->foto_perfil
-            ]);
+        $user = Auth::user();
 
-            if ($request->hasFile('foto')) {
-                $file = $request->file('foto');
-                
-                Log::info('Archivo de foto recibido', [
-                    'nombre_original' => $file->getClientOriginalName(),
-                    'mime_type' => $file->getMimeType(),
-                    'tamaño' => $file->getSize()
-                ]);
-                
-                // Eliminar foto anterior si existe
-                if ($usuario->foto_perfil) {
-                    $oldPath = str_replace('/storage/', 'public/', $usuario->foto_perfil);
-                    Log::info('Intentando eliminar foto anterior', ['path' => $oldPath]);
-                    if (Storage::exists($oldPath)) {
-                        Storage::delete($oldPath);
-                        Log::info('Foto anterior eliminada correctamente');
-                    } else {
-                        Log::warning('No se encontró la foto anterior para eliminar');
-                    }
-                }
-
-                // Guardar nueva foto
-                $fileName = time() . '_' . $file->getClientOriginalName();
-                Log::info('Intentando guardar nueva foto', ['fileName' => $fileName]);
-                
-                // Asegurarse de que el directorio existe
-                Storage::makeDirectory('public/fotos');
-                
-                $path = $file->storeAs('public/fotos', $fileName);
-                Log::info('Foto guardada', ['path' => $path]);
-                
-                if (!Storage::exists($path)) {
-                    throw new \Exception('El archivo no se guardó correctamente');
-                }
-                
-                // Actualizar la ruta en la base de datos
-                $usuario->foto_perfil = '/storage/' . str_replace('public/', '', $path);
-                Log::info('Actualizando ruta en base de datos', ['url' => $usuario->foto_perfil]);
-                
-                $saved = $usuario->save();
-                Log::info('Resultado del guardado', [
-                    'saved' => $saved,
-                    'usuario' => $usuario->toArray()
-                ]);
-
-                if (!$saved) {
-                    throw new \Exception('No se pudo guardar en la base de datos');
-                }
-
-                DB::commit();
-                Log::info('Transacción completada correctamente');
-
-                return redirect()->back()->with('success', 'Foto actualizada correctamente');
-            }
-
-            Log::warning('No se recibió archivo de foto');
-            return redirect()->back()->with('error', 'No se ha seleccionado ninguna foto');
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error('Error al procesar la foto', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-            return redirect()->back()->with('error', 'Error al procesar la foto: ' . $e->getMessage());
+        // Eliminar foto anterior si existe y no es una URL de Google
+        if ($user->foto_perfil && !filter_var($user->foto_perfil, FILTER_VALIDATE_URL)) {
+            Storage::disk('public')->delete($user->foto_perfil);
         }
+
+        // Guardar la nueva foto
+        $path = $request->file('foto_perfil')->store('fotos_perfil', 'public');
+
+        // Actualizar la ruta en la base de datos
+        $user->foto_perfil = $path;
+        $user->save();
+
+        return redirect()->back()->with('success', 'Tu foto de perfil ha sido actualizada.');
     }
 
     public function actualizarHabilidades(Request $request)

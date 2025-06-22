@@ -1,4 +1,7 @@
-@extends('layouts.app')
+@extends('layouts.empleador')
+
+@section('page-title', 'Candidatos')
+@section('page-description', 'Gestiona y revisa las aplicaciones de los candidatos')
 
 @section('content')
 <div class="container-fluid">
@@ -153,7 +156,7 @@
                                         </td>
                                         <td>
                                             <div class="btn-group">
-                                                <a href="{{ route('empleador.candidato.perfil', $aplicacion->empleado->id_usuario) }}" 
+                                                <a href="{{ route('empleador.candidatos.show', $aplicacion->empleado) }}" 
                                                    class="btn btn-sm btn-outline-primary">
                                                     <i class="fas fa-eye me-1"></i> Ver Perfil
                                                 </a>
@@ -201,11 +204,9 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="5" class="text-center py-4">
-                                            <div class="text-muted">
-                                                <i class="fas fa-users fa-3x mb-3"></i>
-                                                <p class="mb-0">No hay candidatos que coincidan con los filtros seleccionados.</p>
-                                            </div>
+                                        <td colspan="5" class="text-center py-5">
+                                            <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                                            <p class="text-muted mb-0">No hay candidatos que mostrar</p>
                                         </td>
                                     </tr>
                                 @endforelse
@@ -213,14 +214,15 @@
                         </table>
                     </div>
                 </div>
+                
+                @if($aplicaciones->hasPages())
+                    <div class="card-footer">
+                        <div class="d-flex justify-content-center">
+                            {{ $aplicaciones->links() }}
+                        </div>
+                    </div>
+                @endif
             </div>
-
-            <!-- Paginación -->
-            @if($aplicaciones->hasPages())
-                <div class="d-flex justify-content-center mt-4">
-                    {{ $aplicaciones->links() }}
-                </div>
-            @endif
         </main>
     </div>
 </div>

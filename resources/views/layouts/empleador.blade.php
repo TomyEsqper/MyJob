@@ -3,208 +3,116 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MyJob - Panel Empleador</title>
-    <!-- Bootstrap CSS -->
+    <title>@yield('title', 'Dashboard Empleador')</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        :root {
-            --primary-color: #28a745;
-            --secondary-color: #6c757d;
-            --sidebar-width: 250px;
-        }
-
-        .sidebar {
-            width: var(--sidebar-width);
-            position: fixed;
-            top: 0;
-            left: 0;
-            height: 100vh;
-            background-color: #ffffff;
-            border-right: 1px solid rgba(0, 0, 0, 0.1);
-            padding: 1rem;
-            z-index: 1000;
-        }
-
-        .main-content {
-            margin-left: var(--sidebar-width);
-            padding: 2rem;
-        }
-
-        .logo-container {
-            padding: 1rem;
-            margin-bottom: 2rem;
-            text-align: center;
-        }
-
-        .logo-container img {
-            width: 50px;
-            height: 50px;
-        }
-
-        .logo-container .brand {
-            font-size: 1.5rem;
-            margin-top: 0.5rem;
-            color: #333;
-            text-decoration: none;
-        }
-
-        .nav-link {
-            display: flex;
-            align-items: center;
-            padding: 0.8rem 1rem;
-            color: var(--secondary-color);
-            text-decoration: none;
-            border-radius: 0.5rem;
-            margin-bottom: 0.5rem;
-            transition: all 0.3s ease;
-        }
-
-        .nav-link:hover {
-            background-color: rgba(40, 167, 69, 0.1);
-            color: var(--primary-color);
-        }
-
-        .nav-link.active {
-            background-color: var(--primary-color);
-            color: white;
-        }
-
-        .nav-link i {
-            width: 24px;
-            margin-right: 0.8rem;
-            font-size: 1.2rem;
-        }
-
-        .nav-link span {
-            font-size: 1rem;
-        }
-
-        .logout-link {
-            position: absolute;
-            bottom: 1rem;
-            left: 1rem;
-            right: 1rem;
-            color: #dc3545;
-        }
-
-        .logout-link:hover {
-            background-color: rgba(220, 53, 69, 0.1);
-            color: #dc3545;
-        }
-
-        @media (max-width: 768px) {
-            .sidebar {
-                transform: translateX(-100%);
-                transition: transform 0.3s ease;
-            }
-
-            .sidebar.show {
-                transform: translateX(0);
-            }
-
-            .main-content {
-                margin-left: 0;
-            }
-
-            .toggle-sidebar {
-                display: block !important;
-            }
-        }
-
-        .toggle-sidebar {
-            display: none;
-            position: fixed;
-            top: 1rem;
-            left: 1rem;
-            z-index: 1001;
-            background-color: var(--primary-color);
-            border: none;
-            padding: 0.5rem;
-            border-radius: 0.25rem;
-            color: white;
-        }
-    </style>
+    <link rel="stylesheet" href="{{ asset('css/empleador.css') }}">
     @stack('styles')
 </head>
 <body>
-    <button class="toggle-sidebar btn">
-        <i class="fas fa-bars"></i>
-    </button>
+    <div class="dashboard-container">
+        <button class="hamburger-btn d-lg-none" id="hamburgerMenu" aria-label="Abrir menú">
+            <span></span><span></span><span></span>
+        </button>
+        <aside class="sidebar-empleador" id="sidebarEmpleador">
+            <div class="logo-box d-flex align-items-center p-3 mb-4">
+                <img src="{{ asset('images/logo.png') }}" alt="Logo" height="50">
+            </div>
+            <ul class="nav flex-column">
+                <li class="nav-item"><a href="{{ route('empleador.dashboard') }}" class="nav-link {{ request()->routeIs('empleador.dashboard') ? 'active' : '' }}"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li class="nav-item"><a href="{{ route('empleador.ofertas.index') }}" class="nav-link {{ request()->routeIs('empleador.ofertas.*') ? 'active' : '' }}"><i class="fas fa-briefcase"></i> Mis Ofertas</a></li>
+                <li class="nav-item"><a href="{{ route('empleador.candidatos') }}" class="nav-link {{ request()->routeIs('empleador.candidatos.*') ? 'active' : '' }}"><i class="fas fa-users"></i> Candidatos</a></li>
+                <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-chart-line"></i> Estadísticas</a></li>
+                <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-bell"></i> Notificaciones</a></li>
+                <li class="nav-item"><a href="{{ route('empleador.perfil') }}" class="nav-link {{ request()->routeIs('empleador.perfil') ? 'active' : '' }}"><i class="fas fa-building"></i> Mi Empresa</a></li>
+                <li class="nav-item"><a href="#" class="nav-link"><i class="fas fa-cog"></i> Configuración</a></li>
+                <li class="nav-item mt-5">
+                    <form action="{{ route('logout') }}" method="POST" class="nav-link">
+                        @csrf
+                        <button type="submit" class="btn btn-link text-danger p-0"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</button>
+                    </form>
+                </li>
+            </ul>
+        </aside>
+        <main class="main-empleador">
+            <header class="header-empleador mb-4">
+                <div class="welcome-banner">
+                    <h2 class="mb-1">@yield('page-title', 'Dashboard')</h2>
+                    <p class="mb-0">@yield('page-description', 'Bienvenido a tu panel de empleador')</p>
+                </div>
+                <div class="user-profile-empleador">
+                    <div class="dropdown">
+                        <a href="#" class="dropdown-toggle text-decoration-none" data-bs-toggle="dropdown">
+                            <i class="fas fa-bell text-muted"></i>
+                            <span class="badge rounded-pill bg-danger">5</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><h6 class="dropdown-header">Notificaciones recientes</h6></li>
+                            <li><a class="dropdown-item" href="#">Nuevo candidato para Desarrollador Frontend</a></li>
+                            <li><a class="dropdown-item" href="#">Nuevo candidato para Diseñador UX/UI</a></li>
+                            <li><a class="dropdown-item" href="#">Oferta a punto de expirar</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-primary" href="#">Ver todas</a></li>
+                        </ul>
+                    </div>
+                    <div class="dropdown ms-3">
+                        <a href="#" class="dropdown-toggle text-decoration-none d-flex align-items-center" data-bs-toggle="dropdown">
+                            @auth
+                                @php
+                                    $user = Auth::user();
+                                    $empleador = $user->empleador;
+                                    $imageSrc = null;
 
-    <!-- Sidebar -->
-    <div class="sidebar">
-        <div class="logo-container">
-            <img src="{{ asset('images/logo.png') }}" alt="MyJob Logo">
-            <div class="brand">MyJob</div>
-        </div>
+                                    // Prioridad 1: Logo de la empresa
+                                    if ($empleador && $empleador->logo_empresa) {
+                                        $imageSrc = asset('storage/' . $empleador->logo_empresa);
+                                    }
+                                    // Prioridad 2: Foto de perfil de Google
+                                    elseif ($user->foto_perfil) {
+                                        // Verificar si es una URL completa o una ruta guardada
+                                        if (filter_var($user->foto_perfil, FILTER_VALIDATE_URL)) {
+                                            $imageSrc = $user->foto_perfil;
+                                        } else {
+                                            $imageSrc = asset('storage/' . $user->foto_perfil);
+                                        }
+                                    }
+                                @endphp
 
-        <nav>
-            <a href="{{ route('empleador.dashboard') }}" class="nav-link {{ request()->routeIs('empleador.dashboard') ? 'active' : '' }}">
-                <i class="fas fa-tachometer-alt text-primary"></i>
-                <span>Dashboard</span>
-            </a>
-
-            <a href="{{ route('empleador.ofertas.index') }}" class="nav-link {{ request()->routeIs('empleador.ofertas.*') ? 'active' : '' }}">
-                <i class="fas fa-briefcase text-success"></i>
-                <span>Mis Ofertas</span>
-            </a>
-
-            <a href="{{ route('empleador.candidatos') }}" class="nav-link {{ request()->routeIs('empleador.candidatos') ? 'active' : '' }}">
-                <i class="fas fa-users text-primary"></i>
-                <span>Candidatos</span>
-            </a>
-
-            <a href="{{ route('empleador.empresa') }}" class="nav-link {{ request()->routeIs('empleador.empresa') ? 'active' : '' }}">
-                <i class="fas fa-building text-warning"></i>
-                <span>Mi Empresa</span>
-            </a>
-
-            <a href="{{ route('empleador.estadisticas') }}" class="nav-link {{ request()->routeIs('empleador.estadisticas') ? 'active' : '' }}">
-                <i class="fas fa-chart-line text-success"></i>
-                <span>Estadísticas</span>
-            </a>
-
-            <a href="{{ route('empleador.notificaciones') }}" class="nav-link {{ request()->routeIs('empleador.notificaciones') ? 'active' : '' }}">
-                <i class="fas fa-bell text-warning"></i>
-                <span>Notificaciones</span>
-            </a>
-
-            <a href="{{ route('empleador.configuracion') }}" class="nav-link {{ request()->routeIs('empleador.configuracion') ? 'active' : '' }}">
-                <i class="fas fa-cog text-secondary"></i>
-                <span>Configuración</span>
-            </a>
-
-            <form action="{{ route('logout') }}" method="POST" class="logout-link">
-                @csrf
-                <button type="submit" class="nav-link w-100 text-start border-0 bg-transparent">
-                    <i class="fas fa-sign-out-alt"></i>
-                    <span>Cerrar Sesión</span>
-                </button>
-            </form>
-        </nav>
+                                @if($imageSrc)
+                                    <img src="{{ $imageSrc }}" alt="Logo" class="rounded-circle m-2" style="width: 30px; height: 30px; object-fit: cover;">
+                                @else
+                                    <div class="bg-secondary rounded-circle m-2 d-flex justify-content-center align-items-center" style="width: 30px; height: 30px;">
+                                        <i class="fas fa-building text-white" style="font-size: 16px;"></i>
+                                    </div>
+                                @endif
+                                <span>{{ $user->nombre_empresa ?? $user->nombre_usuario }}</span>
+                            @endauth
+                            @guest
+                                <span>Invitado</span>
+                            @endguest
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="{{ route('empleador.perfil') }}"><i class="fas fa-building me-2 text-muted"></i>Perfil de Empresa</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2 text-muted"></i>Configuración</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <form action="{{ route('logout') }}" method="POST">
+                                    @csrf
+                                    <button type="submit" class="dropdown-item text-danger"><i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </header>
+            @yield('content')
+        </main>
     </div>
-
-    <!-- Main Content -->
-    <div class="main-content">
-        @yield('content')
-    </div>
-
-    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        document.querySelector('.toggle-sidebar').addEventListener('click', function() {
-            document.querySelector('.sidebar').classList.toggle('show');
-        });
-
-        // Cerrar sidebar en móvil al hacer clic en un enlace
-        document.querySelectorAll('.nav-link').forEach(link => {
-            link.addEventListener('click', () => {
-                if (window.innerWidth <= 768) {
-                    document.querySelector('.sidebar').classList.remove('show');
-                }
-            });
+        // Hamburguesa para sidebar en móviles
+        document.getElementById('hamburgerMenu').addEventListener('click', function() {
+            document.getElementById('sidebarEmpleador').classList.toggle('sidebar-open');
         });
     </script>
     @stack('scripts')
