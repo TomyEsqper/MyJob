@@ -92,4 +92,9 @@ class Usuario extends Authenticatable
     {
         return $this->hasMany(\App\Models\UsuarioPasswordHistory::class, 'usuario_id', 'id_usuario');
     }
+
+    public function notificaciones()
+    {
+        return $this->hasMany(Notificacion::class, 'usuario_id', 'id_usuario');
+    }
 }

@@ -18,8 +18,7 @@ return new class extends Migration
             $table->text('descripcion');
             $table->text('requisitos');
             $table->text('responsabilidades')->nullable();
-            $table->decimal('salario', 10, 2)->nullable();
-            $table->decimal('salario_max', 10, 2)->nullable();
+            $table->decimal('salario', 12, 2)->nullable();
             $table->string('ubicacion');
             $table->string('modalidad_trabajo');
             $table->string('tipo_contrato');

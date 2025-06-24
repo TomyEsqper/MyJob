@@ -37,23 +37,53 @@
                     <div class="row">
                         <div class="col-md-12 mb-3">
                             <label for="nombre_empresa" class="form-label">Nombre de la Empresa *</label>
-                            <input type="text" class="form-control" name="nombre_empresa" id="nombre_empresa" value="{{ old('nombre_empresa', $empleador->nombre_empresa) }}" required maxlength="100">
-                            <div class="invalid-feedback" id="nombre_empresa-error"></div>
+                            <input type="text" 
+                                   class="form-control @error('nombre_empresa') is-invalid @enderror" 
+                                   name="nombre_empresa" 
+                                   id="nombre_empresa" 
+                                   value="{{ old('nombre_empresa', $empleador->nombre_empresa ?? '') }}" 
+                                   required 
+                                   maxlength="100">
+                            @error('nombre_empresa')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
                         <div class="col-md-6 mb-3">
                             <label for="industria" class="form-label">Industria *</label>
-                            <input type="text" class="form-control" name="industria" id="industria" value="{{ old('industria', $empleador->sector) }}" required maxlength="50">
-                            <div class="invalid-feedback" id="industria-error"></div>
+                            <input type="text" 
+                                   class="form-control @error('industria') is-invalid @enderror" 
+                                   name="industria" 
+                                   id="industria" 
+                                   value="{{ old('industria', $empleador->sector ?? '') }}" 
+                                   required 
+                                   maxlength="50">
+                            @error('industria')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
                         <div class="col-md-6 mb-3">
                             <label for="ubicacion" class="form-label">Ubicación *</label>
-                            <input type="text" class="form-control" name="ubicacion" id="ubicacion" value="{{ old('ubicacion', $empleador->ubicacion) }}" required maxlength="100">
-                            <div class="invalid-feedback" id="ubicacion-error"></div>
+                            <input type="text" 
+                                   class="form-control @error('ubicacion') is-invalid @enderror" 
+                                   name="ubicacion" 
+                                   id="ubicacion" 
+                                   value="{{ old('ubicacion', $empleador->ubicacion ?? '') }}" 
+                                   required 
+                                   maxlength="100">
+                            @error('ubicacion')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
                         <div class="col-md-12 mb-3">
                             <label for="descripcion" class="form-label">Descripción</label>
-                            <textarea class="form-control" name="descripcion" id="descripcion" rows="5" maxlength="500">{{ old('descripcion', $empleador->descripcion) }}</textarea>
-                            <div class="invalid-feedback" id="descripcion-error"></div>
+                            <textarea class="form-control @error('descripcion') is-invalid @enderror" 
+                                      name="descripcion" 
+                                      id="descripcion" 
+                                      rows="5" 
+                                      maxlength="500">{{ old('descripcion', $empleador->descripcion ?? '') }}</textarea>
+                            @error('descripcion')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
                     </div>
                 </div>
@@ -68,13 +98,29 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label for="sitio_web" class="form-label">Sitio Web</label>
-                            <input type="url" class="form-control" name="sitio_web" id="sitio_web" value="{{ old('sitio_web', $empleador->sitio_web) }}" placeholder="https://ejemplo.com" maxlength="200">
-                            <div class="invalid-feedback" id="sitio_web-error"></div>
+                            <input type="url" 
+                                   class="form-control @error('sitio_web') is-invalid @enderror" 
+                                   name="sitio_web" 
+                                   id="sitio_web" 
+                                   value="{{ old('sitio_web', $empleador->sitio_web ?? '') }}" 
+                                   placeholder="https://ejemplo.com" 
+                                   maxlength="200">
+                            @error('sitio_web')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
                         <div class="col-md-6 mb-3">
                              <label for="telefono" class="form-label">Teléfono</label>
-                             <input type="tel" class="form-control" name="telefono" id="telefono" value="{{ old('telefono', $empleador->telefono_contacto) }}" placeholder="Ej: +34 123 456 789" maxlength="20">
-                             <div class="invalid-feedback" id="telefono-error"></div>
+                             <input type="tel" 
+                                    class="form-control @error('telefono') is-invalid @enderror" 
+                                    name="telefono" 
+                                    id="telefono" 
+                                    value="{{ old('telefono', $empleador->telefono_contacto ?? '') }}" 
+                                    placeholder="Ej: +34 123 456 789" 
+                                    maxlength="20">
+                            @error('telefono')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
                     </div>
                 </div>
@@ -88,167 +134,141 @@
                     Logo de la Empresa
                 </div>
                 <div class="card-body text-center">
-                    @if ($empleador->logo_empresa)
-                        <img src="{{ asset('storage/' . $empleador->logo_empresa) }}" alt="Logo actual" class="img-fluid rounded-circle mb-3" style="width: 150px; height: 150px; object-fit: cover;">
-                    @else
-                        <div class="bg-secondary rounded-circle mb-3 d-flex justify-content-center align-items-center" style="width: 150px; height: 150px;">
-                            <i class="fas fa-building fa-3x text-white"></i>
+                    <div class="logo-preview-container mb-3">
+                        @if ($empleador && $empleador->logo_empresa)
+                            <img src="{{ asset('storage/' . $empleador->logo_empresa) }}" 
+                                 alt="Logo actual" 
+                                 class="img-fluid rounded-circle preview-image" 
+                                 style="width: 150px; height: 150px; object-fit: cover;">
+                        @else
+                            <div class="bg-secondary rounded-circle preview-image mx-auto d-flex justify-content-center align-items-center" 
+                                 style="width: 150px; height: 150px;">
+                                <i class="fas fa-building fa-3x text-white"></i>
+                            </div>
+                        @endif
+                    </div>
+
+                    <div class="logo-upload-container">
+                        <label for="logo" class="btn btn-outline-primary mb-2">
+                            <i class="fas fa-upload me-2"></i>Seleccionar Logo
+                        </label>
+                        <input type="file" 
+                               class="form-control d-none @error('logo') is-invalid @enderror" 
+                               name="logo" 
+                               id="logo" 
+                               accept=".jpg,.jpeg,.png"
+                               onchange="previewImage(this);">
+                        
+                        <div class="selected-file-name text-muted small mt-2" style="display: none;">
+                            Archivo seleccionado: <span></span>
                         </div>
-                    @endif
-                    <label for="logo" class="form-label">Cambiar Logo</label>
-                    <input type="file" class="form-control" name="logo" id="logo" accept=".jpg,.jpeg,.png">
-                    <div class="form-text">Sube el logo de tu empresa (formato: .jpg, .png).</div>
-                    <div class="invalid-feedback" id="logo-error"></div>
+                        
+                        <div class="form-text text-start">
+                            <small class="d-block mb-1"><i class="fas fa-info-circle me-1"></i>Formatos permitidos: JPG, PNG</small>
+                            <small class="d-block mb-1"><i class="fas fa-info-circle me-1"></i>Tamaño máximo: 5MB</small>
+                            <small class="d-block"><i class="fas fa-info-circle me-1"></i>Dimensión recomendada: 400x400px</small>
+                        </div>
+
+                        @error('logo')
+                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                        @enderror
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="form-actions">
+    <div class="form-actions mt-4">
         <button type="submit" class="btn btn-success">
             <i class="fas fa-save me-2"></i>Actualizar Perfil
         </button>
     </div>
 </form>
 
+@push('styles')
+<style>
+.logo-preview-container {
+    position: relative;
+    display: inline-block;
+}
+
+.preview-image {
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.logo-upload-container {
+    margin-top: 1rem;
+}
+
+.selected-file-name {
+    max-width: 200px;
+    margin: 0 auto;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+</style>
+@endpush
+
+@push('scripts')
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('perfilForm');
-    const inputs = form.querySelectorAll('input, textarea');
+function previewImage(input) {
+    const container = document.querySelector('.logo-preview-container');
+    const fileNameContainer = document.querySelector('.selected-file-name');
+    const fileNameSpan = fileNameContainer.querySelector('span');
     
-    // Función para mostrar error
-    function showError(input, message) {
-        input.classList.add('is-invalid');
-        const errorDiv = document.getElementById(input.id + '-error');
-        if (errorDiv) {
-            errorDiv.textContent = message;
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+            // Actualizar la previsualización
+            let preview = container.querySelector('.preview-image');
+            if (preview.tagName === 'DIV') {
+                // Si es el placeholder, reemplazarlo con una imagen
+                const img = document.createElement('img');
+                img.className = 'img-fluid rounded-circle preview-image';
+                img.style.width = '150px';
+                img.style.height = '150px';
+                img.style.objectFit = 'cover';
+                container.replaceChild(img, preview);
+                preview = img;
+            }
+            preview.src = e.target.result;
+            
+            // Mostrar el nombre del archivo
+            fileNameSpan.textContent = input.files[0].name;
+            fileNameContainer.style.display = 'block';
+        };
+        
+        reader.readAsDataURL(input.files[0]);
+    } else {
+        // Si no hay archivo seleccionado, ocultar el nombre
+        fileNameContainer.style.display = 'none';
+    }
+}
+
+// Validación del tamaño y tipo de archivo antes de la carga
+document.getElementById('logo').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+    
+    if (file) {
+        if (file.size > maxSize) {
+            alert('El archivo es demasiado grande. El tamaño máximo permitido es 5MB.');
+            this.value = '';
+            return;
         }
-    }
-    
-    // Función para limpiar error
-    function clearError(input) {
-        input.classList.remove('is-invalid');
-        const errorDiv = document.getElementById(input.id + '-error');
-        if (errorDiv) {
-            errorDiv.textContent = '';
-        }
-    }
-    
-    // Validar URL
-    function isValidUrl(string) {
-        try {
-            new URL(string);
-            return true;
-        } catch (_) {
-            return false;
-        }
-    }
-    
-    // Validar teléfono (formato básico)
-    function isValidPhone(phone) {
-        if (!phone) return true; // Opcional
-        const phoneRegex = /^[\+]?[0-9\s\-\(\)]{7,20}$/;
-        return phoneRegex.test(phone);
-    }
-    
-    // Validar archivo
-    function isValidFile(file) {
-        if (!file) return true; // Opcional
-        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-        const maxSize = 5 * 1024 * 1024; // 5MB
         
         if (!allowedTypes.includes(file.type)) {
-            return false;
+            alert('Tipo de archivo no permitido. Por favor, seleccione una imagen JPG o PNG.');
+            this.value = '';
+            return;
         }
-        
-        if (file.size > maxSize) {
-            return false;
-        }
-        
-        return true;
     }
-    
-    // Validar campo individual
-    function validateField(input) {
-        const value = input.value.trim();
-        
-        // Limpiar error previo
-        clearError(input);
-        
-        // Validar campos requeridos
-        if (input.hasAttribute('required') && !value) {
-            showError(input, 'Este campo es obligatorio.');
-            return false;
-        }
-        
-        // Validar longitud máxima
-        if (input.hasAttribute('maxlength') && value.length > parseInt(input.getAttribute('maxlength'))) {
-            showError(input, `Máximo ${input.getAttribute('maxlength')} caracteres.`);
-            return false;
-        }
-        
-        // Validaciones específicas
-        switch (input.id) {
-            case 'sitio_web':
-                if (value && !isValidUrl(value)) {
-                    showError(input, 'Ingresa una URL válida (ej: https://ejemplo.com).');
-                    return false;
-                }
-                break;
-                
-            case 'telefono':
-                if (value && !isValidPhone(value)) {
-                    showError(input, 'Ingresa un número de teléfono válido.');
-                    return false;
-                }
-                break;
-                
-            case 'logo':
-                if (input.files.length > 0 && !isValidFile(input.files[0])) {
-                    const file = input.files[0];
-                    if (!['image/jpeg', 'image/jpg', 'image/png'].includes(file.type)) {
-                        showError(input, 'Solo se permiten archivos JPG y PNG.');
-                    } else if (file.size > 5 * 1024 * 1024) {
-                        showError(input, 'El archivo no puede ser mayor a 5MB.');
-                    }
-                    return false;
-                }
-                break;
-        }
-        
-        return true;
-    }
-    
-    // Event listeners para validación en tiempo real
-    inputs.forEach(input => {
-        input.addEventListener('blur', () => validateField(input));
-        input.addEventListener('input', () => {
-            if (input.classList.contains('is-invalid')) {
-                validateField(input);
-            }
-        });
-    });
-    
-    // Validación al enviar el formulario
-    form.addEventListener('submit', function(e) {
-        let isValid = true;
-        
-        // Validar todos los campos
-        inputs.forEach(input => {
-            if (!validateField(input)) {
-                isValid = false;
-            }
-        });
-        
-        if (!isValid) {
-            e.preventDefault();
-            // Mostrar mensaje de error general
-            const firstError = form.querySelector('.is-invalid');
-            if (firstError) {
-                firstError.focus();
-            }
-        }
-    });
 });
 </script>
+@endpush
+
 @endsection 

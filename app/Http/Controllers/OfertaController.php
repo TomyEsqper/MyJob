@@ -93,14 +93,10 @@ class OfertaController extends Controller
             $fecha_limite = null;
         }
 
-        // Manejar salarios vacíos
+        // Manejar salario vacío
         $salario = $request->input('salario');
         if (empty($salario)) {
             $salario = null;
-        }
-        $salario_max = $request->input('salario_max');
-        if (empty($salario_max)) {
-            $salario_max = null;
         }
 
         try {
@@ -109,7 +105,6 @@ class OfertaController extends Controller
             $data['responsabilidades'] = $responsabilidades;
             $data['fecha_limite'] = $fecha_limite;
             $data['salario'] = $salario;
-            $data['salario_max'] = $salario_max;
             
             Log::info('Datos finales para crear oferta:', $data);
             Log::info('Empleador ID:', ['empleador_id' => Auth::user()->id_usuario]);
@@ -176,8 +171,7 @@ class OfertaController extends Controller
             'descripcion' => 'required|string|min:100',
             'requisitos' => 'required|string|min:50',
             'responsabilidades' => 'nullable|string|max:2000',
-            'salario' => 'nullable|numeric|min:0',
-            'salario_max' => 'nullable|numeric|min:0',
+            'salario' => 'required|numeric|min:0',
             'ubicacion' => 'required|string|max:255',
             'tipo_contrato' => 'required|string|max:255',
             'jornada' => 'required|string|max:255',
@@ -189,13 +183,6 @@ class OfertaController extends Controller
             'modalidad_trabajo' => 'required|string|in:' . implode(',', array_keys(Oferta::getModalidadesTrabajo())),
             'fecha_limite' => 'nullable|date|after_or_equal:today'
         ]);
-
-        // Validación personalizada para salarios
-        if ($request->filled('salario') && $request->filled('salario_max')) {
-            if ($request->salario_max <= $request->salario) {
-                return back()->withErrors(['salario_max' => 'El salario máximo debe ser mayor que el salario mínimo.'])->withInput();
-            }
-        }
 
         // Manejar beneficios vacíos
         $beneficios = $request->input('beneficios');
@@ -215,14 +202,10 @@ class OfertaController extends Controller
             $fecha_limite = null;
         }
 
-        // Manejar salarios vacíos
+        // Manejar salario vacío
         $salario = $request->input('salario');
         if (empty($salario)) {
             $salario = null;
-        }
-        $salario_max = $request->input('salario_max');
-        if (empty($salario_max)) {
-            $salario_max = null;
         }
 
         $data = $request->all();
@@ -230,7 +213,6 @@ class OfertaController extends Controller
         $data['responsabilidades'] = $responsabilidades;
         $data['fecha_limite'] = $fecha_limite;
         $data['salario'] = $salario;
-        $data['salario_max'] = $salario_max;
         
         $oferta->update($data);
 

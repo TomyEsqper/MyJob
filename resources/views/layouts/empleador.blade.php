@@ -44,9 +44,15 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('empleador.notificaciones') ? 'active' : '' }}" href="{{ route('empleador.notificaciones') }}">
-                        <i class="fas fa-fw fa-bell"></i>
+                    <a class="nav-link {{ request()->routeIs('empleador.notificaciones') ? 'active' : '' }}" 
+                       href="{{ route('empleador.notificaciones') }}">
+                        <i class="fas fa-bell"></i>
                         <span>Notificaciones</span>
+                        @if(Auth::user()->notificaciones()->where('leida', false)->count() > 0)
+                            <span class="badge bg-danger rounded-pill ms-2">
+                                {{ Auth::user()->notificaciones()->where('leida', false)->count() }}
+                            </span>
+                        @endif
                     </a>
                 </li>
                 <li class="nav-item">
@@ -69,27 +75,76 @@
                 </li>
             </ul>
         </aside>
+        
+        <!-- Formulario oculto para cerrar sesión -->
+        <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+            @csrf
+        </form>
+        
         <main class="main-empleador">
             <header class="header-empleador mb-4">
                 <div class="welcome-banner">
                     <h2 class="mb-1">@yield('page-title', 'Dashboard')</h2>
                     <p class="mb-0">@yield('page-description', 'Bienvenido a tu panel de empleador')</p>
                 </div>
-                <div class="user-profile-empleador">
-                    <div class="dropdown">
-                        <a href="#" class="dropdown-toggle text-decoration-none" data-bs-toggle="dropdown">
-                            <i class="fas fa-bell text-muted"></i>
-                            <span class="badge rounded-pill bg-danger">5</span>
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li><h6 class="dropdown-header">Notificaciones recientes</h6></li>
-                            <li><a class="dropdown-item" href="#">Nuevo candidato para Desarrollador Frontend</a></li>
-                            <li><a class="dropdown-item" href="#">Nuevo candidato para Diseñador UX/UI</a></li>
-                            <li><a class="dropdown-item" href="#">Oferta a punto de expirar</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item text-primary" href="#">Ver todas</a></li>
-                        </ul>
+                <div class="d-flex align-items-center">
+                    <!-- Notificaciones Dropdown -->
+                    <div class="dropdown me-3">
+                        <button class="btn btn-link text-dark position-relative p-0" 
+                                type="button" 
+                                id="dropdownNotificaciones" 
+                                data-bs-toggle="dropdown" 
+                                aria-expanded="false">
+                            <i class="fas fa-bell fa-lg"></i>
+                            <span id="contador-notificaciones" 
+                                  class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                                  style="{{ Auth::user()->notificaciones()->where('leida', false)->count() > 0 ? '' : 'display: none;' }}">
+                                {{ Auth::user()->notificaciones()->where('leida', false)->count() }}
+                            </span>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-end shadow-sm py-0" 
+                             aria-labelledby="dropdownNotificaciones"
+                             style="width: 320px; max-height: 480px; overflow-y: auto;">
+                            <div class="p-3 border-bottom">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h6 class="mb-0">Notificaciones</h6>
+                                    <a href="{{ route('empleador.notificaciones') }}" class="text-primary text-decoration-none">Ver todas</a>
+                                </div>
+                            </div>
+                            <div class="notificaciones-lista">
+                                @forelse(Auth::user()->notificaciones()->where('leida', false)->take(5)->get() as $notificacion)
+                                    <div class="dropdown-item-text p-3 border-bottom" id="notificacion-preview-{{ $notificacion->id }}">
+                                        <div class="d-flex">
+                                            <div class="flex-shrink-0">
+                                                <div class="rounded-circle p-2 {{ $notificacion->color_clase }} bg-opacity-10">
+                                                    <i class="{{ $notificacion->icono_clase }}"></i>
+                                                </div>
+                                            </div>
+                                            <div class="flex-grow-1 ms-3">
+                                                <h6 class="mb-1 fw-semibold">{{ $notificacion->titulo }}</h6>
+                                                <p class="mb-1 small text-muted">{{ Str::limit($notificacion->mensaje, 100) }}</p>
+                                                <small class="text-muted">{{ $notificacion->created_at->diffForHumans() }}</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @empty
+                                    <div class="text-center py-4">
+                                        <i class="fas fa-bell-slash text-muted mb-2"></i>
+                                        <p class="text-muted mb-0 small">No hay notificaciones nuevas</p>
+                                    </div>
+                                @endforelse
+                            </div>
+                            @if(Auth::user()->notificaciones()->where('leida', false)->count() > 0)
+                                <div class="p-3 border-top">
+                                    <button onclick="marcarTodasComoLeidas()" class="btn btn-light btn-sm w-100">
+                                        <i class="fas fa-check-double me-1"></i>
+                                        Marcar todas como leídas
+                                    </button>
+                                </div>
+                            @endif
+                        </div>
                     </div>
+                    <!-- User Profile Dropdown -->
                     <div class="dropdown ms-3">
                         <a href="#" class="dropdown-toggle text-decoration-none d-flex align-items-center" data-bs-toggle="dropdown">
                             @auth
