@@ -51,13 +51,6 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('empleador.notificaciones') ? 'active' : '' }}" 
-                       href="{{ route('empleador.notificaciones') }}">
-                        <i class="fas fa-bell"></i>
-                        <span>Notificaciones</span>
-                    </a>
-                </li>
-                <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('empleador.perfil') || request()->routeIs('empleador.empresa') ? 'active' : '' }}" href="{{ route('empleador.perfil') }}">
                         <i class="fas fa-fw fa-building"></i>
                         <span>Mi Empresa</span>
