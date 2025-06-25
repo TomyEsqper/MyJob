@@ -139,20 +139,8 @@
             <div class="row justify-content-center g-4">
                 <div class="col-md-6 col-lg-4">
                     <div class="creator-card animate-on-scroll">
-                        <img src="{{ asset('images/cuervo.jpg') }}" alt="Camilo Cuervo" class="creator-image">
+                        <img src="{{ asset('images/cuervo.jpeg') }}" alt="Camilo Cuervo" class="creator-image">
                         <h3>Camilo Cuervo</h3>
-                        <p class="text-muted">Desarrollador Full Stack</p>
-                        <p>Especialista en desarrollo web y arquitectura de software. Líder técnico del proyecto.</p>
-                        <div class="social-links">
-                            <a href="#" target="_blank"><i class="fab fa-github"></i></a>
-                            <a href="#" target="_blank"><i class="fab fa-linkedin"></i></a>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6 col-lg-4">
-                    <div class="creator-card animate-on-scroll">
-                        <img src="{{ asset('images/tomas.jpg') }}" alt="Tomás Esquivel" class="creator-image">
-                        <h3>Tomás Esquivel</h3>
                         <p class="text-muted">Frontend Developer</p>
                         <p>Experto en interfaces de usuario y experiencia de usuario. Responsable del diseño visual.</p>
                         <div class="social-links">
@@ -163,10 +151,10 @@
                 </div>
                 <div class="col-md-6 col-lg-4">
                     <div class="creator-card animate-on-scroll">
-                        <img src="{{ asset('images/nicolas.jpg') }}" alt="Nicolás Plazas" class="creator-image">
-                        <h3>Nicolás Plazas</h3>
-                        <p class="text-muted">Backend Developer</p>
-                        <p>Especialista en desarrollo backend y bases de datos. Gestor de la infraestructura del proyecto.</p>
+                        <img src="{{ asset('images/tomas.jpg') }}" alt="Tomás Esquivel" class="creator-image">
+                        <h3>Tomás Esquivel</h3>
+                        <p class="text-muted">Desarrollador Full Stack </p>
+                        <p>Especialista en desarrollo web y arquitectura de software. Líder técnico del proyecto.</p>
                         <div class="social-links">
                             <a href="#" target="_blank"><i class="fab fa-github"></i></a>
                             <a href="#" target="_blank"><i class="fab fa-linkedin"></i></a>
@@ -175,10 +163,23 @@
                 </div>
                 <div class="col-md-6 col-lg-4">
                     <div class="creator-card animate-on-scroll">
-                        <img src="{{ asset('images/sharith.jpg') }}" alt="Sharith Murillo" class="creator-image">
+                        <img src="{{ asset('images/nicolas.jpeg') }}" alt="Nicolás Plazas" class="creator-image">
+                        <h3>Nicolás Plazas</h3>
+                        <p class="text-muted">Desarrollador Full Stack </p>
+                        <p>Desarrollador full stack encargado del frontend y backend del sistema.</p>
+                        <div class="social-links">
+                            <a href="#" target="_blank"><i class="fab fa-github"></i></a>
+                            <a href="#" target="_blank"><i class="fab fa-linkedin"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-4">
+                    <div class="creator-card animate-on-scroll">
+                        <img src="{{ asset('images/sharith.jpeg') }}" alt="Sharith Murillo" class="creator-image">
                         <h3>Sharith Murillo</h3>
-                        <p class="text-muted">UX/UI Designer</p>
-                        <p>Diseñadora de experiencia de usuario. Encargada de la investigación y diseño de interacción.</p>
+                        <p class="text-muted"></p>
+                        <p class="text-muted">Diseñadora gráfica y documentación</p>
+                        <p>Responsable de la identidad visual del proyecto y de la creación de manuales técnicos y de usuario.</p>
                         <div class="social-links">
                             <a href="#" target="_blank"><i class="fab fa-github"></i></a>
                             <a href="#" target="_blank"><i class="fab fa-linkedin"></i></a>
@@ -189,8 +190,8 @@
                     <div class="creator-card animate-on-scroll">
                         <img src="{{ asset('images/santiago.jpg') }}" alt="Santiago Lozano" class="creator-image">
                         <h3>Santiago Lozano</h3>
-                        <p class="text-muted">QA Engineer</p>
-                        <p>Especialista en control de calidad y testing. Responsable de la optimización y rendimiento.</p>
+                        <p class="text-muted">UX/UI Designer</p>
+                        <p>Diseñador de experiencia de usuario. Encargado de la investigación y diseño de interacción.</p>
                         <div class="social-links">
                             <a href="#" target="_blank"><i class="fab fa-github"></i></a>
                             <a href="#" target="_blank"><i class="fab fa-linkedin"></i></a>
@@ -223,9 +224,9 @@
         document.addEventListener('DOMContentLoaded', function() {
             const mainContent = document.querySelector('body');
             const loadingScreen = document.querySelector('.loading-screen');
-            
+
             mainContent.style.visibility = 'hidden';
-            
+
             setTimeout(function() {
                 loadingScreen.classList.add('hidden');
                 mainContent.style.visibility = 'visible';

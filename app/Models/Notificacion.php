@@ -58,3 +58,7 @@ class Notificacion extends Model
             'success' => 'text-success',
             'warning' => 'text-warning',
             'danger' => 'text-danger',
+            default => 'text-primary',
+        };
+    }
+}

@@ -133,12 +133,21 @@
                                class="btn btn-outline-primary btn-sm">
                                 <i class="fas fa-eye me-1"></i> Ver Detalle
                             </a>
-                            <form action="{{ route('empleado.aplicar', $oferta) }}" method="POST" class="d-inline">
-                                @csrf
-                                <button type="submit" class="btn btn-success btn-sm">
-                                    <i class="fas fa-paper-plane me-1"></i> Aplicar
+                            @php
+                                $yaAplicado = Auth::user()->aplicaciones()->where('oferta_id', $oferta->id)->exists();
+                            @endphp
+                            @if($yaAplicado)
+                                <button class="btn btn-secondary btn-sm" disabled>
+                                    <i class="fas fa-check me-1"></i> Aplicado
                                 </button>
-                            </form>
+                            @else
+                                <form action="{{ route('empleado.aplicar', $oferta) }}" method="POST" class="d-inline">
+                                    @csrf
+                                    <button type="submit" class="btn btn-success btn-sm">
+                                        <i class="fas fa-paper-plane me-1"></i> Aplicar
+                                    </button>
+                                </form>
+                            @endif
                         </div>
                     </div>
                 </div>

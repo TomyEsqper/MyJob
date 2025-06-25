@@ -51,7 +51,7 @@
 </div>
 
 <div class="perfil-main">
-    <div class="perfil-social-card">
+    <div class="perfil-social-card" style="min-height:unset; height:auto;">
         <h5 class="mb-3">
             <i class="fas fa-share-alt me-2"></i>
             Información de Contacto
@@ -70,7 +70,9 @@
                     @endphp
                     <i class="{{ $icon }} me-2"></i>
                     <span class="valor-campo flex-grow-1">{{ $valor }}</span>
+                    <input type="text" class="form-control form-control-sm d-none input-campo" value="{{ $valor }}" maxlength="100" style="max-width:200px;">
                     <button class="btn btn-sm btn-link text-primary editar-campo" title="Editar" type="button"><i class="fas fa-edit"></i></button>
+                    <button class="btn btn-sm btn-link text-success guardar-campo d-none" title="Guardar" type="button"><i class="fas fa-check"></i></button>
                     <button class="btn btn-sm btn-link text-danger eliminar-campo ms-1" title="Eliminar" type="button" @if(!$valor) style="display:none" @endif><i class="fas fa-trash"></i></button>
                 </div>
             @endforeach
@@ -414,6 +416,8 @@
     </div>
 </div>
 
+<div id="alerta-contacto" class="alert d-none mt-2" role="alert"></div>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const mainForm = document.getElementById('perfilForm');
@@ -579,91 +583,84 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    function ajaxUpdateCampo(campo, valor, cb) {
-        fetch("{{ route('empleado.perfil.campo') }}", {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ campo, valor })
-        })
-        .then(res => res.json())
-        .then(cb);
+    function mostrarAlertaContacto(mensaje, tipo = 'success') {
+        const alerta = document.getElementById('alerta-contacto');
+        alerta.textContent = mensaje;
+        alerta.className = 'alert alert-' + tipo + ' mt-2';
+        alerta.classList.remove('d-none');
+        setTimeout(() => alerta.classList.add('d-none'), 2500);
     }
-    function ajaxDeleteCampo(campo, cb) {
-        fetch("{{ route('empleado.perfil.campo.eliminar') }}", {
-            method: 'DELETE',
-            headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ campo })
-        })
-        .then(res => res.json())
-        .then(cb);
-    }
-    // Edición inline para redes y disponibilidad
     document.querySelectorAll('.editar-campo').forEach(btn => {
         btn.addEventListener('click', function() {
-            const parent = this.closest('[data-campo]');
-            const campo = parent.getAttribute('data-campo');
-            const valorSpan = parent.querySelector('.valor-campo');
-            const valorActual = valorSpan.textContent.trim() === '-' ? '' : valorSpan.textContent.trim();
-            let input;
-            if (campo === 'disponibilidad_movilidad') {
-                input = document.createElement('select');
-                input.className = 'form-select form-select-sm d-inline w-auto';
-                input.innerHTML = `<option value="1" ${valorActual==='Sí'?'selected':''}>Sí</option><option value="0" ${valorActual==='No'?'selected':''}>No</option>`;
-            } else {
-                input = document.createElement('input');
-                input.type = 'text';
-                input.className = 'form-control form-control-sm d-inline w-auto';
-                input.value = valorActual;
-            }
-            valorSpan.style.display = 'none';
-            this.style.display = 'none';
-            parent.querySelector('.eliminar-campo').style.display = 'none';
-            parent.appendChild(input);
-            // Botones guardar/cancelar
-            const btnGuardar = document.createElement('button');
-            btnGuardar.className = 'btn btn-success btn-sm ms-1';
-            btnGuardar.innerHTML = '<i class="fas fa-check"></i>';
-            const btnCancelar = document.createElement('button');
-            btnCancelar.className = 'btn btn-secondary btn-sm ms-1';
-            btnCancelar.innerHTML = '<i class="fas fa-times"></i>';
-            parent.appendChild(btnGuardar);
-            parent.appendChild(btnCancelar);
-            btnGuardar.addEventListener('click', function(e) {
-                e.preventDefault();
-                let nuevoValor = campo === 'disponibilidad_movilidad' ? input.value : input.value.trim();
-                ajaxUpdateCampo(campo, nuevoValor, function(resp) {
-                    valorSpan.textContent = campo === 'disponibilidad_movilidad' ? (nuevoValor==='1'?'Sí':'No') : nuevoValor;
-                    valorSpan.style.display = '';
-                    parent.querySelector('.editar-campo').style.display = '';
-                    parent.querySelector('.eliminar-campo').style.display = nuevoValor ? '' : 'none';
-                    input.remove(); btnGuardar.remove(); btnCancelar.remove();
-                });
-            });
-            btnCancelar.addEventListener('click', function(e) {
-                e.preventDefault();
-                valorSpan.style.display = '';
-                parent.querySelector('.editar-campo').style.display = '';
-                parent.querySelector('.eliminar-campo').style.display = valorSpan.textContent.trim() ? '' : 'none';
-                input.remove(); btnGuardar.remove(); btnCancelar.remove();
+            const row = this.closest('[data-campo]');
+            row.querySelector('.valor-campo').classList.add('d-none');
+            row.querySelector('.input-campo').classList.remove('d-none');
+            row.querySelector('.guardar-campo').classList.remove('d-none');
+            this.classList.add('d-none');
+        });
+    });
+    document.querySelectorAll('.guardar-campo').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const row = this.closest('[data-campo]');
+            const campo = row.getAttribute('data-campo');
+            const input = row.querySelector('.input-campo');
+            const valor = input.value;
+            fetch("{{ route('empleado.perfil.campo') }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content
+                },
+                body: JSON.stringify({ campo, valor })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success) {
+                    row.querySelector('.valor-campo').textContent = valor;
+                    row.querySelector('.valor-campo').classList.remove('d-none');
+                    input.classList.remove('is-invalid');
+                    input.classList.add('d-none');
+                    row.querySelector('.guardar-campo').classList.add('d-none');
+                    row.querySelector('.editar-campo').classList.remove('d-none');
+                    if(valor) row.querySelector('.eliminar-campo').style.display = '';
+                    else row.querySelector('.eliminar-campo').style.display = 'none';
+                    mostrarAlertaContacto('¡Guardado correctamente!', 'success');
+                } else {
+                    input.classList.add('is-invalid');
+                    mostrarAlertaContacto('Error al guardar. Intenta de nuevo.', 'danger');
+                }
+            })
+            .catch(() => {
+                input.classList.add('is-invalid');
+                mostrarAlertaContacto('Error de red. Intenta de nuevo.', 'danger');
             });
         });
     });
-    // Eliminar campo
     document.querySelectorAll('.eliminar-campo').forEach(btn => {
         btn.addEventListener('click', function() {
-            const parent = this.closest('[data-campo]');
-            const campo = parent.getAttribute('data-campo');
-            ajaxDeleteCampo(campo, function(resp) {
-                const valorSpan = parent.querySelector('.valor-campo');
-                valorSpan.textContent = campo === 'disponibilidad_movilidad' ? 'No' : '';
-                parent.querySelector('.editar-campo').style.display = '';
-                btn.style.display = 'none';
+            const row = this.closest('[data-campo]');
+            const campo = row.getAttribute('data-campo');
+            fetch("{{ route('empleado.perfil.campo.eliminar') }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content
+                },
+                body: JSON.stringify({ campo })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success) {
+                    row.querySelector('.valor-campo').textContent = '';
+                    row.querySelector('.input-campo').value = '';
+                    this.style.display = 'none';
+                    mostrarAlertaContacto('Campo eliminado.', 'success');
+                } else {
+                    mostrarAlertaContacto('Error al eliminar. Intenta de nuevo.', 'danger');
+                }
+            })
+            .catch(() => {
+                mostrarAlertaContacto('Error de red. Intenta de nuevo.', 'danger');
             });
         });
     });

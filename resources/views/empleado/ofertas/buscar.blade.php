@@ -4,10 +4,10 @@
 @section('page-description', 'Encuentra ofertas de trabajo que se adapten a tu perfil.')
 
 @section('content')
-<div class="busqueda-header">
-    <i class="fas fa-search icono-busqueda"></i>
-    <h2>Buscar Empleo</h2>
-    <p>Descubre oportunidades increíbles que se adapten perfectamente a tu perfil profesional</p>
+<div class="busqueda-header" style="background: linear-gradient(90deg, #4f8cff 0%, #e66465 100%); padding: 2rem 1rem; border-radius: 2rem; margin-bottom: 1.5rem; text-align: center;">
+    <i class="fas fa-search icono-busqueda" style="font-size: 2.5rem; margin-bottom: 0.5rem;"></i>
+    <h2 style="font-size: 2rem; margin-bottom: 0.5rem;">Buscar Empleo</h2>
+    <p style="font-size: 1.1rem;">Descubre oportunidades increíbles que se adapten perfectamente a tu perfil profesional</p>
 </div>
 
 <div class="busqueda-form-card">
