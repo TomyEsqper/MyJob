@@ -24,394 +24,220 @@
 </div>
 @endif
 
-<div class="perfil-portada mb-4 animate__animated animate__fadeInDown">
-    @if(file_exists(public_path('images/portada-demo.jpg')))
-        <img src="{{ asset('images/portada-demo.jpg') }}" alt="Portada">
-    @endif
-    <div class="perfil-portada-content">
-        <div class="perfil-avatar-super">
-            @if ($empleado->foto_perfil)
-                <img id="previewFotoPerfil" src="{{ Str::startsWith($empleado->foto_perfil, 'http') ? $empleado->foto_perfil : asset('storage/' . $empleado->foto_perfil) }}" alt="Foto de Perfil">
-            @else
-                <img id="previewFotoPerfil" src="{{ asset('images/default-user.png') }}" alt="Foto de Perfil">
+<div class="perfil-container perfil-nuevo-layout">
+    {{-- Cabecera tipo tarjeta --}}
+    <div class="perfil-header-card mb-5 animate__animated animate__fadeInDown">
+        <div class="perfil-header-bg">
+            @if(file_exists(public_path('images/portada-demo.jpg')))
+                <img src="{{ asset('images/portada-demo.jpg') }}" alt="Portada">
             @endif
-            <form action="{{ route('empleado.actualizar-foto') }}" method="POST" enctype="multipart/form-data" id="fotoPerfilForm" style="position:relative;">
-                @csrf
-                <button type="button" class="perfil-avatar-btn" title="Cambiar foto de perfil" onclick="document.getElementById('foto_perfil_upload').click();">
-                    <i class="fas fa-camera"></i>
-                </button>
-                <input type="file" name="foto_perfil" id="foto_perfil_upload" accept=".jpg,.jpeg,.png" hidden onchange="this.form.submit()">
-            </form>
         </div>
-        <div class="perfil-header-info">
-            <h2>{{ $empleado->nombre_usuario }}</h2>
-            <div class="perfil-frase">{{ $empleado->profesion ?? 'Sin profesión definida' }}</div>
+        <div class="perfil-header-content d-flex flex-column align-items-center justify-content-center text-center">
+            <div class="perfil-avatar-xl mb-3">
+                @if ($empleado->foto_perfil)
+                    <img id="previewFotoPerfil" src="{{ Str::startsWith($empleado->foto_perfil, 'http') ? $empleado->foto_perfil : asset('storage/' . $empleado->foto_perfil) }}" alt="Foto de Perfil">
+                @else
+                    <img id="previewFotoPerfil" src="{{ asset('images/default-user.png') }}" alt="Foto de Perfil">
+                @endif
+                <form action="{{ route('empleado.actualizar-foto') }}" method="POST" enctype="multipart/form-data" id="fotoPerfilForm" style="position:relative;">
+                    @csrf
+                    <button type="button" class="perfil-avatar-btn-xl" title="Cambiar foto de perfil" onclick="document.getElementById('foto_perfil_upload').click();">
+                        <i class="fas fa-camera"></i>
+                    </button>
+                    <input type="file" name="foto_perfil" id="foto_perfil_upload" accept=".jpg,.jpeg,.png" hidden onchange="this.form.submit()">
+                </form>
+            </div>
+            <h2 class="perfil-nombre-xl mb-1">{{ $empleado->nombre_usuario }}</h2>
+            <div class="perfil-profesion-xl mb-2">{{ $empleado->profesion ?? 'Sin profesión definida' }}</div>
+            <div class="perfil-resumen-xl">{{ $empleado->resumen_profesional ?? 'Agrega un resumen profesional para destacar.' }}</div>
         </div>
     </div>
-</div>
 
-<div class="perfil-main">
-    <div class="perfil-social-card" style="min-height:unset; height:auto;">
-        <h5 class="mb-3">
-            <i class="fas fa-share-alt me-2"></i>
-            Información de Contacto
-        </h5>
-        <div class="perfil-social-links" id="socialLinks">
-            @foreach(['whatsapp','facebook','instagram','linkedin'] as $red)
-                <div class="d-flex align-items-center mb-2" data-campo="{{ $red }}">
-                    @php
-                        $icon = [
-                            'whatsapp' => 'fab fa-whatsapp',
-                            'facebook' => 'fab fa-facebook',
-                            'instagram' => 'fab fa-instagram',
-                            'linkedin' => 'fab fa-linkedin',
-                        ][$red];
-                        $valor = $empleado->$red;
-                    @endphp
-                    <i class="{{ $icon }} me-2"></i>
-                    <span class="valor-campo flex-grow-1">{{ $valor }}</span>
-                    <input type="text" class="form-control form-control-sm d-none input-campo" value="{{ $valor }}" maxlength="100" style="max-width:200px;">
-                    <button class="btn btn-sm btn-link text-primary editar-campo" title="Editar" type="button"><i class="fas fa-edit"></i></button>
-                    <button class="btn btn-sm btn-link text-success guardar-campo d-none" title="Guardar" type="button"><i class="fas fa-check"></i></button>
-                    <button class="btn btn-sm btn-link text-danger eliminar-campo ms-1" title="Eliminar" type="button" @if(!$valor) style="display:none" @endif><i class="fas fa-trash"></i></button>
-                </div>
-            @endforeach
-        </div>
-        <button class="btn btn-success w-100 mt-3">
-            <i class="fab fa-whatsapp me-2"></i>
-            Contactar
-        </button>
-    </div>
-
-    <div class="perfil-timeline">
-        <div class="d-flex align-items-center justify-content-between mb-4">
-            <h5 class="mb-0">
-                <i class="fas fa-briefcase me-2"></i>
-                Experiencia Laboral
-            </h5>
-            <button class="btn btn-outline-primary btn-sm">
-                <i class="fas fa-plus me-1"></i>
-                Agregar
-            </button>
-        </div>
-        
-        <div class="timeline-item">
-            <div class="timeline-dot"></div>
-            <div class="timeline-content">
-                <div class="timeline-title">Cajero</div>
-                <div class="timeline-period">Supermercado ABC • Ene 2022 - Dic 2023</div>
-                <div class="timeline-desc">
-                    Atención al cliente, manejo de caja, reposición de productos.
-                    <span class="badge bg-success ms-2">
-                        <i class="fas fa-trophy me-1"></i>
-                        Mejor atención 2023
-                    </span>
-                </div>
-            </div>
-        </div>
-        
-        <div class="timeline-item">
-            <div class="timeline-dot"></div>
-            <div class="timeline-content">
-                <div class="timeline-title">Auxiliar de Limpieza</div>
-                <div class="timeline-period">Colegio XYZ • Feb 2021 - Dic 2021</div>
-                <div class="timeline-desc">
-                    Limpieza de aulas, baños y zonas comunes.
-                </div>
-            </div>
-        </div>
-
-        <div class="d-flex align-items-center justify-content-between mb-4 mt-5">
-            <h5 class="mb-0">
-                <i class="fas fa-graduation-cap me-2"></i>
-                Educación
-            </h5>
-            <button class="btn btn-outline-primary btn-sm">
-                <i class="fas fa-plus me-1"></i>
-                Agregar
-            </button>
-        </div>
-        
-        <div class="timeline-item">
-            <div class="timeline-dot"></div>
-            <div class="timeline-content">
-                <div class="timeline-title">Bachillerato</div>
-                <div class="timeline-period">Colegio Nacional • 2016 - 2021</div>
-            </div>
-        </div>
-        
-        <div class="timeline-item">
-            <div class="timeline-dot"></div>
-            <div class="timeline-content">
-                <div class="timeline-title">Curso de Manipulación de Alimentos</div>
-                <div class="timeline-period">SENA • 2022</div>
-            </div>
-        </div>
-
-        <div class="d-flex align-items-center justify-content-between mb-4 mt-5">
-            <h5 class="mb-0">
-                <i class="fas fa-certificate me-2"></i>
-                Certificados y Cursos
-            </h5>
-            <button class="btn btn-outline-primary btn-sm">
-                <i class="fas fa-upload me-1"></i>
-                Subir
-            </button>
-        </div>
-        
-        <div class="perfil-certificados-grid">
-            <div class="perfil-cert-card">
-                <i class="fas fa-file-pdf"></i>
-                <div class="mt-2">
-                    <strong>Certificado Manipulación de Alimentos</strong>
-                    <div class="text-muted small">2022</div>
-                </div>
-            </div>
-            <div class="perfil-cert-card">
-                <i class="fas fa-file-image"></i>
-                <div class="mt-2">
-                    <strong>Curso de Servicio al Cliente</strong>
-                    <div class="text-muted small">2023</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="d-flex align-items-center justify-content-between mb-4 mt-5">
-            <h5 class="mb-0">
-                <i class="fas fa-language me-2"></i>
-                Idiomas
-            </h5>
-            <button class="btn btn-outline-primary btn-sm">
-                <i class="fas fa-plus me-1"></i>
-                Agregar
-            </button>
-        </div>
-        
-        <div class="perfil-idiomas-chips">
-            <span class="perfil-idioma-chip selected">
-                <i class="fas fa-flag"></i>
-                Español <span class="small">(Nativo)</span>
-            </span>
-            <span class="perfil-idioma-chip">
-                <i class="fas fa-flag-usa"></i>
-                Inglés <span class="small">(Básico)</span>
-            </span>
-        </div>
-
-        <div class="d-flex align-items-center justify-content-between mb-4 mt-5">
-            <h5 class="mb-0">
-                <i class="fas fa-star me-2"></i>
-                Habilidades Destacadas
-            </h5>
-            <button class="btn btn-outline-primary btn-sm">
-                <i class="fas fa-edit me-1"></i>
-                Editar
-            </button>
-        </div>
-        
-        <div class="perfil-habilidades-chips">
-            <span class="perfil-habilidad-chip selected">
-                <i class="fas fa-user-check"></i>
-                Atención al cliente
-            </span>
-            <span class="perfil-habilidad-chip">
-                <i class="fas fa-users"></i>
-                Trabajo en equipo
-            </span>
-            <span class="perfil-habilidad-chip">
-                <i class="fas fa-clock"></i>
-                Puntualidad
-            </span>
-        </div>
-
-        <div class="perfil-disponibilidad-widget">
-            <i class="fas fa-calendar-check"></i>
-            <div class="perfil-dispon-info" id="disponibilidadInfo">
-                <h6 class="mb-3">Disponibilidad Laboral</h6>
-                <div class="row text-center">
-                    <div class="col-4" data-campo="disponibilidad_horario">
-                        <div class="fw-bold">Horario</div>
-                        <span class="valor-campo">{{ $empleado->disponibilidad_horario ?? '-' }}</span>
-                        <button class="btn btn-sm btn-link text-primary editar-campo" title="Editar" type="button"><i class="fas fa-edit"></i></button>
-                        <button class="btn btn-sm btn-link text-danger eliminar-campo ms-1" title="Eliminar" type="button" @if(!$empleado->disponibilidad_horario) style="display:none" @endif><i class="fas fa-trash"></i></button>
-                    </div>
-                    <div class="col-4" data-campo="disponibilidad_jornada">
-                        <div class="fw-bold">Jornada</div>
-                        <span class="valor-campo">{{ $empleado->disponibilidad_jornada ?? '-' }}</span>
-                        <button class="btn btn-sm btn-link text-primary editar-campo" title="Editar" type="button"><i class="fas fa-edit"></i></button>
-                        <button class="btn btn-sm btn-link text-danger eliminar-campo ms-1" title="Eliminar" type="button" @if(!$empleado->disponibilidad_jornada) style="display:none" @endif><i class="fas fa-trash"></i></button>
-                    </div>
-                    <div class="col-4" data-campo="disponibilidad_movilidad">
-                        <div class="fw-bold">Movilidad</div>
-                        <span class="valor-campo">{{ $empleado->disponibilidad_movilidad ? 'Sí' : 'No' }}</span>
-                        <button class="btn btn-sm btn-link text-primary editar-campo" title="Editar" type="button"><i class="fas fa-edit"></i></button>
-                        <button class="btn btn-sm btn-link text-danger eliminar-campo ms-1" title="Eliminar" type="button" @if(is_null($empleado->disponibilidad_movilidad)) style="display:none" @endif><i class="fas fa-trash"></i></button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="perfil-form-cv-row mt-5">
-    <div class="row">
+    <div class="row g-4 mb-4">
         <div class="col-lg-8">
-            <div class="card-empleado">
-                <div class="card-header-empleado">
-                    <h5 class="mb-0">
-                        <i class="fas fa-user-edit me-2"></i>
-                        Información Personal
-                    </h5>
+            <div class="row g-4">
+                <div class="col-md-6">
+                    {{-- Información de Contacto --}}
+                    <section class="perfil-card perfil-section-card h-100">
+                        <h5 class="mb-3"><i class="fas fa-share-alt me-2"></i> Contacto</h5>
+                        <div class="perfil-social-links-grid">
+                            @foreach(['whatsapp','facebook','instagram','linkedin'] as $red)
+                                @php
+                                    $icon = [
+                                        'whatsapp' => 'fab fa-whatsapp',
+                                        'facebook' => 'fab fa-facebook',
+                                        'instagram' => 'fab fa-instagram',
+                                        'linkedin' => 'fab fa-linkedin',
+                                    ][$red];
+                                    $valor = $empleado->$red;
+                                @endphp
+                                <div class="d-flex align-items-center mb-2" data-campo="{{ $red }}">
+                                    <i class="{{ $icon }} me-2"></i>
+                                    <span class="valor-campo flex-grow-1">{{ $valor }}</span>
+                                    <button class="btn btn-sm btn-link text-primary editar-campo ms-2" title="Editar" type="button"><i class="fas fa-edit"></i></button>
+                                </div>
+                            @endforeach
+                        </div>
+                        <button class="btn btn-success w-100 mt-3">
+                            <i class="fab fa-whatsapp me-2"></i>
+                            Contactar
+                        </button>
+                    </section>
                 </div>
-                <div class="card-body-empleado">
-                    <form action="{{ route('empleado.perfil.update', $empleado->id_usuario) }}" method="POST" enctype="multipart/form-data" id="perfilForm">
-                        @csrf
-                        @method('PUT')
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="nombre_usuario" class="form-label">
-                                    <i class="fas fa-user me-1"></i>
-                                    Nombre *
-                                </label>
-                                <input type="text" class="form-control" name="nombre_usuario" id="nombre_usuario" value="{{ old('nombre_usuario', $empleado->nombre_usuario) }}" required maxlength="50">
-                                <div class="invalid-feedback" id="nombre_usuario-error"></div>
+                <div class="col-md-6">
+                    {{-- Disponibilidad Laboral --}}
+                    <section class="perfil-card perfil-section-card h-100">
+                        <h5 class="mb-3"><i class="fas fa-calendar-check me-2"></i> Disponibilidad</h5>
+                        <div class="row text-center">
+                            <div class="col-4">
+                                <div class="fw-bold">Horario</div>
+                                <span class="valor-campo">{{ $empleado->disponibilidad_horario ?? '-' }}</span>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="telefono" class="form-label">
-                                    <i class="fas fa-phone me-1"></i>
-                                    Teléfono
-                                </label>
-                                <input type="tel" class="form-control" name="telefono" id="telefono" value="{{ old('telefono', $empleado->telefono) }}" maxlength="20">
-                                <div class="invalid-feedback" id="telefono-error"></div>
+                            <div class="col-4">
+                                <div class="fw-bold">Jornada</div>
+                                <span class="valor-campo">{{ $empleado->disponibilidad_jornada ?? '-' }}</span>
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="ciudad" class="form-label">
-                                    <i class="fas fa-map-marker-alt me-1"></i>
-                                    Ciudad
-                                </label>
-                                <input type="text" class="form-control" name="ciudad" id="ciudad" value="{{ old('ciudad', $empleado->ciudad) }}" maxlength="100">
-                                <div class="invalid-feedback" id="ciudad-error"></div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="whatsapp" class="form-label">
-                                    <i class="fab fa-whatsapp me-1"></i>
-                                    WhatsApp
-                                </label>
-                                <input type="text" class="form-control" name="whatsapp" id="whatsapp" value="{{ old('whatsapp', $empleado->whatsapp) }}" maxlength="30">
-                                <div class="invalid-feedback" id="whatsapp-error"></div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="facebook" class="form-label">
-                                    <i class="fab fa-facebook me-1"></i>
-                                    Facebook
-                                </label>
-                                <input type="text" class="form-control" name="facebook" id="facebook" value="{{ old('facebook', $empleado->facebook) }}" maxlength="100">
-                                <div class="invalid-feedback" id="facebook-error"></div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="instagram" class="form-label">
-                                    <i class="fab fa-instagram me-1"></i>
-                                    Instagram
-                                </label>
-                                <input type="text" class="form-control" name="instagram" id="instagram" value="{{ old('instagram', $empleado->instagram) }}" maxlength="100">
-                                <div class="invalid-feedback" id="instagram-error"></div>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="linkedin" class="form-label">
-                                    <i class="fab fa-linkedin me-1"></i>
-                                    LinkedIn
-                                </label>
-                                <input type="text" class="form-control" name="linkedin" id="linkedin" value="{{ old('linkedin', $empleado->linkedin) }}" maxlength="100">
-                                <div class="invalid-feedback" id="linkedin-error"></div>
+                            <div class="col-4">
+                                <div class="fw-bold">Movilidad</div>
+                                <span class="valor-campo">{{ $empleado->disponibilidad_movilidad ? 'Sí' : 'No' }}</span>
                             </div>
                         </div>
-                        <div class="mb-3">
-                            <label for="profesion" class="form-label">
-                                <i class="fas fa-briefcase me-1"></i>
-                                Profesión / Titular
-                            </label>
-                            <input type="text" class="form-control" name="profesion" id="profesion" value="{{ old('profesion', $empleado->profesion) }}" placeholder="Ej: Mesero, Limpieza, Seguridad" maxlength="100">
-                            <div class="invalid-feedback" id="profesion-error"></div>
+                    </section>
+                </div>
+                <div class="col-12">
+                    {{-- Habilidades Destacadas --}}
+                    <section class="perfil-card perfil-section-card">
+                        <h5 class="mb-3"><i class="fas fa-star me-2"></i> Habilidades</h5>
+                        <div class="perfil-list mb-2">
+                            @foreach(explode(',', $empleado->habilidades ?? '') as $habilidad)
+                                @if(trim($habilidad))
+                                    <span class="badge badge-habilidad selected">
+                                        <i class="fas fa-check-circle"></i> {{ trim($habilidad) }}
+                                    </span>
+                                @endif
+                            @endforeach
                         </div>
-                        <div class="mb-3">
-                            <label for="resumen_profesional" class="form-label">
-                                <i class="fas fa-file-alt me-1"></i>
-                                Resumen Profesional
-                            </label>
-                            <textarea class="form-control" name="resumen_profesional" id="resumen_profesional" rows="4" maxlength="1000" placeholder="Describe tu experiencia y objetivos profesionales...">{{ old('resumen_profesional', $empleado->resumen_profesional) }}</textarea>
-                            <div class="invalid-feedback" id="resumen_profesional-error"></div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="habilidades" class="form-label">
-                                <i class="fas fa-star me-1"></i>
-                                Habilidades (separadas por comas)
-                            </label>
-                            <textarea name="habilidades" class="form-control" rows="2" placeholder="Ej: Atención al cliente, Cocina, Ventas" maxlength="300">{{ old('habilidades', $empleado->habilidades) }}</textarea>
-                            <div class="invalid-feedback" id="habilidades-error"></div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="disponibilidad_horario" class="form-label">
-                                <i class="fas fa-clock me-1"></i>
-                                Disponibilidad Horario
-                            </label>
-                            <input type="text" class="form-control" name="disponibilidad_horario" id="disponibilidad_horario" value="{{ old('disponibilidad_horario', $empleado->disponibilidad_horario) }}" maxlength="100">
-                            <div class="invalid-feedback" id="disponibilidad_horario-error"></div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="disponibilidad_jornada" class="form-label">
-                                <i class="fas fa-calendar-day me-1"></i>
-                                Disponibilidad Jornada
-                            </label>
-                            <input type="text" class="form-control" name="disponibilidad_jornada" id="disponibilidad_jornada" value="{{ old('disponibilidad_jornada', $empleado->disponibilidad_jornada) }}" maxlength="100">
-                            <div class="invalid-feedback" id="disponibilidad_jornada-error"></div>
-                        </div>
-                        <div class="mb-3 form-check">
-                            <input type="checkbox" class="form-check-input" name="disponibilidad_movilidad" id="disponibilidad_movilidad" value="1" {{ old('disponibilidad_movilidad', $empleado->disponibilidad_movilidad) ? 'checked' : '' }}>
-                            <label class="form-check-label" for="disponibilidad_movilidad">
-                                <i class="fas fa-car-side me-1"></i>
-                                ¿Cuenta con movilidad propia?
-                            </label>
-                        </div>
-                        <div class="form-actions">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-save me-2"></i>
-                                Actualizar Perfil
-                            </button>
-                        </div>
-                    </form>
+                    </section>
                 </div>
             </div>
         </div>
-        
         <div class="col-lg-4">
-            <div class="perfil-cv-card">
-                <div class="card-header-empleado">
-                    <h5 class="mb-0">
-                        <i class="fas fa-file-alt me-2"></i>
-                        Currículum Vitae (CV)
-                    </h5>
-                </div>
-                <div class="card-body-empleado">
-                    <label for="cv" class="form-label">
-                        <i class="fas fa-upload me-1"></i>
-                        Subir nuevo CV
-                    </label>
-                    <input type="file" class="form-control" name="cv" id="cv" accept=".pdf,.doc,.docx">
-                    <div class="form-text">
-                        <i class="fas fa-info-circle me-1"></i>
-                        Formatos permitidos: PDF, DOC, DOCX (máx. 10MB)
+            {{-- Información Personal y CV --}}
+            <section class="perfil-card perfil-section-card mb-4">
+                <h5 class="mb-3"><i class="fas fa-user-edit me-2"></i> Información Personal</h5>
+                <form action="{{ route('empleado.perfil.update', $empleado->id_usuario) }}" method="POST" enctype="multipart/form-data" id="perfilForm">
+                    @csrf
+                    @method('PUT')
+                    <div class="mb-3">
+                        <label for="nombre_usuario" class="form-label"><i class="fas fa-user me-1"></i> Nombre *</label>
+                        <input type="text" class="form-control" name="nombre_usuario" id="nombre_usuario" value="{{ old('nombre_usuario', $empleado->nombre_usuario) }}" required maxlength="50">
                     </div>
-                    <div class="invalid-feedback" id="cv-error"></div>
-                    @if ($empleado->cv_path)
+                    <div class="mb-3">
+                        <label for="telefono" class="form-label"><i class="fas fa-phone me-1"></i> Teléfono</label>
+                        <input type="tel" class="form-control" name="telefono" id="telefono" value="{{ old('telefono', $empleado->telefono) }}" maxlength="20">
+                    </div>
+                    <div class="mb-3">
+                        <label for="ciudad" class="form-label"><i class="fas fa-map-marker-alt me-1"></i> Ciudad</label>
+                        <input type="text" class="form-control" name="ciudad" id="ciudad" value="{{ old('ciudad', $empleado->ciudad) }}" maxlength="100">
+                    </div>
+                    <div class="mb-3">
+                        <label for="profesion" class="form-label"><i class="fas fa-briefcase me-1"></i> Profesión</label>
+                        <input type="text" class="form-control" name="profesion" id="profesion" value="{{ old('profesion', $empleado->profesion) }}" maxlength="100">
+                    </div>
+                    <div class="mb-3">
+                        <label for="resumen_profesional" class="form-label"><i class="fas fa-file-alt me-1"></i> Resumen</label>
+                        <textarea class="form-control" name="resumen_profesional" id="resumen_profesional" rows="3" maxlength="1000">{{ old('resumen_profesional', $empleado->resumen_profesional) }}</textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary w-100"><i class="fas fa-save me-2"></i> Guardar Cambios</button>
+                    </div>
+                </form>
+            </section>
+            <section class="perfil-card perfil-section-card">
+                <h5 class="mb-3"><i class="fas fa-file-alt me-2"></i> Currículum Vitae (CV)</h5>
+                <label for="cv" class="form-label"><i class="fas fa-upload me-1"></i> Subir nuevo CV</label>
+                <input type="file" class="form-control" name="cv" id="cv" accept=".pdf,.doc,.docx">
+                <div class="form-text"><i class="fas fa-info-circle me-1"></i> Formatos permitidos: PDF, DOC, DOCX (máx. 10MB)</div>
+                @if ($empleado->cv_path)
                     <div class="mt-3">
-                        <div class="alert alert-info">
-                            <i class="fas fa-file-pdf me-2"></i>
-                            <strong>CV actual:</strong> {{ basename($empleado->cv_path) }}
-                        </div>
+                        <div class="alert alert-info"><i class="fas fa-file-pdf me-2"></i> <strong>CV actual:</strong> {{ basename($empleado->cv_path) }}</div>
                     </div>
-                    @endif
+                @endif
+            </section>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-6 col-lg-4">
+            {{-- Experiencia Laboral --}}
+            <section class="perfil-card perfil-section-card h-100">
+                <h5 class="mb-3"><i class="fas fa-briefcase me-2"></i> Experiencia</h5>
+                <div class="perfil-list">
+                    @forelse($empleado->experiencias as $exp)
+                        <div class="mb-3">
+                            <div class="perfil-card-title">{{ $exp->puesto }}</div>
+                            <div class="perfil-card-sub">{{ $exp->empresa }} • {{ $exp->periodo }}</div>
+                            <div class="perfil-card-desc">{{ $exp->descripcion }}
+                                @if($exp->logro)
+                                    <span class="badge badge-habilidad ms-2">{{ $exp->logro }}</span>
+                                @endif
+                            </div>
+                        </div>
+                    @empty
+                        <div class="text-muted">Sin experiencia registrada.</div>
+                    @endforelse
                 </div>
-            </div>
+            </section>
+        </div>
+        <div class="col-md-6 col-lg-4">
+            {{-- Educación --}}
+            <section class="perfil-card perfil-section-card h-100">
+                <h5 class="mb-3"><i class="fas fa-graduation-cap me-2"></i> Educación</h5>
+                <div class="perfil-list">
+                    @forelse($empleado->educaciones as $edu)
+                        <div class="mb-3">
+                            <div class="perfil-card-title">{{ $edu->titulo }}</div>
+                            <div class="perfil-card-sub">{{ $edu->institucion }} • {{ $edu->periodo }}</div>
+                        </div>
+                    @empty
+                        <div class="text-muted">Sin educación registrada.</div>
+                    @endforelse
+                </div>
+            </section>
+        </div>
+        <div class="col-md-12 col-lg-4">
+            {{-- Certificados y Cursos --}}
+            <section class="perfil-card perfil-section-card h-100">
+                <h5 class="mb-3"><i class="fas fa-certificate me-2"></i> Certificados y Cursos</h5>
+                <div class="perfil-list perfil-list-grid">
+                    @forelse($empleado->certificados as $cert)
+                        <div class="perfil-card perfil-card-cert mb-2">
+                            <i class="fas fa-file-pdf fa-2x"></i>
+                            <div>
+                                <strong>{{ $cert->nombre }}</strong>
+                                <div class="perfil-card-sub">{{ $cert->anio }}</div>
+                            </div>
+                        </div>
+                    @empty
+                        <div class="text-muted">Sin certificados registrados.</div>
+                    @endforelse
+                </div>
+            </section>
+        </div>
+        <div class="col-md-6 col-lg-4">
+            {{-- Idiomas --}}
+            <section class="perfil-card perfil-section-card h-100">
+                <h5 class="mb-3"><i class="fas fa-language me-2"></i> Idiomas</h5>
+                <div class="perfil-list">
+                    @forelse($empleado->idiomas as $idioma)
+                        <span class="badge badge-idioma mb-2" data-id="{{ $idioma->id }}">
+                            <i class="fas fa-flag"></i> {{ $idioma->idioma }} <span class="small">({{ $idioma->nivel }})</span>
+                        </span>
+                    @empty
+                        <div class="text-muted">Sin idiomas registrados.</div>
+                    @endforelse
+                </div>
+            </section>
         </div>
     </div>
 </div>
@@ -591,20 +417,21 @@ document.addEventListener('DOMContentLoaded', function() {
         setTimeout(() => alerta.classList.add('d-none'), 2500);
     }
     document.querySelectorAll('.editar-campo').forEach(btn => {
-        btn.addEventListener('click', function() {
+        btn.onclick = function() {
             const row = this.closest('[data-campo]');
             row.querySelector('.valor-campo').classList.add('d-none');
             row.querySelector('.input-campo').classList.remove('d-none');
             row.querySelector('.guardar-campo').classList.remove('d-none');
             this.classList.add('d-none');
-        });
+        };
     });
     document.querySelectorAll('.guardar-campo').forEach(btn => {
-        btn.addEventListener('click', function() {
+        btn.onclick = function() {
             const row = this.closest('[data-campo]');
             const campo = row.getAttribute('data-campo');
             const input = row.querySelector('.input-campo');
             const valor = input.value;
+            const errorDiv = row.querySelector('.error-campo');
             fetch("{{ route('empleado.perfil.campo') }}", {
                 method: 'POST',
                 headers: {
@@ -613,31 +440,36 @@ document.addEventListener('DOMContentLoaded', function() {
                 },
                 body: JSON.stringify({ campo, valor })
             })
-            .then(res => res.json())
-            .then(data => {
-                if(data.success) {
-                    row.querySelector('.valor-campo').textContent = valor;
-                    row.querySelector('.valor-campo').classList.remove('d-none');
-                    input.classList.remove('is-invalid');
-                    input.classList.add('d-none');
-                    row.querySelector('.guardar-campo').classList.add('d-none');
-                    row.querySelector('.editar-campo').classList.remove('d-none');
-                    if(valor) row.querySelector('.eliminar-campo').style.display = '';
-                    else row.querySelector('.eliminar-campo').style.display = 'none';
-                    mostrarAlertaContacto('¡Guardado correctamente!', 'success');
-                } else {
-                    input.classList.add('is-invalid');
-                    mostrarAlertaContacto('Error al guardar. Intenta de nuevo.', 'danger');
-                }
+            .then(async res => {
+                if(res.ok) return res.json();
+                const data = await res.json();
+                throw data;
             })
-            .catch(() => {
+            .then(data => {
+                row.querySelector('.valor-campo').textContent = valor;
+                row.querySelector('.valor-campo').classList.remove('d-none');
+                input.classList.remove('is-invalid');
+                input.classList.add('d-none');
+                errorDiv.style.display = 'none';
+                errorDiv.textContent = '';
+                row.querySelector('.guardar-campo').classList.add('d-none');
+                row.querySelector('.editar-campo').classList.remove('d-none');
+                if(valor) row.querySelector('.eliminar-campo').style.display = '';
+                else row.querySelector('.eliminar-campo').style.display = 'none';
+            })
+            .catch(data => {
+                let msg = 'Error al guardar.';
+                if(data && data.errors && data.errors.valor && data.errors.valor.length) {
+                    msg = data.errors.valor[0];
+                }
                 input.classList.add('is-invalid');
-                mostrarAlertaContacto('Error de red. Intenta de nuevo.', 'danger');
+                errorDiv.textContent = msg;
+                errorDiv.style.display = '';
             });
-        });
+        };
     });
     document.querySelectorAll('.eliminar-campo').forEach(btn => {
-        btn.addEventListener('click', function() {
+        btn.onclick = function() {
             const row = this.closest('[data-campo]');
             const campo = row.getAttribute('data-campo');
             fetch("{{ route('empleado.perfil.campo.eliminar') }}", {
@@ -662,7 +494,106 @@ document.addEventListener('DOMContentLoaded', function() {
             .catch(() => {
                 mostrarAlertaContacto('Error de red. Intenta de nuevo.', 'danger');
             });
-        });
+        };
+    });
+
+    document.getElementById('btnAgregarExp').onclick = function() {
+        document.getElementById('formAgregarExp').classList.remove('d-none');
+    };
+    document.getElementById('cancelarAgregarExp').onclick = function() {
+        document.getElementById('formAgregarExp').classList.add('d-none');
+    };
+    document.getElementById('formAgregarExp').onsubmit = function(e) {
+        e.preventDefault();
+        const form = e.target;
+        fetch("{{ route('empleado.perfil.experiencia.store') }}", {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content,
+                'Accept': 'application/json',
+            },
+            body: new FormData(form)
+        })
+        .then(res => res.ok ? location.reload() : res.json().then(data => alert(data.message || 'Error')));
+    };
+    document.querySelectorAll('.btnEliminarExp').forEach(btn => {
+        btn.onclick = function() {
+            if(!confirm('¿Eliminar esta experiencia?')) return;
+            const id = this.closest('.timeline-item').getAttribute('data-id');
+            fetch(`/empleado/perfil/experiencia/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content,
+                    'Accept': 'application/json',
+                }
+            }).then(res => res.ok ? location.reload() : res.json().then(data => alert(data.message || 'Error')));
+        };
+    });
+
+    document.getElementById('btnAgregarEdu').onclick = function() {
+        document.getElementById('formAgregarEdu').classList.remove('d-none');
+    };
+    document.getElementById('cancelarAgregarEdu').onclick = function() {
+        document.getElementById('formAgregarEdu').classList.add('d-none');
+    };
+    document.getElementById('formAgregarEdu').onsubmit = function(e) {
+        e.preventDefault();
+        const form = e.target;
+        fetch("{{ route('empleado.perfil.educacion.store') }}", {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content,
+                'Accept': 'application/json',
+            },
+            body: new FormData(form)
+        })
+        .then(res => res.ok ? location.reload() : res.json().then(data => alert(data.message || 'Error')));
+    };
+    document.querySelectorAll('.btnEliminarEdu').forEach(btn => {
+        btn.onclick = function() {
+            if(!confirm('¿Eliminar esta educación?')) return;
+            const id = this.closest('.timeline-item').getAttribute('data-id');
+            fetch(`/empleado/perfil/educacion/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content,
+                    'Accept': 'application/json',
+                }
+            }).then(res => res.ok ? location.reload() : res.json().then(data => alert(data.message || 'Error')));
+        };
+    });
+
+    document.getElementById('btnAgregarIdioma').onclick = function() {
+        document.getElementById('formAgregarIdioma').classList.remove('d-none');
+    };
+    document.getElementById('cancelarAgregarIdioma').onclick = function() {
+        document.getElementById('formAgregarIdioma').classList.add('d-none');
+    };
+    document.getElementById('formAgregarIdioma').onsubmit = function(e) {
+        e.preventDefault();
+        const form = e.target;
+        fetch("{{ route('empleado.perfil.idioma.store') }}", {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content,
+                'Accept': 'application/json',
+            },
+            body: new FormData(form)
+        })
+        .then(res => res.ok ? location.reload() : res.json().then(data => alert(data.message || 'Error')));
+    };
+    document.querySelectorAll('.btnEliminarIdioma').forEach(btn => {
+        btn.onclick = function() {
+            if(!confirm('¿Eliminar este idioma?')) return;
+            const id = this.closest('.perfil-idioma-chip').getAttribute('data-id');
+            fetch(`/empleado/perfil/idioma/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content,
+                    'Accept': 'application/json',
+                }
+            }).then(res => res.ok ? location.reload() : res.json().then(data => alert(data.message || 'Error')));
+        };
     });
 });
 </script>

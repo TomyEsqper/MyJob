@@ -110,7 +110,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/estadisticas', [EmpleadorController::class, 'estadisticas'])->name('estadisticas');
         Route::get('/estadisticas/mensuales', [EmpleadorController::class, 'actualizarEstadisticasMensuales'])->name('estadisticas.mensuales');
         Route::get('/estadisticas/top-ofertas', [EmpleadorController::class, 'obtenerTopOfertas'])->name('estadisticas.top-ofertas');
-        
+
         // Rutas de configuración
         Route::get('/configuracion', [EmpleadorController::class, 'configuracion'])->name('configuracion');
     });
@@ -120,7 +120,7 @@ Route::get('/admin/dashboard', function () {
     return view('admin.dashboard');
 })->name('admin.dashboard');
 
-Route::middleware(['auth', 'role:empleado'])->group(function () {
+Route::middleware(['auth'])->group(function () {
     Route::post('/empleado/perfil/campo', [App\Http\Controllers\EmpleadoController::class, 'actualizarCampo'])->name('empleado.perfil.campo');
     Route::delete('/empleado/perfil/campo', [App\Http\Controllers\EmpleadoController::class, 'eliminarCampo'])->name('empleado.perfil.campo.eliminar');
 });

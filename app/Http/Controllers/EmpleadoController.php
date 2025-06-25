@@ -389,6 +389,9 @@ class EmpleadoController extends Controller
             'descripcion' => $request->descripcion,
             'logro' => $request->logro,
         ]);
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json(['success' => true]);
+        }
         return back()->with('success', 'Experiencia agregada');
     }
     public function updateExperiencia(Request $request, $id) {
