@@ -5,14 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e1386fb0-cdc1-4628-8a08-56fe43fdd252" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/php.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/php.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/Models/Notificacion.php" beforeDir="false" afterPath="$PROJECT_DIR$/app/Models/Notificacion.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/public/images/tomas.jpg" beforeDir="false" afterPath="$PROJECT_DIR$/public/images/tomas.jpg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/views/empleado/dashboard.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/resources/views/empleado/dashboard.blade.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/views/empleado/ofertas/buscar.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/resources/views/empleado/ofertas/buscar.blade.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/views/empleado/perfil.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/resources/views/empleado/perfil.blade.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/resources/views/index.blade.php" beforeDir="false" afterPath="$PROJECT_DIR$/resources/views/index.blade.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -299,7 +292,7 @@
       <workItem from="1750767649539" duration="1047000" />
       <workItem from="1750771003442" duration="1329000" />
       <workItem from="1750817839736" duration="959000" />
-      <workItem from="1750819630527" duration="1077000" />
+      <workItem from="1750819630527" duration="1391000" />
     </task>
     <servers />
   </component>

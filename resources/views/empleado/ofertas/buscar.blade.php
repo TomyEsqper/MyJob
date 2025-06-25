@@ -4,7 +4,7 @@
 @section('page-description', 'Encuentra ofertas de trabajo que se adapten a tu perfil.')
 
 @section('content')
-<div class="busqueda-header" style="background: linear-gradient(90deg, #4f8cff 0%, #e66465 100%); padding: 2rem 1rem; border-radius: 2rem; margin-bottom: 1.5rem; text-align: center;">
+<div class="busqueda-header" style="background: linear-gradient(90deg, #4CAF7A 0%, #7BC47F 100%); padding: 2rem 1rem; border-radius: 2rem; margin-bottom: 1.5rem; text-align: center; color: #fff;">
     <i class="fas fa-search icono-busqueda" style="font-size: 2.5rem; margin-bottom: 0.5rem;"></i>
     <h2 style="font-size: 2rem; margin-bottom: 0.5rem;">Buscar Empleo</h2>
     <p style="font-size: 1.1rem;">Descubre oportunidades increíbles que se adapten perfectamente a tu perfil profesional</p>
@@ -59,7 +59,7 @@
             <i class="fas fa-list-ul me-2"></i>
             Resultados de la búsqueda
         </h5>
-        <span class="badge bg-primary fs-6">{{ $ofertas->total() }} ofertas encontradas</span>
+        <span class="badge badge-ofertas-verde fs-6">{{ $ofertas->total() }} ofertas encontradas</span>
     </div>
     <div class="card-body-empleado">
         @if($ofertas->count())

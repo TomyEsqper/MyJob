@@ -13,7 +13,10 @@ use Illuminate\Support\Facades\DB;
 use Intervention\Image\Facades\Image;
 use App\Models\Aplicacion;
 use App\Models\VistaPerfil;
-use App\Models\Notificacion;
+use App\Models\Experiencia;
+use App\Models\Educacion;
+use App\Models\Certificado;
+use App\Models\Idioma;
 
 class EmpleadoController extends Controller
 {
@@ -324,42 +327,6 @@ class EmpleadoController extends Controller
         return back()->with('success', 'Otras sesiones cerradas correctamente.');
     }
 
-    public function notificaciones()
-    {
-        $usuario = Auth::user();
-        $notificaciones = Notificacion::where('usuario_id', $usuario->id_usuario)
-            ->orderBy('created_at', 'desc')
-            ->take(20)
-            ->get()
-            ->map(function($n) {
-                return [
-                    'tipo' => $n->tipo,
-                    'mensaje' => $n->mensaje,
-                    'fecha' => $n->created_at->format('d/m/Y H:i'),
-                    'leida' => $n->leida,
-                ];
-            });
-        return view('empleado.notificaciones', compact('notificaciones'));
-    }
-
-    public function notificacionesAjax()
-    {
-        $usuario = Auth::user();
-        $notificaciones = Notificacion::where('usuario_id', $usuario->id_usuario)
-            ->orderBy('created_at', 'desc')
-            ->take(10)
-            ->get()
-            ->map(function($n) {
-                return [
-                    'tipo' => $n->tipo,
-                    'mensaje' => $n->mensaje,
-                    'fecha' => $n->created_at->format('d/m/Y H:i'),
-                    'leida' => $n->leida,
-                ];
-            });
-        return response()->json($notificaciones);
-    }
-
     /**
      * Actualiza un campo individual del perfil por AJAX
      */
@@ -403,5 +370,143 @@ class EmpleadoController extends Controller
         $usuario->$campo = $campo === 'disponibilidad_movilidad' ? null : null;
         $usuario->save();
         return response()->json(['success' => true, 'campo' => $campo, 'valor' => null]);
+    }
+
+    // EXPERIENCIA
+    public function storeExperiencia(Request $request) {
+        $request->validate([
+            'puesto' => 'required|string|max:255',
+            'empresa' => 'required|string|max:255',
+            'periodo' => 'nullable|string|max:100',
+            'descripcion' => 'nullable|string',
+            'logro' => 'nullable|string|max:255',
+        ]);
+        Experiencia::create([
+            'usuario_id' => Auth::id(),
+            'puesto' => $request->puesto,
+            'empresa' => $request->empresa,
+            'periodo' => $request->periodo,
+            'descripcion' => $request->descripcion,
+            'logro' => $request->logro,
+        ]);
+        return back()->with('success', 'Experiencia agregada');
+    }
+    public function updateExperiencia(Request $request, $id) {
+        $exp = Experiencia::where('usuario_id', Auth::id())->findOrFail($id);
+        $request->validate([
+            'puesto' => 'required|string|max:255',
+            'empresa' => 'required|string|max:255',
+            'periodo' => 'nullable|string|max:100',
+            'descripcion' => 'nullable|string',
+            'logro' => 'nullable|string|max:255',
+        ]);
+        $exp->update($request->only(['puesto','empresa','periodo','descripcion','logro']));
+        return back()->with('success', 'Experiencia actualizada');
+    }
+    public function destroyExperiencia($id) {
+        $exp = Experiencia::where('usuario_id', Auth::id())->findOrFail($id);
+        $exp->delete();
+        return back()->with('success', 'Experiencia eliminada');
+    }
+
+    // EDUCACION
+    public function storeEducacion(Request $request) {
+        $request->validate([
+            'titulo' => 'required|string|max:255',
+            'institucion' => 'required|string|max:255',
+            'periodo' => 'nullable|string|max:100',
+        ]);
+        Educacion::create([
+            'usuario_id' => Auth::id(),
+            'titulo' => $request->titulo,
+            'institucion' => $request->institucion,
+            'periodo' => $request->periodo,
+        ]);
+        return back()->with('success', 'Educación agregada');
+    }
+    public function updateEducacion(Request $request, $id) {
+        $edu = Educacion::where('usuario_id', Auth::id())->findOrFail($id);
+        $request->validate([
+            'titulo' => 'required|string|max:255',
+            'institucion' => 'required|string|max:255',
+            'periodo' => 'nullable|string|max:100',
+        ]);
+        $edu->update($request->only(['titulo','institucion','periodo']));
+        return back()->with('success', 'Educación actualizada');
+    }
+    public function destroyEducacion($id) {
+        $edu = Educacion::where('usuario_id', Auth::id())->findOrFail($id);
+        $edu->delete();
+        return back()->with('success', 'Educación eliminada');
+    }
+
+    // CERTIFICADOS
+    public function storeCertificado(Request $request) {
+        $request->validate([
+            'nombre' => 'required|string|max:255',
+            'institucion' => 'nullable|string|max:255',
+            'anio' => 'nullable|string|max:10',
+            'archivo' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:4096',
+        ]);
+        $archivo = null;
+        if ($request->hasFile('archivo')) {
+            $archivo = $request->file('archivo')->store('certificados', 'public');
+        }
+        Certificado::create([
+            'usuario_id' => Auth::id(),
+            'nombre' => $request->nombre,
+            'institucion' => $request->institucion,
+            'anio' => $request->anio,
+            'archivo' => $archivo,
+        ]);
+        return back()->with('success', 'Certificado agregado');
+    }
+    public function updateCertificado(Request $request, $id) {
+        $cert = Certificado::where('usuario_id', Auth::id())->findOrFail($id);
+        $request->validate([
+            'nombre' => 'required|string|max:255',
+            'institucion' => 'nullable|string|max:255',
+            'anio' => 'nullable|string|max:10',
+            'archivo' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:4096',
+        ]);
+        $data = $request->only(['nombre','institucion','anio']);
+        if ($request->hasFile('archivo')) {
+            $data['archivo'] = $request->file('archivo')->store('certificados', 'public');
+        }
+        $cert->update($data);
+        return back()->with('success', 'Certificado actualizado');
+    }
+    public function destroyCertificado($id) {
+        $cert = Certificado::where('usuario_id', Auth::id())->findOrFail($id);
+        $cert->delete();
+        return back()->with('success', 'Certificado eliminado');
+    }
+
+    // IDIOMAS
+    public function storeIdioma(Request $request) {
+        $request->validate([
+            'idioma' => 'required|string|max:100',
+            'nivel' => 'required|string|max:100',
+        ]);
+        Idioma::create([
+            'usuario_id' => Auth::id(),
+            'idioma' => $request->idioma,
+            'nivel' => $request->nivel,
+        ]);
+        return back()->with('success', 'Idioma agregado');
+    }
+    public function updateIdioma(Request $request, $id) {
+        $idioma = Idioma::where('usuario_id', Auth::id())->findOrFail($id);
+        $request->validate([
+            'idioma' => 'required|string|max:100',
+            'nivel' => 'required|string|max:100',
+        ]);
+        $idioma->update($request->only(['idioma','nivel']));
+        return back()->with('success', 'Idioma actualizado');
+    }
+    public function destroyIdioma($id) {
+        $idioma = Idioma::where('usuario_id', Auth::id())->findOrFail($id);
+        $idioma->delete();
+        return back()->with('success', 'Idioma eliminado');
     }
 }

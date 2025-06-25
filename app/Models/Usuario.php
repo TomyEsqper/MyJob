@@ -30,7 +30,6 @@ class Usuario extends Authenticatable
         'educacion',
         'habilidades',
         'cv_path',
-        'notificaciones_email',
         'idioma',
         'tema',
         'privacidad_perfil',
@@ -105,8 +104,19 @@ class Usuario extends Authenticatable
         return $this->hasMany(\App\Models\UsuarioPasswordHistory::class, 'usuario_id', 'id_usuario');
     }
 
-    public function notificaciones()
-    {
-        return $this->hasMany(Notificacion::class, 'usuario_id', 'id_usuario');
+    public function experiencias() {
+        return $this->hasMany(Experiencia::class, 'usuario_id', 'id_usuario');
+    }
+
+    public function educaciones() {
+        return $this->hasMany(Educacion::class, 'usuario_id', 'id_usuario');
+    }
+
+    public function certificados() {
+        return $this->hasMany(Certificado::class, 'usuario_id', 'id_usuario');
+    }
+
+    public function idiomas() {
+        return $this->hasMany(Idioma::class, 'usuario_id', 'id_usuario');
     }
 }

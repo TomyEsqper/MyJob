@@ -79,7 +79,7 @@
             <div class="text-center py-5">
                 <i class="fas fa-briefcase fa-3x text-muted mb-3"></i>
                 <p class="text-muted mb-0">No hay aplicaciones recientes</p>
-                <a href="{{ route('empleado.buscar') }}" class="btn btn-success mt-3">
+                <a href="{{ route('empleado.buscar') }}" class="btn btn-success dashboard-empty-btn mt-3">
                     <i class="fas fa-search me-1"></i> Buscar Ofertas
                 </a>
             </div>
@@ -156,7 +156,7 @@
             <div class="text-center py-5">
                 <i class="fas fa-search fa-3x text-muted mb-3"></i>
                 <p class="text-muted mb-0">No hay ofertas disponibles en este momento</p>
-                <a href="{{ route('empleado.buscar') }}" class="btn btn-success mt-3">
+                <a href="{{ route('empleado.buscar') }}" class="btn btn-success dashboard-empty-btn mt-3">
                     <i class="fas fa-search me-1"></i> Buscar Empleo
                 </a>
             </div>

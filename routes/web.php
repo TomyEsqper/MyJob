@@ -69,6 +69,19 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/cerrar-otras-sesiones', [EmpleadoController::class, 'cerrarOtrasSesiones'])->name('cerrar-otras-sesiones');
         Route::put('/perfil/{id}', [EmpleadoController::class, 'actualizarPerfil'])->name('perfil.update');
         Route::get('/notificaciones-ajax', [EmpleadoController::class, 'notificacionesAjax'])->name('notificaciones.ajax');
+        Route::get('/notificacion-prueba', [EmpleadoController::class, 'crearNotificacionPrueba'])->name('empleado.notificacion-prueba');
+        Route::post('/perfil/experiencia', [EmpleadoController::class, 'storeExperiencia'])->name('perfil.experiencia.store');
+        Route::put('/perfil/experiencia/{id}', [EmpleadoController::class, 'updateExperiencia'])->name('perfil.experiencia.update');
+        Route::delete('/perfil/experiencia/{id}', [EmpleadoController::class, 'destroyExperiencia'])->name('perfil.experiencia.destroy');
+        Route::post('/perfil/educacion', [EmpleadoController::class, 'storeEducacion'])->name('perfil.educacion.store');
+        Route::put('/perfil/educacion/{id}', [EmpleadoController::class, 'updateEducacion'])->name('perfil.educacion.update');
+        Route::delete('/perfil/educacion/{id}', [EmpleadoController::class, 'destroyEducacion'])->name('perfil.educacion.destroy');
+        Route::post('/perfil/certificado', [EmpleadoController::class, 'storeCertificado'])->name('perfil.certificado.store');
+        Route::put('/perfil/certificado/{id}', [EmpleadoController::class, 'updateCertificado'])->name('perfil.certificado.update');
+        Route::delete('/perfil/certificado/{id}', [EmpleadoController::class, 'destroyCertificado'])->name('perfil.certificado.destroy');
+        Route::post('/perfil/idioma', [EmpleadoController::class, 'storeIdioma'])->name('perfil.idioma.store');
+        Route::put('/perfil/idioma/{id}', [EmpleadoController::class, 'updateIdioma'])->name('perfil.idioma.update');
+        Route::delete('/perfil/idioma/{id}', [EmpleadoController::class, 'destroyIdioma'])->name('perfil.idioma.destroy');
     });
 });
 
@@ -98,16 +111,6 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/estadisticas/mensuales', [EmpleadorController::class, 'actualizarEstadisticasMensuales'])->name('estadisticas.mensuales');
         Route::get('/estadisticas/top-ofertas', [EmpleadorController::class, 'obtenerTopOfertas'])->name('estadisticas.top-ofertas');
         
-        // Rutas de notificaciones
-        Route::prefix('notificaciones')->group(function () {
-            Route::get('/', [NotificacionController::class, 'index'])->name('notificaciones');
-            Route::get('/no-leidas', [NotificacionController::class, 'obtenerNoLeidas'])->name('notificaciones.no-leidas');
-            Route::post('/{notificacion}/marcar-leida', [NotificacionController::class, 'marcarComoLeida'])->name('notificaciones.marcar-leida');
-            Route::post('/marcar-todas-leidas', [NotificacionController::class, 'marcarTodasComoLeidas'])->name('notificaciones.marcar-todas-leidas');
-            Route::delete('/{notificacion}', [NotificacionController::class, 'eliminar'])->name('notificaciones.eliminar');
-            Route::delete('/eliminar-todas', [NotificacionController::class, 'eliminarTodas'])->name('notificaciones.eliminar-todas');
-        });
-
         // Rutas de configuración
         Route::get('/configuracion', [EmpleadorController::class, 'configuracion'])->name('configuracion');
     });

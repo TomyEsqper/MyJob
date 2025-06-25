@@ -57,14 +57,6 @@
         <form method="POST" action="{{ route('empleado.guardar-preferencias') }}">
             @csrf
             <div class="mb-3">
-                <label for="notificaciones_email" class="form-label">Notificaciones por email</label>
-                <select id="notificaciones_email" name="notificaciones_email" class="form-select">
-                    <option value="todas" {{ (auth()->user()->notificaciones_email ?? '') == 'todas' ? 'selected' : '' }}>Todas</option>
-                    <option value="solo-importantes" {{ (auth()->user()->notificaciones_email ?? '') == 'solo-importantes' ? 'selected' : '' }}>Solo importantes</option>
-                    <option value="ninguna" {{ (auth()->user()->notificaciones_email ?? '') == 'ninguna' ? 'selected' : '' }}>Ninguna</option>
-                </select>
-            </div>
-            <div class="mb-3">
                 <label for="idioma" class="form-label">Idioma de la plataforma</label>
                 <select id="idioma" name="idioma" class="form-select">
                     <option value="es" {{ (auth()->user()->idioma ?? '') == 'es' ? 'selected' : '' }}>Español</option>

@@ -18,8 +18,6 @@ return new class extends Migration
 
             $table->foreign('oferta_id')->references('id')->on('ofertas')->onDelete('cascade');
             $table->foreign('empleado_id')->references('id_usuario')->on('usuarios')->onDelete('cascade');
-            
-            // Evitar aplicaciones duplicadas
             $table->unique(['oferta_id', 'empleado_id']);
         });
     }

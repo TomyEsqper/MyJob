@@ -269,6 +269,12 @@ body {
     box-shadow: 0 4px 16px #b6e2c540;
 }
 
+/* Botón especial para dashboard vacío */
+.dashboard-empty-btn {
+    font-size: 0.92rem;
+    padding: 0.28em 0.9em;
+}
+
 /* Animación para los iconos vacíos */
 .fa-briefcase, .fa-search {
     animation: pulse 1.5s infinite alternate;
@@ -564,14 +570,14 @@ body {
 }
 
 .btn-busqueda {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #4CAF7A 0%, #7BC47F 100%);
     border: none;
     border-radius: 12px;
     padding: 0.875rem 1.5rem;
     color: white;
     font-weight: 600;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 4px 15px rgba(76, 175, 122, 0.18);
     position: relative;
     overflow: hidden;
 }
@@ -608,6 +614,12 @@ body {
     height: 100%;
     display: flex;
     flex-direction: column;
+    max-width: 370px;
+    word-break: break-word;
+    padding-left: 2rem;
+    padding-right: 2rem;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .resultado-oferta-card::before {
@@ -737,6 +749,9 @@ body {
     
     .resultado-oferta-card {
         padding: 1.5rem;
+        max-width: 100%;
+        padding-left: 1rem;
+        padding-right: 1rem;
     }
 }
 
@@ -1486,4 +1501,16 @@ body {
         min-width: 0;
         width: 100%;
     }
+}
+
+.badge-ofertas-verde {
+    background: linear-gradient(90deg, #219150 0%, #3a8dde 100%);
+    color: #fff;
+    font-weight: 700;
+    border-radius: 999px;
+    padding: 0.4em 1.2em;
+    font-size: 1em;
+    box-shadow: 0 2px 8px rgba(58, 141, 222, 0.13);
+    border: none;
+    display: inline-block;
 }

@@ -3,10 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Dashboard Empleador')</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/empleador.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        if (window.axios) {
+            axios.defaults.headers.common['X-CSRF-TOKEN'] = document.querySelector('meta[name=csrf-token]').content;
+        }
+    </script>
     @stack('styles')
 </head>
 <body>
@@ -48,11 +55,6 @@
                        href="{{ route('empleador.notificaciones') }}">
                         <i class="fas fa-bell"></i>
                         <span>Notificaciones</span>
-                        @if(Auth::user()->notificaciones()->where('leida', false)->count() > 0)
-                            <span class="badge bg-danger rounded-pill ms-2">
-                                {{ Auth::user()->notificaciones()->where('leida', false)->count() }}
-                            </span>
-                        @endif
                     </a>
                 </li>
                 <li class="nav-item">
@@ -88,62 +90,6 @@
                     <p class="mb-0">@yield('page-description', 'Bienvenido a tu panel de empleador')</p>
                 </div>
                 <div class="d-flex align-items-center">
-                    <!-- Notificaciones Dropdown -->
-                    <div class="dropdown me-3">
-                        <button class="btn btn-link text-dark position-relative p-0" 
-                                type="button" 
-                                id="dropdownNotificaciones" 
-                                data-bs-toggle="dropdown" 
-                                aria-expanded="false">
-                            <i class="fas fa-bell fa-lg"></i>
-                            <span id="contador-notificaciones" 
-                                  class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-                                  style="{{ Auth::user()->notificaciones()->where('leida', false)->count() > 0 ? '' : 'display: none;' }}">
-                                {{ Auth::user()->notificaciones()->where('leida', false)->count() }}
-                            </span>
-                        </button>
-                        <div class="dropdown-menu dropdown-menu-end shadow-sm py-0" 
-                             aria-labelledby="dropdownNotificaciones"
-                             style="width: 320px; max-height: 480px; overflow-y: auto;">
-                            <div class="p-3 border-bottom">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <h6 class="mb-0">Notificaciones</h6>
-                                    <a href="{{ route('empleador.notificaciones') }}" class="text-primary text-decoration-none">Ver todas</a>
-                                </div>
-                            </div>
-                            <div class="notificaciones-lista">
-                                @forelse(Auth::user()->notificaciones()->where('leida', false)->take(5)->get() as $notificacion)
-                                    <div class="dropdown-item-text p-3 border-bottom" id="notificacion-preview-{{ $notificacion->id }}">
-                                        <div class="d-flex">
-                                            <div class="flex-shrink-0">
-                                                <div class="rounded-circle p-2 {{ $notificacion->color_clase }} bg-opacity-10">
-                                                    <i class="{{ $notificacion->icono_clase }}"></i>
-                                                </div>
-                                            </div>
-                                            <div class="flex-grow-1 ms-3">
-                                                <h6 class="mb-1 fw-semibold">{{ $notificacion->titulo }}</h6>
-                                                <p class="mb-1 small text-muted">{{ Str::limit($notificacion->mensaje, 100) }}</p>
-                                                <small class="text-muted">{{ $notificacion->created_at->diffForHumans() }}</small>
-                                            </div>
-                                        </div>
-                                    </div>
-                                @empty
-                                    <div class="text-center py-4">
-                                        <i class="fas fa-bell-slash text-muted mb-2"></i>
-                                        <p class="text-muted mb-0 small">No hay notificaciones nuevas</p>
-                                    </div>
-                                @endforelse
-                            </div>
-                            @if(Auth::user()->notificaciones()->where('leida', false)->count() > 0)
-                                <div class="p-3 border-top">
-                                    <button onclick="marcarTodasComoLeidas()" class="btn btn-light btn-sm w-100">
-                                        <i class="fas fa-check-double me-1"></i>
-                                        Marcar todas como leídas
-                                    </button>
-                                </div>
-                            @endif
-                        </div>
-                    </div>
                     <!-- User Profile Dropdown -->
                     <div class="dropdown ms-3">
                         <a href="#" class="dropdown-toggle text-decoration-none d-flex align-items-center" data-bs-toggle="dropdown">

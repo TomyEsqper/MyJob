@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('postulaciones', function (Blueprint $table) {
@@ -18,14 +15,13 @@ return new class extends Migration
             $table->date('fecha_postulacion')->nullable();
             $table->string('estado')->default('pendiente'); // 'aceptado', 'rechazado'
             $table->timestamps();
+            // Relaciones
+            // Puedes agregar claves foráneas si lo deseas, pero en la migración original no estaban
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('postulaciones');
     }
-};
+}; 
