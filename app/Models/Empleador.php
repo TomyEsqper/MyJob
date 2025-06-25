@@ -43,7 +43,9 @@ class Empleador extends Model
         'mision',
         'vision',
         'beneficios',
-        'logo_empresa'
+        'logo_empresa',
+        'created_at',
+        'updated_at'
     ];
 
     /**

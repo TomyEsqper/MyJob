@@ -16,7 +16,6 @@ class Oferta extends Model
         'requisitos',
         'responsabilidades',
         'salario',
-        'salario_max',
         'ubicacion',
         'tipo_contrato',
         'jornada',
@@ -31,7 +30,6 @@ class Oferta extends Model
 
     protected $casts = [
         'salario' => 'decimal:2',
-        'salario_max' => 'decimal:2',
         'beneficios' => 'array',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',

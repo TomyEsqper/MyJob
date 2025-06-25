@@ -107,21 +107,14 @@
         </div>
         <div class="card-body">
             <div class="row">
-                <div class="col-md-6 mb-3">
-                    <label for="salario" class="form-label">Salario mínimo *</label>
+                <div class="col-md-12 mb-3">
+                    <label for="salario" class="form-label">Salario *</label>
                     <div class="input-group has-validation">
-                        <span class="input-group-text"><i class="fas fa-euro-sign"></i></span>
-                        <input type="number" class="form-control" id="salario" name="salario" value="{{ old('salario', $oferta->salario) }}" placeholder="Salario mínimo anual" step="0.01" min="0" max="99999999.99" required>
+                        <span class="input-group-text">COP $</span>
+                        <input type="number" class="form-control" id="salario" name="salario" value="{{ old('salario', $oferta->salario) }}" placeholder="Ingrese el salario mensual" step="1000" min="0" max="999999999" required>
                         <div class="invalid-feedback" id="salario-error"></div>
                     </div>
-                </div>
-                <div class="col-md-6 mb-3">
-                    <label for="salario_max" class="form-label">Salario máximo *</label>
-                    <div class="input-group has-validation">
-                        <span class="input-group-text"><i class="fas fa-euro-sign"></i></span>
-                        <input type="number" class="form-control" id="salario_max" name="salario_max" value="{{ old('salario_max', $oferta->salario_max) }}" placeholder="Salario máximo anual" step="0.01" min="0" max="99999999.99" required>
-                        <div class="invalid-feedback" id="salario_max-error"></div>
-                    </div>
+                    <small class="form-text text-muted">Ingrese el salario mensual en pesos colombianos (COP)</small>
                 </div>
                 <div class="col-md-12 mb-3">
                     <label class="form-label">Beneficios laborales</label>

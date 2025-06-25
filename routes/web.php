@@ -11,6 +11,7 @@ use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\EmpleadorController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use App\Http\Controllers\NotificacionController;
 
 Route::get('/', function () {
     return view('index');
@@ -94,9 +95,18 @@ Route::middleware(['auth'])->group(function () {
 
         // Rutas de estadísticas
         Route::get('/estadisticas', [EmpleadorController::class, 'estadisticas'])->name('estadisticas');
+        Route::get('/estadisticas/mensuales', [EmpleadorController::class, 'actualizarEstadisticasMensuales'])->name('estadisticas.mensuales');
+        Route::get('/estadisticas/top-ofertas', [EmpleadorController::class, 'obtenerTopOfertas'])->name('estadisticas.top-ofertas');
         
         // Rutas de notificaciones
-        Route::get('/notificaciones', [EmpleadorController::class, 'notificaciones'])->name('notificaciones');
+        Route::prefix('notificaciones')->group(function () {
+            Route::get('/', [NotificacionController::class, 'index'])->name('notificaciones');
+            Route::get('/no-leidas', [NotificacionController::class, 'obtenerNoLeidas'])->name('notificaciones.no-leidas');
+            Route::post('/{notificacion}/marcar-leida', [NotificacionController::class, 'marcarComoLeida'])->name('notificaciones.marcar-leida');
+            Route::post('/marcar-todas-leidas', [NotificacionController::class, 'marcarTodasComoLeidas'])->name('notificaciones.marcar-todas-leidas');
+            Route::delete('/{notificacion}', [NotificacionController::class, 'eliminar'])->name('notificaciones.eliminar');
+            Route::delete('/eliminar-todas', [NotificacionController::class, 'eliminarTodas'])->name('notificaciones.eliminar-todas');
+        });
 
         // Rutas de configuración
         Route::get('/configuracion', [EmpleadorController::class, 'configuracion'])->name('configuracion');
