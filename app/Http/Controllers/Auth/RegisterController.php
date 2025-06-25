@@ -113,11 +113,16 @@ class RegisterController extends Controller
         $password = $rol === 'empleador' ? $request->password_empresa : $request->password;
 
         // Creación del registro en la tabla usuarios.
+        $fotoPerfilPath = null;
+        if ($request->hasFile('foto_perfil')) {
+            $fotoPerfilPath = $request->file('foto_perfil')->store('fotos_perfil', 'public');
+        }
         $usuario = Usuario::create([
             'nombre_usuario'     => $rol === 'empleador' ? $request->nombre_empresa : $request->name,
             'correo_electronico' => $request->email,
             'contrasena'         => Hash::make($password),
             'rol'                => $rol,
+            'foto_perfil'        => $fotoPerfilPath,
         ]);
 
         // Si es empleador, crea registro en empleadores.
