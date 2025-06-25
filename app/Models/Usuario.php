@@ -29,7 +29,19 @@ class Usuario extends Authenticatable
         'experiencia',
         'educacion',
         'habilidades',
-        'cv_path'
+        'cv_path',
+        'notificaciones_email',
+        'idioma',
+        'tema',
+        'privacidad_perfil',
+        'whatsapp',
+        'facebook',
+        'instagram',
+        'linkedin',
+        'resumen_profesional',
+        'disponibilidad_horario',
+        'disponibilidad_jornada',
+        'disponibilidad_movilidad',
     ];
 
     protected $hidden = [

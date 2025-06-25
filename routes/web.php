@@ -49,7 +49,7 @@ Route::post('password/reset', [ResetPasswordController::class, 'reset'])
 Route::middleware(['auth'])->group(function () {
     Route::prefix('empleado')->name('empleado.')->group(function () {
         Route::get('/dashboard', [EmpleadoController::class, 'dashboard'])->name('dashboard');
-        Route::get('/perfil', [EmpleadoController::class, 'perfil'])->name('perfil');
+        Route::get('/perfil/{id?}', [EmpleadoController::class, 'perfil'])->name('perfil');
         Route::post('/actualizar-perfil', [EmpleadoController::class, 'actualizarPerfil'])->name('actualizar-perfil');
         Route::post('/actualizar-foto', [EmpleadoController::class, 'actualizarFoto'])->name('actualizar-foto');
         Route::post('/actualizar-cv', [EmpleadoController::class, 'actualizarCV'])->name('actualizar-cv');
@@ -61,6 +61,14 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/cv', [EmpleadoController::class, 'cv'])->name('cv');
         Route::get('/notificaciones', [EmpleadoController::class, 'notificaciones'])->name('notificaciones');
         Route::get('/configuracion', [EmpleadoController::class, 'configuracion'])->name('configuracion');
+        Route::post('/actualizar-contrasena', [EmpleadoController::class, 'actualizarContrasena'])->name('actualizar-contrasena');
+        Route::post('/eliminar-cuenta', [EmpleadoController::class, 'eliminarCuenta'])->name('eliminar-cuenta');
+        Route::post('/guardar-preferencias', [EmpleadoController::class, 'guardarPreferencias'])->name('guardar-preferencias');
+        Route::post('/actualizar-correo', [EmpleadoController::class, 'actualizarCorreo'])->name('actualizar-correo');
+        Route::post('/actualizar-privacidad', [EmpleadoController::class, 'actualizarPrivacidad'])->name('actualizar-privacidad');
+        Route::post('/cerrar-otras-sesiones', [EmpleadoController::class, 'cerrarOtrasSesiones'])->name('cerrar-otras-sesiones');
+        Route::put('/perfil/{id}', [EmpleadoController::class, 'actualizarPerfil'])->name('perfil.update');
+        Route::get('/notificaciones-ajax', [EmpleadoController::class, 'notificacionesAjax'])->name('notificaciones.ajax');
     });
 });
 
@@ -108,3 +116,8 @@ Route::middleware(['auth'])->group(function () {
 Route::get('/admin/dashboard', function () {
     return view('admin.dashboard');
 })->name('admin.dashboard');
+
+Route::middleware(['auth', 'role:empleado'])->group(function () {
+    Route::post('/empleado/perfil/campo', [App\Http\Controllers\EmpleadoController::class, 'actualizarCampo'])->name('empleado.perfil.campo');
+    Route::delete('/empleado/perfil/campo', [App\Http\Controllers\EmpleadoController::class, 'eliminarCampo'])->name('empleado.perfil.campo.eliminar');
+});

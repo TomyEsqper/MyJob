@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class Notificacion extends Model
 {
@@ -58,7 +58,3 @@ class Notificacion extends Model
             'success' => 'text-success',
             'warning' => 'text-warning',
             'danger' => 'text-danger',
-            default => 'text-primary'
-        };
-    }
-} 

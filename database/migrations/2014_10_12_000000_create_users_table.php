@@ -62,6 +62,10 @@ return new class extends Migration
             $table->string('cv_path')->nullable();  // Ruta del archivo del currículum
             $table->rememberToken();  // Token de sesión de Laravel
             $table->timestamps();  // Campos created_at y updated_at automáticos
+            $table->string('notificaciones_email')->default('todas'); // Preferencias de notificaciones
+            $table->string('idioma')->default('es'); // Idioma de la plataforma
+            $table->string('tema')->default('claro'); // Tema de visualización
+            $table->string('privacidad_perfil')->default('publico'); // Privacidad del perfil
         });
     }
 
