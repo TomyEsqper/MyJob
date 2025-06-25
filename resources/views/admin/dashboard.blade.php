@@ -1,264 +1,274 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Administrador</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
-</head>
-<body>
-    <div class="container-fluid">
-        <div class="row">
-            <!-- Sidebar -->
-            <div class="col-auto p-0 sidebar">
-                <div class="logo">
-                    <img src="{{ asset('logos/mac-os-100.png') }}" alt="Logo" height="50">
-                    <span class="ms-2 fw-bold">JobPortal</span>
+@extends('layouts.admin')
+
+@section('title', 'Dashboard')
+
+@section('content')
+<div class="container-fluid">
+    <!-- Tarjetas de Estadísticas -->
+    <div class="row g-4 mb-4">
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="stats-card">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div class="icon bg-primary bg-opacity-10 text-primary">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="dropdown">
+                        <button class="btn btn-link btn-sm p-0 text-muted" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="{{ route('admin.users.index') }}">Ver Usuarios</a></li>
+                        </ul>
+                    </div>
                 </div>
-                <ul class="nav flex-column mt-4">
-                    <li class="nav-item">
-                        <a href="#" class="nav-link active">
-                            <i class="fas fa-tachometer-alt"></i> Dashboard
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#" class="nav-link">
-                            <i class="fas fa-users"></i> Usuarios
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#" class="nav-link">
-                            <i class="fas fa-building"></i> Empresas
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#" class="nav-link">
-                            <i class="fas fa-briefcase text-success"></i> Ofertas
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#" class="nav-link">
-                            <i class="fas fa-chart-bar"></i> Estadísticas
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#" class="nav-link">
-                            <i class="fas fa-cog"></i> Configuración
-                        </a>
-                    </li>
-                    <li class="nav-item mt-5">
-                        <a href="#" class="nav-link text-danger">
-                            <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
-                        </a>
-                    </li>
-                </ul>
+                <h3 class="mb-2">{{ number_format($stats['total_users']) }}</h3>
+                <p class="text-muted mb-0">Usuarios Totales</p>
             </div>
+        </div>
 
-            <!-- Main Content -->
-            <div class="col main-content">
-                <!-- Header -->
-                <div class="header">
-                    <h4 class="mb-0">Panel de Administración</h4>
-                    <div class="user-profile">
-                        <div class="dropdown">
-                            <a href="#" class="dropdown-toggle text-decoration-none" data-bs-toggle="dropdown">
-                                <i class="fas fa-bell text-muted"></i>
-                                <span class="badge rounded-pill bg-danger">7</span>
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-end">
-                                <li><a class="dropdown-item" href="#">Nueva empresa registrada</a></li>
-                                <li><a class="dropdown-item" href="#">Reporte de oferta inapropiada</a></li>
-                                <li><a class="dropdown-item" href="#">Actualización del sistema disponible</a></li>
-                            </ul>
-                        </div>
-                        <div class="dropdown ms-3">
-                            <a href="#" class="dropdown-toggle text-decoration-none d-flex align-items-center" data-bs-toggle="dropdown">
-                                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
-                                    <span>AD</span>
-                                </div>
-                                <span class="ms-2">Admin</span>
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-end">
-                                <li><a class="dropdown-item" href="#">Mi Perfil</a></li>
-                                <li><a class="dropdown-item" href="#">Configuración</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item text-danger" href="#">Cerrar Sesión</a></li>
-                            </ul>
-                        </div>
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="stats-card">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div class="icon bg-success bg-opacity-10 text-success">
+                        <i class="fas fa-briefcase"></i>
+                    </div>
+                    <div class="dropdown">
+                        <button class="btn btn-link btn-sm p-0 text-muted" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="{{ route('admin.jobs.index') }}">Ver Ofertas</a></li>
+                        </ul>
                     </div>
                 </div>
+                <h3 class="mb-2">{{ number_format($stats['active_jobs']) }}</h3>
+                <p class="text-muted mb-0">Ofertas Activas</p>
+            </div>
+        </div>
 
-                <!-- Stats Row -->
-                <div class="row mb-4">
-                    <div class="col-md-3">
-                        <div class="stat-card">
-                            <div class="icon">
-                                <i class="fas fa-users"></i>
-                            </div>
-                            <div class="content">
-                                <h3>1,245</h3>
-                                <p>Usuarios Totales</p>
-                            </div>
-                        </div>
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="stats-card">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div class="icon bg-info bg-opacity-10 text-info">
+                        <i class="fas fa-building"></i>
                     </div>
-                    <div class="col-md-3">
-                        <div class="stat-card">
-                            <div class="icon">
-                                <i class="fas fa-building"></i>
-                            </div>
-                            <div class="content">
-                                <h3>87</h3>
-                                <p>Empresas Activas</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="stat-card">
-                            <div class="icon">
-                                <i class="fas fa-briefcase"></i>
-                            </div>
-                            <div class="content">
-                                <h3>342</h3>
-                                <p>Ofertas Publicadas</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="stat-card">
-                            <div class="icon">
-                                <i class="fas fa-handshake"></i>
-                            </div>
-                            <div class="content">
-                                <h3>156</h3>
-                                <p>Contrataciones</p>
-                            </div>
-                        </div>
+                    <div class="dropdown">
+                        <button class="btn btn-link btn-sm p-0 text-muted" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="{{ route('admin.companies.index') }}">Ver Empresas</a></li>
+                        </ul>
                     </div>
                 </div>
+                <h3 class="mb-2">{{ number_format($stats['total_employers']) }}</h3>
+                <p class="text-muted mb-0">Empresas Registradas</p>
+            </div>
+        </div>
 
-                <!-- Recent Users -->
-                <div class="card mb-4">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">Usuarios Recientes</h5>
-                        <a href="#" class="btn btn-sm btn-outline-light">Ver Todos</a>
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="stats-card">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div class="icon bg-warning bg-opacity-10 text-warning">
+                        <i class="fas fa-file-alt"></i>
                     </div>
-                    <div class="card-body p-0">
-                        <div class="user-card">
-                            <div class="user-avatar">
-                                <i class="fas fa-user"></i>
-                            </div>
-                            <div class="user-info">
-                                <h4>Juan Pérez</h4>
-                                <p>Empleado • Registrado hace 2 días • Madrid</p>
-                            </div>
-                            <div class="user-actions">
-                                <button class="btn btn-sm btn-outline-primary me-2">Ver Perfil</button>
-                                <button class="btn btn-sm btn-outline-danger">Suspender</button>
-                            </div>
-                        </div>
-                        <div class="user-card">
-                            <div class="user-avatar">
-                                <i class="fas fa-building"></i>
-                            </div>
-                            <div class="user-info">
-                                <h4>TechSolutions Inc.</h4>
-                                <p>Empleador • Registrado hace 3 días • Barcelona</p>
-                            </div>
-                            <div class="user-actions">
-                                <button class="btn btn-sm btn-outline-primary me-2">Ver Perfil</button>
-                                <button class="btn btn-sm btn-outline-danger">Suspender</button>
-                            </div>
-                        </div>
-                        <div class="user-card">
-                            <div class="user-avatar">
-                                <i class="fas fa-user"></i>
-                            </div>
-                            <div class="user-info">
-                                <h4>María García</h4>
-                                <p>Empleado • Registrado hace 5 días • Valencia</p>
-                            </div>
-                            <div class="user-actions">
-                                <button class="btn btn-sm btn-outline-primary me-2">Ver Perfil</button>
-                                <button class="btn btn-sm btn-outline-danger">Suspender</button>
-                            </div>
-                        </div>
+                    <div class="dropdown">
+                        <button class="btn btn-link btn-sm p-0 text-muted" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="{{ route('admin.reports') }}">Ver Reportes</a></li>
+                        </ul>
                     </div>
                 </div>
+                <h3 class="mb-2">{{ number_format($stats['total_applications']) }}</h3>
+                <p class="text-muted mb-0">Aplicaciones Totales</p>
+            </div>
+        </div>
+    </div>
 
-                <!-- System Overview -->
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="card">
-                            <div class="card-header d-flex justify-content-between align-items-center">
-                                <h5 class="mb-0">Reportes Recientes</h5>
-                                <a href="#" class="btn btn-sm btn-outline-light">Ver Todos</a>
-                            </div>
-                            <div class="card-body p-0">
-                                <div class="user-card">
-                                    <div class="user-avatar bg-warning text-dark">
-                                        <i class="fas fa-exclamation-triangle"></i>
-                                    </div>
-                                    <div class="user-info">
-                                        <h4>Oferta Inapropiada</h4>
-                                        <p>Reportado por: Carlos Rodríguez • Hace 1 día</p>
-                                    </div>
-                                    <div class="user-actions">
-                                        <button class="btn btn-sm btn-outline-primary">Revisar</button>
-                                    </div>
-                                </div>
-                                <div class="user-card">
-                                    <div class="user-avatar bg-warning text-dark">
-                                        <i class="fas fa-exclamation-triangle"></i>
-                                    </div>
-                                    <div class="user-info">
-                                        <h4>Perfil Falso</h4>
-                                        <p>Reportado por: TechSolutions Inc. • Hace 2 días</p>
-                                    </div>
-                                    <div class="user-actions">
-                                        <button class="btn btn-sm btn-outline-primary">Revisar</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="card">
-                            <div class="card-header d-flex justify-content-between align-items-center">
-                                <h5 class="mb-0">Estado del Sistema</h5>
-                                <a href="#" class="btn btn-sm btn-outline-light">Detalles</a>
-                            </div>
-                            <div class="card-body">
-                                <div class="mb-3">
-                                    <p class="mb-1 d-flex justify-content-between">
-                                        <span>Categorías Populares</span>
-                                        <span><i class="fas fa-chart-pie text-primary"></i></span>
-                                    </p>
-                                    <div class="d-flex justify-content-between small text-muted mb-1">
-                                        <span>Tecnología (35%)</span>
-                                        <span>Marketing (25%)</span>
-                                        <span>Ventas (20%)</span>
-                                        <span>Otros (20%)</span>
-                                    </div>
-                                    <div class="progress" style="height: 10px;">
-                                        <div class="progress-bar bg-primary" role="progressbar" style="width: 35%" aria-valuenow="35" aria-valuemin="0" aria-valuemax="100"></div>
-                                        <div class="progress-bar bg-success" role="progressbar" style="width: 25%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
-                                        <div class="progress-bar bg-info" role="progressbar" style="width: 20%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
-                                        <div class="progress-bar bg-secondary" role="progressbar" style="width: 20%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
-                                    </div>
-                                </div>
-                                <div class="mt-3">
-                                    <p class="mb-1"><i class="fas fa-info-circle text-info me-2"></i> Última actualización: Hoy, 10:45 AM</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+    <!-- Gráficos -->
+    <div class="row g-4 mb-4">
+        <div class="col-12 col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0">Actividad Mensual</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="activityChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-lg-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0">Distribución de Usuarios</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="usersChart" height="300"></canvas>
                 </div>
             </div>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+    <!-- Tablas de Datos Recientes -->
+    <div class="row g-4">
+        <div class="col-12 col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Últimos Usuarios</h5>
+                        <a href="{{ route('admin.users.index') }}" class="btn btn-sm btn-primary">
+                            Ver Todos
+                        </a>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Usuario</th>
+                                <th>Rol</th>
+                                <th>Fecha</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($recentUsers as $user)
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <img src="{{ $user->foto_perfil ?? 'https://ui-avatars.com/api/?name=' . urlencode($user->nombre_usuario) }}" 
+                                             class="rounded-circle me-2" 
+                                             width="32" 
+                                             height="32"
+                                             alt="{{ $user->nombre_usuario }}">
+                                        {{ $user->nombre_usuario }}
+                                    </div>
+                                </td>
+                                <td><span class="badge bg-{{ $user->rol === 'empleador' ? 'primary' : 'success' }}">{{ ucfirst($user->rol) }}</span></td>
+                                <td>{{ $user->created_at->format('d/m/Y') }}</td>
+                                <td>
+                                    <a href="{{ route('admin.users.show', $user) }}" class="btn btn-sm btn-light">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Últimas Ofertas</h5>
+                        <a href="{{ route('admin.jobs.index') }}" class="btn btn-sm btn-primary">
+                            Ver Todas
+                        </a>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Título</th>
+                                <th>Empresa</th>
+                                <th>Estado</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($recentJobs as $job)
+                            <tr>
+                                <td>{{ $job->titulo }}</td>
+                                <td>{{ $job->empleador->usuario->nombre_usuario }}</td>
+                                <td><span class="badge bg-{{ $job->estado === 'activa' ? 'success' : 'secondary' }}">{{ ucfirst($job->estado) }}</span></td>
+                                <td>
+                                    <a href="{{ route('admin.jobs.show', $job) }}" class="btn btn-sm btn-light">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endsection
+
+@push('scripts')
+<script>
+// Gráfico de Actividad Mensual
+const activityCtx = document.getElementById('activityChart').getContext('2d');
+new Chart(activityCtx, {
+    type: 'line',
+    data: {
+        labels: {!! json_encode($usersLastMonth->pluck('date')) !!},
+        datasets: [{
+            label: 'Usuarios Nuevos',
+            data: {!! json_encode($usersLastMonth->pluck('count')) !!},
+            borderColor: '#4CAF50',
+            backgroundColor: '#4CAF5020',
+            fill: true,
+            tension: 0.4
+        }, {
+            label: 'Ofertas Nuevas',
+            data: {!! json_encode($jobsLastMonth->pluck('count')) !!},
+            borderColor: '#2196F3',
+            backgroundColor: '#2196F320',
+            fill: true,
+            tension: 0.4
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'top',
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    stepSize: 1
+                }
+            }
+        }
+    }
+});
+
+// Gráfico de Distribución de Usuarios
+const usersCtx = document.getElementById('usersChart').getContext('2d');
+new Chart(usersCtx, {
+    type: 'doughnut',
+    data: {
+        labels: ['Empleadores', 'Empleados'],
+        datasets: [{
+            data: [
+                {{ $stats['total_employers'] }},
+                {{ $stats['total_employees'] }}
+            ],
+            backgroundColor: ['#4CAF50', '#2196F3'],
+            borderWidth: 0
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        },
+        cutout: '65%'
+    }
+});
+</script>
+@endpush

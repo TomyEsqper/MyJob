@@ -9,6 +9,8 @@ use App\Models\Oferta;
 use App\Models\Aplicacion;
 use App\Models\Usuario;
 use App\Models\Empleador;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 
 class EmpleadorController extends Controller
 {
@@ -236,14 +238,78 @@ class EmpleadorController extends Controller
         ]);
     }
 
-    public function notificaciones()
-    {
-        return view('empleador.notificaciones');
-    }
-
     public function configuracion()
     {
         return view('empleador.configuracion');
+    }
+
+    /**
+     * Actualiza la contraseña del empleador
+     */
+    public function actualizarContrasena(Request $request)
+    {
+        $request->validate([
+            'current_password' => 'required',
+            'password' => 'required|string|min:8|confirmed',
+        ]);
+
+        $user = Auth::user();
+
+        if (!Hash::check($request->current_password, $user->contrasena)) {
+            return back()->withErrors(['current_password' => 'La contraseña actual no es correcta']);
+        }
+
+        $user->contrasena = Hash::make($request->password);
+        $user->save();
+
+        return back()->with('success', 'Contraseña actualizada correctamente');
+    }
+
+    /**
+     * Elimina la cuenta del empleador y todos sus datos relacionados
+     */
+    public function eliminarCuenta(Request $request)
+    {
+        $request->validate([
+            'password' => 'required',
+        ]);
+
+        $user = Auth::user();
+
+        if (!Hash::check($request->password, $user->contrasena)) {
+            return back()->withErrors(['password' => 'La contraseña no es correcta']);
+        }
+
+        // Comenzar transacción
+        DB::beginTransaction();
+
+        try {
+            // Eliminar ofertas y sus aplicaciones
+            $user->ofertas()->each(function ($oferta) {
+                $oferta->aplicaciones()->delete();
+                $oferta->delete();
+            });
+
+            // Eliminar el perfil de empleador
+            if ($user->empleador) {
+                // Eliminar logo si existe
+                if ($user->empleador->logo_empresa) {
+                    Storage::delete('public/logos/' . basename($user->empleador->logo_empresa));
+                }
+                $user->empleador->delete();
+            }
+
+            // Eliminar el usuario
+            $user->delete();
+
+            DB::commit();
+            Auth::logout();
+
+            return redirect()->route('login')->with('success', 'Tu cuenta ha sido eliminada correctamente');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->withErrors(['error' => 'Hubo un error al eliminar la cuenta. Por favor, intente nuevamente.']);
+        }
     }
 
     public function perfil()
