@@ -29,7 +29,19 @@ class Usuario extends Authenticatable
         'experiencia',
         'educacion',
         'habilidades',
-        'cv_path'
+        'cv_path',
+        'notificaciones_email',
+        'idioma',
+        'tema',
+        'privacidad_perfil',
+        'whatsapp',
+        'facebook',
+        'instagram',
+        'linkedin',
+        'resumen_profesional',
+        'disponibilidad_horario',
+        'disponibilidad_jornada',
+        'disponibilidad_movilidad',
     ];
 
     protected $hidden = [
@@ -91,5 +103,10 @@ class Usuario extends Authenticatable
     public function passwordHistories()
     {
         return $this->hasMany(\App\Models\UsuarioPasswordHistory::class, 'usuario_id', 'id_usuario');
+    }
+
+    public function notificaciones()
+    {
+        return $this->hasMany(Notificacion::class, 'usuario_id', 'id_usuario');
     }
 }
