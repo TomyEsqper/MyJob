@@ -3,10 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Dashboard Empleador')</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/empleador.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        if (window.axios) {
+            axios.defaults.headers.common['X-CSRF-TOKEN'] = document.querySelector('meta[name=csrf-token]').content;
+        }
+    </script>
     @stack('styles')
 </head>
 <body>
@@ -44,8 +51,9 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('empleador.notificaciones') ? 'active' : '' }}" href="{{ route('empleador.notificaciones') }}">
-                        <i class="fas fa-fw fa-bell"></i>
+                    <a class="nav-link {{ request()->routeIs('empleador.notificaciones') ? 'active' : '' }}" 
+                       href="{{ route('empleador.notificaciones') }}">
+                        <i class="fas fa-bell"></i>
                         <span>Notificaciones</span>
                     </a>
                 </li>
@@ -69,27 +77,20 @@
                 </li>
             </ul>
         </aside>
+        
+        <!-- Formulario oculto para cerrar sesión -->
+        <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+            @csrf
+        </form>
+        
         <main class="main-empleador">
             <header class="header-empleador mb-4">
                 <div class="welcome-banner">
                     <h2 class="mb-1">@yield('page-title', 'Dashboard')</h2>
                     <p class="mb-0">@yield('page-description', 'Bienvenido a tu panel de empleador')</p>
                 </div>
-                <div class="user-profile-empleador">
-                    <div class="dropdown">
-                        <a href="#" class="dropdown-toggle text-decoration-none" data-bs-toggle="dropdown">
-                            <i class="fas fa-bell text-muted"></i>
-                            <span class="badge rounded-pill bg-danger">5</span>
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li><h6 class="dropdown-header">Notificaciones recientes</h6></li>
-                            <li><a class="dropdown-item" href="#">Nuevo candidato para Desarrollador Frontend</a></li>
-                            <li><a class="dropdown-item" href="#">Nuevo candidato para Diseñador UX/UI</a></li>
-                            <li><a class="dropdown-item" href="#">Oferta a punto de expirar</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item text-primary" href="#">Ver todas</a></li>
-                        </ul>
-                    </div>
+                <div class="d-flex align-items-center">
+                    <!-- User Profile Dropdown -->
                     <div class="dropdown ms-3">
                         <a href="#" class="dropdown-toggle text-decoration-none d-flex align-items-center" data-bs-toggle="dropdown">
                             @auth

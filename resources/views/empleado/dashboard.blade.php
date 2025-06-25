@@ -4,30 +4,40 @@
 @section('page-description', 'Aquí tienes un resumen de tu actividad reciente y estadísticas.')
 
 @section('content')
-<section class="stats-row-empleado mb-4">
+<div class="dashboard-hero mb-5 p-4 rounded-4 d-flex align-items-center gap-4 animate__animated animate__fadeInDown" style="background: linear-gradient(90deg, var(--primary-color) 0%, var(--secondary-color) 100%); color: #fff; box-shadow: 0 8px 32px 0 rgba(31,38,135,0.10);">
+    <div class="dashboard-avatar flex-shrink-0">
+        <img src="{{ Auth::user()->foto_perfil ? (Str::startsWith(Auth::user()->foto_perfil, 'http') ? Auth::user()->foto_perfil : asset('storage/' . Auth::user()->foto_perfil)) : asset('images/default-user.png') }}" class="rounded-circle shadow" width="80" height="80" style="object-fit: cover; border: 4px solid #fff; background: #f8f9fa;">
+    </div>
+    <div>
+        <h1 class="mb-1" style="font-weight: 800; font-size: 2.2rem; letter-spacing: 1px;">¡Hola, {{ Auth::user()->nombre_usuario }}!</h1>
+        <div class="mb-1" style="font-size: 1.15rem; opacity: 0.93;">Te damos la bienvenida a tu espacio de oportunidades.</div>
+        <div class="fw-bold" style="font-size: 1.05rem; opacity: 0.85;">"El éxito es la suma de pequeños esfuerzos repetidos cada día."</div>
+    </div>
+</div>
+<section class="stats-row-empleado mb-4 animate__animated animate__fadeInUp">
     <div class="stat-card-empleado">
-        <div class="stat-icon bg-success"><i class="fas fa-paper-plane"></i></div>
+        <div class="stat-icon"><i class="fas fa-paper-plane"></i></div>
         <div>
             <div class="stat-value">{{ $aplicacionesEnviadas }}</div>
             <div class="stat-label">Aplicaciones Enviadas</div>
         </div>
     </div>
     <div class="stat-card-empleado">
-        <div class="stat-icon bg-success"><i class="fas fa-eye"></i></div>
+        <div class="stat-icon"><i class="fas fa-eye"></i></div>
         <div>
             <div class="stat-value">{{ $vistasPerfilCount }}</div>
             <div class="stat-label">Vistas de Perfil</div>
         </div>
     </div>
     <div class="stat-card-empleado">
-        <div class="stat-icon bg-success"><i class="fas fa-check-circle"></i></div>
+        <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
         <div>
             <div class="stat-value">{{ $entrevistasCount }}</div>
             <div class="stat-label">Entrevistas Programadas</div>
         </div>
     </div>
 </section>
-<section class="card-empleado mb-4">
+<section class="card-empleado mb-4 animate__animated animate__fadeInUp animate__delay-1s">
     <div class="card-header-empleado d-flex justify-content-between align-items-center">
         <h5 class="mb-0">Aplicaciones Recientes</h5>
         <a href="{{ route('empleado.aplicaciones') }}" class="btn btn-outline-success btn-sm">Ver Todas</a>
@@ -69,14 +79,14 @@
             <div class="text-center py-5">
                 <i class="fas fa-briefcase fa-3x text-muted mb-3"></i>
                 <p class="text-muted mb-0">No hay aplicaciones recientes</p>
-                <a href="{{ route('empleado.buscar') }}" class="btn btn-success mt-3">
+                <a href="{{ route('empleado.buscar') }}" class="btn btn-success dashboard-empty-btn mt-3">
                     <i class="fas fa-search me-1"></i> Buscar Ofertas
                 </a>
             </div>
         @endforelse
     </div>
 </section>
-<section class="card-empleado">
+<section class="card-empleado animate__animated animate__fadeInUp animate__delay-2s">
     <div class="card-header-empleado d-flex justify-content-between align-items-center">
         <h5 class="mb-0">Ofertas Disponibles</h5>
         <a href="#" class="btn btn-outline-success btn-sm">Ver Más</a>
@@ -123,12 +133,21 @@
                                class="btn btn-outline-primary btn-sm">
                                 <i class="fas fa-eye me-1"></i> Ver Detalle
                             </a>
-                            <form action="{{ route('empleado.aplicar', $oferta) }}" method="POST" class="d-inline">
-                                @csrf
-                                <button type="submit" class="btn btn-success btn-sm">
-                                    <i class="fas fa-paper-plane me-1"></i> Aplicar
+                            @php
+                                $yaAplicado = Auth::user()->aplicaciones()->where('oferta_id', $oferta->id)->exists();
+                            @endphp
+                            @if($yaAplicado)
+                                <button class="btn btn-secondary btn-sm" disabled>
+                                    <i class="fas fa-check me-1"></i> Aplicado
                                 </button>
-                            </form>
+                            @else
+                                <form action="{{ route('empleado.aplicar', $oferta) }}" method="POST" class="d-inline">
+                                    @csrf
+                                    <button type="submit" class="btn btn-success btn-sm">
+                                        <i class="fas fa-paper-plane me-1"></i> Aplicar
+                                    </button>
+                                </form>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -137,6 +156,9 @@
             <div class="text-center py-5">
                 <i class="fas fa-search fa-3x text-muted mb-3"></i>
                 <p class="text-muted mb-0">No hay ofertas disponibles en este momento</p>
+                <a href="{{ route('empleado.buscar') }}" class="btn btn-success dashboard-empty-btn mt-3">
+                    <i class="fas fa-search me-1"></i> Buscar Empleo
+                </a>
             </div>
         @endforelse
     </div>

@@ -11,6 +11,7 @@ use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\EmpleadorController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use App\Http\Controllers\NotificacionController;
 
 Route::get('/', function () {
     return view('index');
@@ -48,7 +49,7 @@ Route::post('password/reset', [ResetPasswordController::class, 'reset'])
 Route::middleware(['auth'])->group(function () {
     Route::prefix('empleado')->name('empleado.')->group(function () {
         Route::get('/dashboard', [EmpleadoController::class, 'dashboard'])->name('dashboard');
-        Route::get('/perfil', [EmpleadoController::class, 'perfil'])->name('perfil');
+        Route::get('/perfil/{id?}', [EmpleadoController::class, 'perfil'])->name('perfil');
         Route::post('/actualizar-perfil', [EmpleadoController::class, 'actualizarPerfil'])->name('actualizar-perfil');
         Route::post('/actualizar-foto', [EmpleadoController::class, 'actualizarFoto'])->name('actualizar-foto');
         Route::post('/actualizar-cv', [EmpleadoController::class, 'actualizarCV'])->name('actualizar-cv');
@@ -60,6 +61,27 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/cv', [EmpleadoController::class, 'cv'])->name('cv');
         Route::get('/notificaciones', [EmpleadoController::class, 'notificaciones'])->name('notificaciones');
         Route::get('/configuracion', [EmpleadoController::class, 'configuracion'])->name('configuracion');
+        Route::post('/actualizar-contrasena', [EmpleadoController::class, 'actualizarContrasena'])->name('actualizar-contrasena');
+        Route::post('/eliminar-cuenta', [EmpleadoController::class, 'eliminarCuenta'])->name('eliminar-cuenta');
+        Route::post('/guardar-preferencias', [EmpleadoController::class, 'guardarPreferencias'])->name('guardar-preferencias');
+        Route::post('/actualizar-correo', [EmpleadoController::class, 'actualizarCorreo'])->name('actualizar-correo');
+        Route::post('/actualizar-privacidad', [EmpleadoController::class, 'actualizarPrivacidad'])->name('actualizar-privacidad');
+        Route::post('/cerrar-otras-sesiones', [EmpleadoController::class, 'cerrarOtrasSesiones'])->name('cerrar-otras-sesiones');
+        Route::put('/perfil/{id}', [EmpleadoController::class, 'actualizarPerfil'])->name('perfil.update');
+        Route::get('/notificaciones-ajax', [EmpleadoController::class, 'notificacionesAjax'])->name('notificaciones.ajax');
+        Route::get('/notificacion-prueba', [EmpleadoController::class, 'crearNotificacionPrueba'])->name('empleado.notificacion-prueba');
+        Route::post('/perfil/experiencia', [EmpleadoController::class, 'storeExperiencia'])->name('perfil.experiencia.store');
+        Route::put('/perfil/experiencia/{id}', [EmpleadoController::class, 'updateExperiencia'])->name('perfil.experiencia.update');
+        Route::delete('/perfil/experiencia/{id}', [EmpleadoController::class, 'destroyExperiencia'])->name('perfil.experiencia.destroy');
+        Route::post('/perfil/educacion', [EmpleadoController::class, 'storeEducacion'])->name('perfil.educacion.store');
+        Route::put('/perfil/educacion/{id}', [EmpleadoController::class, 'updateEducacion'])->name('perfil.educacion.update');
+        Route::delete('/perfil/educacion/{id}', [EmpleadoController::class, 'destroyEducacion'])->name('perfil.educacion.destroy');
+        Route::post('/perfil/certificado', [EmpleadoController::class, 'storeCertificado'])->name('perfil.certificado.store');
+        Route::put('/perfil/certificado/{id}', [EmpleadoController::class, 'updateCertificado'])->name('perfil.certificado.update');
+        Route::delete('/perfil/certificado/{id}', [EmpleadoController::class, 'destroyCertificado'])->name('perfil.certificado.destroy');
+        Route::post('/perfil/idioma', [EmpleadoController::class, 'storeIdioma'])->name('perfil.idioma.store');
+        Route::put('/perfil/idioma/{id}', [EmpleadoController::class, 'updateIdioma'])->name('perfil.idioma.update');
+        Route::delete('/perfil/idioma/{id}', [EmpleadoController::class, 'destroyIdioma'])->name('perfil.idioma.destroy');
     });
 });
 
@@ -86,9 +108,8 @@ Route::middleware(['auth'])->group(function () {
 
         // Rutas de estadísticas
         Route::get('/estadisticas', [EmpleadorController::class, 'estadisticas'])->name('estadisticas');
-        
-        // Rutas de notificaciones
-        Route::get('/notificaciones', [EmpleadorController::class, 'notificaciones'])->name('notificaciones');
+        Route::get('/estadisticas/mensuales', [EmpleadorController::class, 'actualizarEstadisticasMensuales'])->name('estadisticas.mensuales');
+        Route::get('/estadisticas/top-ofertas', [EmpleadorController::class, 'obtenerTopOfertas'])->name('estadisticas.top-ofertas');
 
         // Rutas de configuración
         Route::get('/configuracion', [EmpleadorController::class, 'configuracion'])->name('configuracion');
@@ -98,3 +119,8 @@ Route::middleware(['auth'])->group(function () {
 Route::get('/admin/dashboard', function () {
     return view('admin.dashboard');
 })->name('admin.dashboard');
+
+Route::middleware(['auth'])->group(function () {
+    Route::post('/empleado/perfil/campo', [App\Http\Controllers\EmpleadoController::class, 'actualizarCampo'])->name('empleado.perfil.campo');
+    Route::delete('/empleado/perfil/campo', [App\Http\Controllers\EmpleadoController::class, 'eliminarCampo'])->name('empleado.perfil.campo.eliminar');
+});
