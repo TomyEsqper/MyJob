@@ -145,26 +145,36 @@ function cancelarCertificado() {
 }
 
 function eliminarCertificado(id) {
-    showConfirmModal('¿Estás seguro de que quieres eliminar este certificado?', function() {
-        fetch("{{ route('empleado.perfil.certificado.destroy', ':id') }}".replace(':id', id), {
-            method: 'DELETE',
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').getAttribute('content'),
-                'Accept': 'application/json',
-            }
-        })
-        .then(response => {
-            if (response.ok) {
-                window.location.reload();
-            } else {
-                return response.json().then(data => {
-                    alert(data.message || 'Error al eliminar certificado');
-                });
-            }
-        })
-        .catch(error => {
-            alert('Error de conexión. Intenta nuevamente.');
-        });
+    Swal.fire({
+        title: '¿Estás seguro?',
+        text: '¿Quieres eliminar este certificado?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar',
+        reverseButtons: true
+    }).then((result) => {
+        if (result.isConfirmed) {
+            fetch("{{ route('empleado.perfil.certificado.destroy', ':id') }}".replace(':id', id), {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').getAttribute('content'),
+                    'Accept': 'application/json',
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    window.location.reload();
+                } else {
+                    return response.json().then(data => {
+                        Swal.fire('Error', data.message || 'Error al eliminar certificado', 'error');
+                    });
+                }
+            })
+            .catch(error => {
+                Swal.fire('Error', 'Error de conexión. Intenta nuevamente.', 'error');
+            });
+        }
     });
 }
 </script> 

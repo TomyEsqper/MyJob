@@ -4,6 +4,19 @@
 @section('page-description', 'Aquí tienes un resumen de tu actividad reciente y estadísticas.')
 
 @section('content')
+@if (session('success'))
+    <x-notification type="success" :message="session('success')" title="¡Éxito!" />
+@endif
+@if (session('error'))
+    <x-notification type="error" :message="session('error')" title="¡Error!" />
+@endif
+@if (session('warning'))
+    <x-notification type="warning" :message="session('warning')" title="¡Atención!" />
+@endif
+@if ($errors->any())
+    <x-notification type="error" :message="$errors->first()" title="Error de validación" />
+@endif
+
 <div class="dashboard-hero mb-5 p-4 rounded-4 d-flex align-items-center gap-4 animate__animated animate__fadeInDown" style="background: linear-gradient(90deg, var(--primary-color) 0%, var(--secondary-color) 100%); color: #fff; box-shadow: 0 8px 32px 0 rgba(31,38,135,0.10);">
     <div class="dashboard-avatar flex-shrink-0">
         <img src="{{ Auth::user()->foto_perfil ? (Str::startsWith(Auth::user()->foto_perfil, 'http') ? Auth::user()->foto_perfil : asset('storage/' . Auth::user()->foto_perfil)) : asset('images/default-user.png') }}" class="rounded-circle shadow" width="80" height="80" style="object-fit: cover; border: 4px solid #fff; background: #f8f9fa;">
@@ -163,4 +176,26 @@
         @endforelse
     </div>
 </section>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('form').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            let firstError = null;
+            form.querySelectorAll('[required]').forEach(input => {
+                if (!input.value.trim()) {
+                    input.classList.add('input-error');
+                    if (!firstError) firstError = input;
+                } else {
+                    input.classList.remove('input-error');
+                }
+            });
+            if (firstError) {
+                e.preventDefault();
+                showNotification({type: 'error', message: 'Por favor completa todos los campos obligatorios.', title: 'Campos requeridos'});
+                firstError.focus();
+            }
+        });
+    });
+});
+</script>
 @endsection

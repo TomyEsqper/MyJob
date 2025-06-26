@@ -18,6 +18,7 @@ use App\Http\Controllers\Admin\UserController;
 // use App\Http\Controllers\Admin\CompanyController;
 // use App\Http\Controllers\Admin\ReportController;
 
+// Rutas públicas
 Route::get('/', function () {
     return view('index');
 });
@@ -37,16 +38,12 @@ Route::post('/logout', function (Request $request) {
 Route::get('auth/google/redirect', [SocialController::class, 'redirectToGoogle'])->name('google.redirect');
 // callback que procesa la respuesta de Google
 Route::get('auth/google/callback', [SocialController::class, 'handleGoogleCallback'])->name('google.callback');
-
 Route::get('password/reset', [ForgotPasswordController::class, 'showLinkRequestForm'])
     ->name('password.request');
-
 Route::post('password/email', [ForgotPasswordController::class, 'sendResetLinkEmail'])
     ->name('password.email');
-
 Route::get('password/reset/{token}', [ResetPasswordController::class, 'showResetForm'])
     ->name('password.reset');
-
 Route::post('password/reset', [ResetPasswordController::class, 'reset'])
     ->name('password.update');
 

@@ -1,60 +1,36 @@
 // Sistema de Feedback Visual - Para usuarios que no prestan atención
-window.showNotification = function(type, message, title = '') {
-    const notification = document.createElement('div');
-    notification.className = `feedback-notification feedback-${type}`;
-    notification.id = `notification-${Date.now()}`;
-    
-    const icon = {
-        'success': 'fas fa-check-circle',
-        'error': 'fas fa-exclamation-triangle',
-        'warning': 'fas fa-exclamation-circle',
-        'info': 'fas fa-info-circle'
-    }[type];
-    
-    const defaultTitle = {
-        'success': '¡Éxito!',
-        'error': '¡Error!',
-        'warning': '¡Atención!',
-        'info': 'Información'
-    }[type];
-    
-    notification.innerHTML = `
+window.showNotification = function({type = 'info', message, title = '', duration = 3000} = {}) {
+    // Elimina notificaciones previas si existen
+    document.querySelectorAll('.feedback-notification').forEach(n => n.remove());
+    const notif = document.createElement('div');
+    notif.className = `feedback-notification feedback-${type}`;
+    notif.setAttribute('role', 'alert');
+    notif.setAttribute('aria-live', 'assertive');
+    notif.tabIndex = 0;
+    notif.innerHTML = `
         <div class="feedback-content">
             <div class="feedback-icon">
-                <i class="${icon}"></i>
+                ${type === 'success' ? '<i class="fas fa-check-circle"></i>' : type === 'error' ? '<i class="fas fa-times-circle"></i>' : type === 'warning' ? '<i class="fas fa-exclamation-triangle"></i>' : '<i class="fas fa-info-circle"></i>'}
             </div>
             <div class="feedback-message">
-                <h4>${title || defaultTitle}</h4>
+                ${title ? `<h4>${title}</h4>` : ''}
                 <p>${message}</p>
             </div>
-            <button type="button" class="feedback-close" onclick="closeNotification('${notification.id}')">
-                <i class="fas fa-times"></i>
-            </button>
+            <button type="button" class="feedback-close" aria-label="Cerrar notificación" onclick="window.closeNotification(this)"><i class="fas fa-times"></i></button>
         </div>
-        <div class="feedback-progress"></div>
     `;
-    
-    document.body.appendChild(notification);
-    
-    // Auto-cerrar después de 5 segundos
-    setTimeout(() => {
-        closeNotification(notification.id);
-    }, 5000);
-    
-    return notification.id;
-}
-
-function closeNotification(id) {
-    const notification = document.getElementById(id);
-    if (notification) {
-        notification.classList.add('fade-out');
-        setTimeout(() => {
-            if (notification.parentNode) {
-                notification.parentNode.removeChild(notification);
-            }
-        }, 300);
-    }
-}
+    notif.style.zIndex = 9999;
+    document.body.appendChild(notif);
+    notif.focus();
+    setTimeout(() => { notif.remove(); }, duration);
+    notif.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') notif.remove();
+    });
+};
+window.closeNotification = function(btn) {
+    const notif = btn.closest('.feedback-notification');
+    if (notif) notif.remove();
+};
 
 function showSaveIndicator() {
     const indicator = document.getElementById('saveIndicator');
@@ -127,16 +103,16 @@ function setupExperienciaForm() {
             .then(data => {
                 console.log('✅ Datos de respuesta:', data);
                 if (data.success) {
-                    showNotification('success', data.message || '¡Experiencia guardada exitosamente!');
+                    showNotification({type: 'success', message: data.message || '¡Experiencia guardada exitosamente!'});
                     console.log('🔄 Recargando página en 800ms...');
                     setTimeout(() => window.location.reload(), 800);
                 } else {
-                    showNotification('error', data.message || 'Error al guardar la experiencia. Verifica los datos.');
+                    showNotification({type: 'error', message: data.message || 'Error al guardar la experiencia. Verifica los datos.'});
                 }
             })
             .catch(error => {
                 console.error('❌ Error:', error);
-                showNotification('error', 'Error de conexión. Verifica tu internet e intenta nuevamente.');
+                showNotification({type: 'error', message: 'Error de conexión. Verifica tu internet e intenta nuevamente.'});
             })
             .finally(() => {
                 if (btn) {
@@ -183,16 +159,16 @@ function setupEducacionForm() {
             .then(data => {
                 console.log('✅ Datos de respuesta:', data);
                 if (data.success) {
-                    showNotification('success', data.message || '¡Educación guardada exitosamente!');
+                    showNotification({type: 'success', message: data.message || '¡Educación guardada exitosamente!'});
                     console.log('🔄 Recargando página en 800ms...');
                     setTimeout(() => window.location.reload(), 800);
                 } else {
-                    showNotification('error', data.message || 'Error al guardar la educación. Verifica los datos.');
+                    showNotification({type: 'error', message: data.message || 'Error al guardar la educación. Verifica los datos.'});
                 }
             })
             .catch(error => {
                 console.error('❌ Error:', error);
-                showNotification('error', 'Error de conexión. Verifica tu internet e intenta nuevamente.');
+                showNotification({type: 'error', message: 'Error de conexión. Verifica tu internet e intenta nuevamente.'});
             })
             .finally(() => {
                 if (btn) {
@@ -239,16 +215,16 @@ function setupIdiomaForm() {
             .then(data => {
                 console.log('✅ Datos de respuesta:', data);
                 if (data.success) {
-                    showNotification('success', data.message || '¡Idioma guardado exitosamente!');
+                    showNotification({type: 'success', message: data.message || '¡Idioma guardado exitosamente!'});
                     console.log('🔄 Recargando página en 800ms...');
                     setTimeout(() => window.location.reload(), 800);
                 } else {
-                    showNotification('error', data.message || 'Error al guardar el idioma. Verifica los datos.');
+                    showNotification({type: 'error', message: data.message || 'Error al guardar el idioma. Verifica los datos.'});
                 }
             })
             .catch(error => {
                 console.error('❌ Error:', error);
-                showNotification('error', 'Error de conexión. Verifica tu internet e intenta nuevamente.');
+                showNotification({type: 'error', message: 'Error de conexión. Verifica tu internet e intenta nuevamente.'});
             })
             .finally(() => {
                 if (btn) {
@@ -295,16 +271,16 @@ function setupCertificadoForm() {
             .then(data => {
                 console.log('✅ Datos de respuesta:', data);
                 if (data.success) {
-                    showNotification('success', data.message || '¡Certificado guardado exitosamente!');
+                    showNotification({type: 'success', message: data.message || '¡Certificado guardado exitosamente!'});
                     console.log('🔄 Recargando página en 800ms...');
                     setTimeout(() => window.location.reload(), 800);
                 } else {
-                    showNotification('error', data.message || 'Error al guardar el certificado. Verifica los datos.');
+                    showNotification({type: 'error', message: data.message || 'Error al guardar el certificado. Verifica los datos.'});
                 }
             })
             .catch(error => {
                 console.error('❌ Error:', error);
-                showNotification('error', 'Error de conexión. Verifica tu internet e intenta nuevamente.');
+                showNotification({type: 'error', message: 'Error de conexión. Verifica tu internet e intenta nuevamente.'});
             })
             .finally(() => {
                 if (btn) {
@@ -343,14 +319,14 @@ function setupHabilidadesForm() {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    showNotification('success', data.message || '¡Habilidades guardadas exitosamente!');
+                    showNotification({type: 'success', message: data.message || '¡Habilidades guardadas exitosamente!'});
                     setTimeout(() => window.location.reload(), 800);
                 } else {
-                    showNotification('error', data.message || 'Error al guardar las habilidades.');
+                    showNotification({type: 'error', message: data.message || 'Error al guardar las habilidades.'});
                 }
             })
             .catch(error => {
-                showNotification('error', 'Error de conexión. Intenta nuevamente.');
+                showNotification({type: 'error', message: 'Error de conexión. Intenta nuevamente.'});
             })
             .finally(() => {
                 if (btn) {
@@ -425,4 +401,24 @@ document.addEventListener('DOMContentLoaded', function() {
     setupHabilidadesForm();
     
     console.log('✅ Formularios del perfil inicializados correctamente');
+
+    // Validación global de formularios: previene submit si hay campos requeridos vacíos o errores
+    document.querySelectorAll('form').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            let firstError = null;
+            form.querySelectorAll('[required]').forEach(input => {
+                if (!input.value.trim()) {
+                    input.classList.add('input-error');
+                    if (!firstError) firstError = input;
+                } else {
+                    input.classList.remove('input-error');
+                }
+            });
+            if (firstError) {
+                e.preventDefault();
+                showNotification({type: 'error', message: 'Por favor completa todos los campos obligatorios.', title: 'Campos requeridos'});
+                firstError.focus();
+            }
+        });
+    });
 }); 

@@ -4,18 +4,19 @@
 @section('page-description', 'Ajusta tus preferencias y configuración de cuenta.')
 
 @section('content')
-@if(session('success'))
-    <div class="alert alert-success">{{ session('success') }}</div>
+@if (session('success'))
+    <x-notification type="success" :message="session('success')" title="¡Éxito!" />
 @endif
-@if($errors->any())
-    <div class="alert alert-danger">
-        <ul class="mb-0">
-            @foreach($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
+@if (session('error'))
+    <x-notification type="error" :message="session('error')" title="¡Error!" />
 @endif
+@if (session('warning'))
+    <x-notification type="warning" :message="session('warning')" title="¡Atención!" />
+@endif
+@if ($errors->any())
+    <x-notification type="error" :message="$errors->first()" title="Error de validación" />
+@endif
+
 <div class="card-empleado mb-4">
     <div class="card-header-empleado">
         <h5 class="mb-0">Seguridad</h5>

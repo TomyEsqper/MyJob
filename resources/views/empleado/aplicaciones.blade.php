@@ -4,6 +4,19 @@
 @section('page-description', 'Consulta y gestiona tus aplicaciones recientes.')
 
 @section('content')
+@if (session('success'))
+    <x-notification type="success" :message="session('success')" title="¡Éxito!" />
+@endif
+@if (session('error'))
+    <x-notification type="error" :message="session('error')" title="¡Error!" />
+@endif
+@if (session('warning'))
+    <x-notification type="warning" :message="session('warning')" title="¡Atención!" />
+@endif
+@if ($errors->any())
+    <x-notification type="error" :message="$errors->first()" title="Error de validación" />
+@endif
+
 <section class="card-empleado mb-4">
     <div class="card-header-empleado d-flex justify-content-between align-items-center">
         <h5 class="mb-0">Filtrar Aplicaciones</h5>
@@ -84,4 +97,27 @@
         </div>
     @endif
 </section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('form').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            let firstError = null;
+            form.querySelectorAll('[required]').forEach(input => {
+                if (!input.value.trim()) {
+                    input.classList.add('input-error');
+                    if (!firstError) firstError = input;
+                } else {
+                    input.classList.remove('input-error');
+                }
+            });
+            if (firstError) {
+                e.preventDefault();
+                showNotification({type: 'error', message: 'Por favor completa todos los campos obligatorios.', title: 'Campos requeridos'});
+                firstError.focus();
+            }
+        });
+    });
+});
+</script>
 @endsection 

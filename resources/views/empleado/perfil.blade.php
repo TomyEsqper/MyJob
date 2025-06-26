@@ -4,8 +4,22 @@
 @section('page-description', 'Actualiza tu información personal y profesional.')
 
 @section('content')
+@if (session('success'))
+    <x-notification type="success" :message="session('success')" title="¡Éxito!" />
+@endif
+@if (session('error'))
+    <x-notification type="error" :message="session('error')" title="¡Error!" />
+@endif
+@if (session('warning'))
+    <x-notification type="warning" :message="session('warning')" title="¡Atención!" />
+@endif
+@if (
+$errors->any())
+    <x-notification type="error" :message="$errors->first()" title="Error de validación" />
+@endif
 
 <!-- Sistema de Feedback Mejorado - Imposible de Ignorar -->
+<div class="profile-content" style="padding-top:0;padding-bottom:0;">
 @if (session('success'))
     <div class="feedback-notification feedback-success" id="successNotification">
         <div class="feedback-content">
@@ -22,6 +36,14 @@
         </div>
         <div class="feedback-progress"></div>
     </div>
+    <script>
+    if (typeof closeNotification !== 'function' && typeof window.closeNotification !== 'function') {
+        window.closeNotification = function(id) {
+            var el = document.getElementById(id);
+            if (el) el.style.display = 'none';
+        }
+    }
+    </script>
 @endif
 
 @if (session('error'))
@@ -81,6 +103,7 @@
         <div class="feedback-progress"></div>
     </div>
 @endif
+</div>
 
 <!-- Indicador de Guardado en Tiempo Real -->
 <div class="save-indicator" id="saveIndicator" style="display: none;">
@@ -126,34 +149,36 @@
             <p class="profile-title">{{ $empleado->profesion ?? 'Sin profesión definida' }}</p>
             <p class="profile-bio">{{ $empleado->resumen_profesional ?? 'Agrega un resumen profesional para destacar.' }}</p>
             <div class="profile-stats fade-in-up delay-2">
-                <a href="#experiencia-section" class="stat-item-link">
-                    <div class="stat-item">
-                        <span class="stat-icon text-white"><i class="fas fa-briefcase"></i></span>
-                        <span class="stat-number" id="stat-exp">0</span>
-                        <span class="stat-label">EXPERIENCIAS</span>
-                    </div>
-                </a>
-                <a href="#educacion-section" class="stat-item-link">
-                    <div class="stat-item">
-                        <span class="stat-icon text-white"><i class="fas fa-graduation-cap"></i></span>
-                        <span class="stat-number" id="stat-edu">0</span>
-                        <span class="stat-label">EDUCACIÓN</span>
-                    </div>
-                </a>
-                <a href="#certificados-section" class="stat-item-link">
-                    <div class="stat-item">
-                        <span class="stat-icon text-white"><i class="fas fa-certificate"></i></span>
-                        <span class="stat-number" id="stat-cert">0</span>
-                        <span class="stat-label">CERTIFICADOS</span>
-                    </div>
-                </a>
-                <a href="#idiomas-section" class="stat-item-link">
-                    <div class="stat-item">
-                        <span class="stat-icon text-white"><i class="fas fa-language"></i></span>
-                        <span class="stat-number" id="stat-idioma">0</span>
-                        <span class="stat-label">IDIOMAS</span>
-                    </div>
-                </a>
+                <div class="stats-grid">
+                    <a href="#experiencia-section" class="stat-item-link">
+                        <div class="stat-item">
+                            <span class="stat-icon text-white"><i class="fas fa-briefcase"></i></span>
+                            <span class="stat-number" id="stat-exp">{{ $empleado->experiencias->count() }}</span>
+                            <span class="stat-label">EXPERIENCIAS</span>
+                        </div>
+                    </a>
+                    <a href="#educacion-section" class="stat-item-link">
+                        <div class="stat-item">
+                            <span class="stat-icon text-white"><i class="fas fa-graduation-cap"></i></span>
+                            <span class="stat-number" id="stat-edu">{{ $empleado->educaciones->count() }}</span>
+                            <span class="stat-label">EDUCACIÓN</span>
+                        </div>
+                    </a>
+                    <a href="#certificados-section" class="stat-item-link">
+                        <div class="stat-item">
+                            <span class="stat-icon text-white"><i class="fas fa-certificate"></i></span>
+                            <span class="stat-number" id="stat-cert">{{ $empleado->certificados->count() }}</span>
+                            <span class="stat-label">CERTIFICADOS</span>
+                        </div>
+                    </a>
+                    <a href="#idiomas-section" class="stat-item-link">
+                        <div class="stat-item">
+                            <span class="stat-icon text-white"><i class="fas fa-language"></i></span>
+                            <span class="stat-number" id="stat-idioma">{{ $empleado->idiomas->count() }}</span>
+                            <span class="stat-label">IDIOMAS</span>
+                        </div>
+                    </a>
+                </div>
             </div>
         </div>
     </div>
@@ -275,6 +300,25 @@ document.addEventListener('DOMContentLoaded', function() {
             return false;
         });
     }
+
+    document.querySelectorAll('form').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            let firstError = null;
+            form.querySelectorAll('[required]').forEach(input => {
+                if (!input.value.trim()) {
+                    input.classList.add('input-error');
+                    if (!firstError) firstError = input;
+                } else {
+                    input.classList.remove('input-error');
+                }
+            });
+            if (firstError) {
+                e.preventDefault();
+                showNotification({type: 'error', message: 'Por favor completa todos los campos obligatorios.', title: 'Campos requeridos'});
+                firstError.focus();
+            }
+        });
+    });
 });
 </script>
 @endsection
