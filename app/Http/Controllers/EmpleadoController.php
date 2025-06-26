@@ -73,7 +73,7 @@ class EmpleadoController extends Controller
     {
         $request->validate([
             'nombre_usuario' => 'required|string|max:255',
-            'profesion' => 'required|string|max:255',
+            'profesion' => 'nullable|string|max:255',
             'descripcion' => 'nullable|string',
             'experiencia' => 'nullable|string',
             'educacion' => 'nullable|string',
@@ -89,8 +89,10 @@ class EmpleadoController extends Controller
             'disponibilidad_jornada' => 'nullable|string|max:100',
             'disponibilidad_movilidad' => 'nullable|boolean',
         ], [
-            'nombre_usuario.required' => 'El nombre es obligatorio.',
-            'profesion.required' => 'La profesión es obligatoria.',
+            'nombre_usuario.required' => '¡Ups! El nombre completo es obligatorio para tu perfil.',
+            'nombre_usuario.max' => 'El nombre no puede tener más de 255 caracteres.',
+            'profesion.max' => 'La profesión no puede tener más de 255 caracteres.',
+            'telefono.max' => 'El teléfono no puede tener más de 20 caracteres.',
             'whatsapp.max' => 'El WhatsApp no puede superar 30 caracteres.',
             'facebook.max' => 'El Facebook no puede superar 100 caracteres.',
             'instagram.max' => 'El Instagram no puede superar 100 caracteres.',
@@ -98,26 +100,99 @@ class EmpleadoController extends Controller
             'resumen_profesional.max' => 'El resumen profesional no puede superar 1000 caracteres.',
         ]);
 
-        $usuario = Usuario::findOrFail($id);
-        $usuario->nombre_usuario = $request->nombre_usuario;
-        $usuario->profesion = $request->profesion;
-        $usuario->descripcion = $request->descripcion;
-        $usuario->experiencia = $request->experiencia;
-        $usuario->educacion = $request->educacion;
-        $usuario->telefono = $request->telefono;
-        $usuario->ubicacion = $request->ubicacion;
-        $usuario->habilidades = $request->habilidades;
-        $usuario->whatsapp = $request->whatsapp;
-        $usuario->facebook = $request->facebook;
-        $usuario->instagram = $request->instagram;
-        $usuario->linkedin = $request->linkedin;
-        $usuario->resumen_profesional = $request->resumen_profesional;
-        $usuario->disponibilidad_horario = $request->disponibilidad_horario;
-        $usuario->disponibilidad_jornada = $request->disponibilidad_jornada;
-        $usuario->disponibilidad_movilidad = $request->has('disponibilidad_movilidad') ? (bool)$request->disponibilidad_movilidad : null;
-        $usuario->save();
+        try {
+            $usuario = Usuario::findOrFail($id);
+            
+            // Solo actualizar los campos que vienen en el request
+            $camposActualizados = [];
+            
+            if ($request->has('nombre_usuario')) {
+                $usuario->nombre_usuario = $request->nombre_usuario;
+                $camposActualizados[] = 'nombre';
+            }
+            
+            if ($request->has('profesion')) {
+                $usuario->profesion = $request->profesion;
+                $camposActualizados[] = 'profesión';
+            }
+            
+            if ($request->has('telefono')) {
+                $usuario->telefono = $request->telefono;
+                $camposActualizados[] = 'teléfono';
+            }
+            
+            if ($request->has('resumen_profesional')) {
+                $usuario->resumen_profesional = $request->resumen_profesional;
+                $camposActualizados[] = 'resumen profesional';
+            }
+            
+            if ($request->has('descripcion')) {
+                $usuario->descripcion = $request->descripcion;
+            }
+            
+            if ($request->has('experiencia')) {
+                $usuario->experiencia = $request->experiencia;
+            }
+            
+            if ($request->has('educacion')) {
+                $usuario->educacion = $request->educacion;
+            }
+            
+            if ($request->has('ubicacion')) {
+                $usuario->ubicacion = $request->ubicacion;
+            }
+            
+            if ($request->has('habilidades')) {
+                $usuario->habilidades = $request->habilidades;
+            }
+            
+            if ($request->has('whatsapp')) {
+                $usuario->whatsapp = $request->whatsapp;
+            }
+            
+            if ($request->has('facebook')) {
+                $usuario->facebook = $request->facebook;
+            }
+            
+            if ($request->has('instagram')) {
+                $usuario->instagram = $request->instagram;
+            }
+            
+            if ($request->has('linkedin')) {
+                $usuario->linkedin = $request->linkedin;
+            }
+            
+            if ($request->has('disponibilidad_horario')) {
+                $usuario->disponibilidad_horario = $request->disponibilidad_horario;
+            }
+            
+            if ($request->has('disponibilidad_jornada')) {
+                $usuario->disponibilidad_jornada = $request->disponibilidad_jornada;
+            }
+            
+            if ($request->has('disponibilidad_movilidad')) {
+                $usuario->disponibilidad_movilidad = $request->has('disponibilidad_movilidad') ? (bool)$request->disponibilidad_movilidad : null;
+            }
+            
+            $usuario->save();
 
-        return redirect()->back()->with('success', 'Perfil actualizado correctamente');
+            // Mensaje personalizado según qué campos se actualizaron
+            if (empty($camposActualizados)) {
+                $mensaje = 'No se detectaron cambios en tu perfil.';
+            } elseif (count($camposActualizados) === 1) {
+                $mensaje = "¡Perfecto! Tu {$camposActualizados[0]} ha sido actualizado correctamente.";
+            } else {
+                $ultimoCampo = array_pop($camposActualizados);
+                $camposTexto = implode(', ', $camposActualizados) . ' y ' . $ultimoCampo;
+                $mensaje = "¡Excelente! Tus datos han sido actualizados: {$camposTexto}.";
+            }
+
+            return redirect()->back()->with('success', $mensaje);
+            
+        } catch (\Exception $e) {
+            Log::error('Error al actualizar perfil: ' . $e->getMessage());
+            return redirect()->back()->with('error', '¡Ups! Hubo un problema al guardar tus cambios. Intenta nuevamente.');
+        }
     }
 
     public function actualizarFoto(Request $request)
@@ -145,16 +220,132 @@ class EmpleadoController extends Controller
 
     public function actualizarHabilidades(Request $request)
     {
-        $request->validate([
-            'habilidades' => 'required|array',
-            'habilidades.*' => 'required|string|max:255'
+        Log::info('Iniciando actualización de habilidades', [
+            'request_data' => $request->all(),
+            'user_id' => Auth::id()
         ]);
 
-        $usuario = Auth::user();
-        $usuario->habilidades = implode(',', $request->habilidades);
-        $usuario->save();
+        $request->validate([
+            'habilidades_json' => 'required|string',
+        ], [
+            'habilidades_json.required' => 'Debes proporcionar al menos una habilidad.',
+        ]);
 
-        return response()->json(['success' => true, 'message' => 'Habilidades actualizadas correctamente']);
+        try {
+            // Decodificar el JSON de habilidades
+            $habilidadesArray = json_decode($request->habilidades_json, true);
+            
+            Log::info('Habilidades decodificadas', [
+                'habilidades_json' => $request->habilidades_json,
+                'habilidades_array' => $habilidadesArray
+            ]);
+            
+            if (!is_array($habilidadesArray)) {
+                Log::error('Formato de habilidades inválido', [
+                    'habilidades_received' => $request->habilidades_json
+                ]);
+                
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Formato de datos inválido. Intenta nuevamente.'
+                ], 400);
+            }
+
+            // Validar que no esté vacío
+            if (empty($habilidadesArray)) {
+                Log::warning('Array de habilidades vacío');
+                
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Debes agregar al menos una habilidad.'
+                ], 400);
+            }
+
+            // Validar cada habilidad
+            $habilidadesValidas = [];
+            foreach ($habilidadesArray as $habilidad) {
+                $habilidad = trim($habilidad);
+                if (!empty($habilidad) && strlen($habilidad) <= 100) {
+                    $habilidadesValidas[] = $habilidad;
+                }
+            }
+
+            Log::info('Habilidades validadas', [
+                'habilidades_validas' => $habilidadesValidas
+            ]);
+
+            if (empty($habilidadesValidas)) {
+                Log::warning('No se encontraron habilidades válidas');
+                
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No se encontraron habilidades válidas. Asegúrate de que no estén vacías.'
+                ], 400);
+            }
+
+            // Eliminar duplicados manteniendo el orden
+            $habilidadesUnicas = array_values(array_unique($habilidadesValidas));
+
+            // Obtener el usuario actual
+            $usuario = Auth::user();
+            
+            // Obtener habilidades anteriores para comparar
+            $habilidadesAnteriores = $usuario->habilidades ? explode(',', $usuario->habilidades) : [];
+            
+            Log::info('Comparando habilidades', [
+                'habilidades_anteriores' => $habilidadesAnteriores,
+                'habilidades_nuevas' => $habilidadesUnicas
+            ]);
+            
+            // Actualizar las habilidades
+            $usuario->habilidades = implode(',', $habilidadesUnicas);
+            $usuario->save();
+
+            Log::info('Habilidades guardadas exitosamente', [
+                'usuario_id' => $usuario->id_usuario,
+                'habilidades_guardadas' => $usuario->habilidades
+            ]);
+
+            // Preparar mensaje personalizado
+            $cantidadHabilidades = count($habilidadesUnicas);
+            $habilidadesAgregadas = array_diff($habilidadesUnicas, $habilidadesAnteriores);
+            $habilidadesEliminadas = array_diff($habilidadesAnteriores, $habilidadesUnicas);
+
+            if (empty($habilidadesAnteriores)) {
+                $mensaje = "¡Perfecto! Has agregado {$cantidadHabilidades} " . ($cantidadHabilidades === 1 ? 'habilidad' : 'habilidades') . " a tu perfil.";
+            } elseif (!empty($habilidadesAgregadas) && !empty($habilidadesEliminadas)) {
+                $mensaje = "¡Excelente! Has actualizado tus habilidades. Agregaste " . count($habilidadesAgregadas) . " y eliminaste " . count($habilidadesEliminadas) . ".";
+            } elseif (!empty($habilidadesAgregadas)) {
+                $mensaje = "¡Genial! Has agregado " . count($habilidadesAgregadas) . " nueva" . (count($habilidadesAgregadas) === 1 ? '' : 's') . " habilidad" . (count($habilidadesAgregadas) === 1 ? '' : 'es') . ".";
+            } elseif (!empty($habilidadesEliminadas)) {
+                $mensaje = "Has eliminado " . count($habilidadesEliminadas) . " habilidad" . (count($habilidadesEliminadas) === 1 ? '' : 'es') . " de tu perfil.";
+            } else {
+                $mensaje = "Tus habilidades han sido actualizadas correctamente.";
+            }
+
+            $response = [
+                'success' => true,
+                'message' => $mensaje,
+                'habilidades' => $habilidadesUnicas,
+                'cantidad' => $cantidadHabilidades
+            ];
+
+            Log::info('Respuesta exitosa', $response);
+
+            return response()->json($response);
+
+        } catch (\Exception $e) {
+            Log::error('Error al actualizar habilidades: ' . $e->getMessage(), [
+                'exception' => $e,
+                'request_data' => $request->all(),
+                'user_id' => Auth::id()
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => '¡Ups! Hubo un problema al guardar tus habilidades. Intenta nuevamente.'
+            ], 500);
+        }
     }
 
     public function actualizarCV(Request $request)
@@ -374,142 +565,473 @@ class EmpleadoController extends Controller
 
     // EXPERIENCIA
     public function storeExperiencia(Request $request) {
+        Log::info('=== INICIO storeExperiencia ===');
+        Log::info('Método HTTP: ' . $request->method());
+        Log::info('Headers: ' . json_encode($request->headers->all()));
+        Log::info('Datos recibidos: ' . json_encode($request->all()));
+        Log::info('Content-Type: ' . $request->header('Content-Type'));
+        Log::info('Accept: ' . $request->header('Accept'));
+        
         $request->validate([
             'puesto' => 'required|string|max:255',
             'empresa' => 'required|string|max:255',
-            'periodo' => 'nullable|string|max:100',
+            'fecha_inicio' => 'required|date',
+            'fecha_fin' => 'nullable|date|after_or_equal:fecha_inicio',
             'descripcion' => 'nullable|string',
             'logro' => 'nullable|string|max:255',
+        ], [
+            'puesto.required' => 'El puesto es obligatorio',
+            'empresa.required' => 'La empresa es obligatoria',
+            'fecha_inicio.required' => 'La fecha de inicio es obligatoria',
+            'fecha_fin.after_or_equal' => 'La fecha de fin debe ser posterior o igual a la fecha de inicio',
         ]);
-        Experiencia::create([
-            'usuario_id' => Auth::id(),
-            'puesto' => $request->puesto,
-            'empresa' => $request->empresa,
-            'periodo' => $request->periodo,
-            'descripcion' => $request->descripcion,
-            'logro' => $request->logro,
-        ]);
-        if ($request->ajax() || $request->wantsJson()) {
-            return response()->json(['success' => true]);
+
+        try {
+            $periodo = $request->fecha_inicio;
+            if ($request->fecha_fin) {
+                $periodo .= ' - ' . $request->fecha_fin;
+            } else {
+                $periodo .= ' - Presente';
+            }
+
+            $experiencia = Experiencia::create([
+                'usuario_id' => Auth::id(),
+                'puesto' => $request->puesto,
+                'empresa' => $request->empresa,
+                'periodo' => $periodo,
+                'descripcion' => $request->descripcion,
+                'logro' => $request->logro,
+            ]);
+
+            Log::info('Experiencia creada exitosamente: ' . json_encode($experiencia->toArray()));
+
+            if ($request->ajax() || $request->wantsJson()) {
+                Log::info('Respondiendo con JSON');
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Experiencia agregada correctamente',
+                    'data' => $experiencia
+                ]);
+            }
+            
+            Log::info('Respondiendo con redirect');
+            return back()->with('success', 'Experiencia agregada correctamente');
+        } catch (\Exception $e) {
+            Log::error('Error al crear experiencia: ' . $e->getMessage());
+            Log::error('Stack trace: ' . $e->getTraceAsString());
+            
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error al agregar experiencia: ' . $e->getMessage()
+                ], 500);
+            }
+            return back()->with('error', 'Error al agregar experiencia');
         }
-        return back()->with('success', 'Experiencia agregada');
     }
+
     public function updateExperiencia(Request $request, $id) {
         $exp = Experiencia::where('usuario_id', Auth::id())->findOrFail($id);
         $request->validate([
             'puesto' => 'required|string|max:255',
             'empresa' => 'required|string|max:255',
-            'periodo' => 'nullable|string|max:100',
+            'fecha_inicio' => 'required|date',
+            'fecha_fin' => 'nullable|date|after_or_equal:fecha_inicio',
             'descripcion' => 'nullable|string',
             'logro' => 'nullable|string|max:255',
         ]);
-        $exp->update($request->only(['puesto','empresa','periodo','descripcion','logro']));
-        return back()->with('success', 'Experiencia actualizada');
+
+        try {
+            $periodo = $request->fecha_inicio;
+            if ($request->fecha_fin) {
+                $periodo .= ' - ' . $request->fecha_fin;
+            } else {
+                $periodo .= ' - Presente';
+            }
+
+            $exp->update([
+                'puesto' => $request->puesto,
+                'empresa' => $request->empresa,
+                'periodo' => $periodo,
+                'descripcion' => $request->descripcion,
+                'logro' => $request->logro,
+            ]);
+
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Experiencia actualizada correctamente'
+                ]);
+            }
+            return back()->with('success', 'Experiencia actualizada correctamente');
+        } catch (\Exception $e) {
+            Log::error('Error al actualizar experiencia: ' . $e->getMessage());
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error al actualizar experiencia'
+                ], 500);
+            }
+            return back()->with('error', 'Error al actualizar experiencia');
+        }
     }
+
     public function destroyExperiencia($id) {
-        $exp = Experiencia::where('usuario_id', Auth::id())->findOrFail($id);
-        $exp->delete();
-        return back()->with('success', 'Experiencia eliminada');
+        try {
+            $exp = Experiencia::where('usuario_id', Auth::id())->findOrFail($id);
+            $exp->delete();
+            
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Experiencia eliminada correctamente'
+                ]);
+            }
+            return back()->with('success', 'Experiencia eliminada correctamente');
+        } catch (\Exception $e) {
+            Log::error('Error al eliminar experiencia: ' . $e->getMessage());
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error al eliminar experiencia'
+                ], 500);
+            }
+            return back()->with('error', 'Error al eliminar experiencia');
+        }
     }
 
     // EDUCACION
     public function storeEducacion(Request $request) {
+        Log::info('Datos recibidos en storeEducacion:', $request->all());
+        
         $request->validate([
             'titulo' => 'required|string|max:255',
             'institucion' => 'required|string|max:255',
-            'periodo' => 'nullable|string|max:100',
+            'fecha_inicio_edu' => 'required|date',
+            'fecha_fin_edu' => 'nullable|date|after_or_equal:fecha_inicio_edu',
+            'descripcion_edu' => 'nullable|string',
+        ], [
+            'titulo.required' => 'El título es obligatorio',
+            'institucion.required' => 'La institución es obligatoria',
+            'fecha_inicio_edu.required' => 'La fecha de inicio es obligatoria',
+            'fecha_fin_edu.after_or_equal' => 'La fecha de fin debe ser posterior o igual a la fecha de inicio',
         ]);
-        Educacion::create([
-            'usuario_id' => Auth::id(),
-            'titulo' => $request->titulo,
-            'institucion' => $request->institucion,
-            'periodo' => $request->periodo,
-        ]);
-        return back()->with('success', 'Educación agregada');
+
+        try {
+            $periodo = $request->fecha_inicio_edu;
+            if ($request->fecha_fin_edu) {
+                $periodo .= ' - ' . $request->fecha_fin_edu;
+            } else {
+                $periodo .= ' - Presente';
+            }
+
+            $educacion = Educacion::create([
+                'usuario_id' => Auth::id(),
+                'titulo' => $request->titulo,
+                'institucion' => $request->institucion,
+                'periodo' => $periodo,
+                'descripcion' => $request->descripcion_edu,
+            ]);
+
+            Log::info('Educación creada exitosamente:', $educacion->toArray());
+
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Educación agregada correctamente',
+                    'data' => $educacion
+                ]);
+            }
+            return back()->with('success', 'Educación agregada correctamente');
+        } catch (\Exception $e) {
+            Log::error('Error al crear educación: ' . $e->getMessage());
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error al agregar educación: ' . $e->getMessage()
+                ], 500);
+            }
+            return back()->with('error', 'Error al agregar educación');
+        }
     }
+
     public function updateEducacion(Request $request, $id) {
         $edu = Educacion::where('usuario_id', Auth::id())->findOrFail($id);
         $request->validate([
             'titulo' => 'required|string|max:255',
             'institucion' => 'required|string|max:255',
-            'periodo' => 'nullable|string|max:100',
+            'fecha_inicio_edu' => 'required|date',
+            'fecha_fin_edu' => 'nullable|date|after_or_equal:fecha_inicio_edu',
+            'descripcion_edu' => 'nullable|string',
         ]);
-        $edu->update($request->only(['titulo','institucion','periodo']));
-        return back()->with('success', 'Educación actualizada');
+
+        try {
+            $periodo = $request->fecha_inicio_edu;
+            if ($request->fecha_fin_edu) {
+                $periodo .= ' - ' . $request->fecha_fin_edu;
+            } else {
+                $periodo .= ' - Presente';
+            }
+
+            $edu->update([
+                'titulo' => $request->titulo,
+                'institucion' => $request->institucion,
+                'periodo' => $periodo,
+                'descripcion' => $request->descripcion_edu,
+            ]);
+
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Educación actualizada correctamente'
+                ]);
+            }
+            return back()->with('success', 'Educación actualizada correctamente');
+        } catch (\Exception $e) {
+            Log::error('Error al actualizar educación: ' . $e->getMessage());
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error al actualizar educación'
+                ], 500);
+            }
+            return back()->with('error', 'Error al actualizar educación');
+        }
     }
+
     public function destroyEducacion($id) {
-        $edu = Educacion::where('usuario_id', Auth::id())->findOrFail($id);
-        $edu->delete();
-        return back()->with('success', 'Educación eliminada');
+        try {
+            $edu = Educacion::where('usuario_id', Auth::id())->findOrFail($id);
+            $edu->delete();
+            
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Educación eliminada correctamente'
+                ]);
+            }
+            return back()->with('success', 'Educación eliminada correctamente');
+        } catch (\Exception $e) {
+            Log::error('Error al eliminar educación: ' . $e->getMessage());
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error al eliminar educación'
+                ], 500);
+            }
+            return back()->with('error', 'Error al eliminar educación');
+        }
     }
 
     // CERTIFICADOS
     public function storeCertificado(Request $request) {
+        Log::info('Datos recibidos en storeCertificado:', $request->all());
+        
         $request->validate([
-            'nombre' => 'required|string|max:255',
-            'institucion' => 'nullable|string|max:255',
-            'anio' => 'nullable|string|max:10',
-            'archivo' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:4096',
+            'nombre_cert' => 'required|string|max:255',
+            'emisor' => 'required|string|max:255',
+            'fecha_emision_cert' => 'required|date',
+            'fecha_vencimiento_cert' => 'nullable|date|after_or_equal:fecha_emision_cert',
+            'descripcion_cert' => 'nullable|string',
+        ], [
+            'nombre_cert.required' => 'El nombre del certificado es obligatorio',
+            'emisor.required' => 'El emisor es obligatorio',
+            'fecha_emision_cert.required' => 'La fecha de emisión es obligatoria',
+            'fecha_vencimiento_cert.after_or_equal' => 'La fecha de vencimiento debe ser posterior o igual a la fecha de emisión',
         ]);
-        $archivo = null;
-        if ($request->hasFile('archivo')) {
-            $archivo = $request->file('archivo')->store('certificados', 'public');
+
+        try {
+            $certificado = Certificado::create([
+                'usuario_id' => Auth::id(),
+                'nombre' => $request->nombre_cert,
+                'emisor' => $request->emisor,
+                'fecha_emision' => $request->fecha_emision_cert,
+                'fecha_vencimiento' => $request->fecha_vencimiento_cert,
+                'descripcion' => $request->descripcion_cert,
+            ]);
+
+            Log::info('Certificado creado exitosamente:', $certificado->toArray());
+
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Certificado agregado correctamente',
+                    'data' => $certificado
+                ]);
+            }
+            return back()->with('success', 'Certificado agregado correctamente');
+        } catch (\Exception $e) {
+            Log::error('Error al crear certificado: ' . $e->getMessage());
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error al agregar certificado: ' . $e->getMessage()
+                ], 500);
+            }
+            return back()->with('error', 'Error al agregar certificado');
         }
-        Certificado::create([
-            'usuario_id' => Auth::id(),
-            'nombre' => $request->nombre,
-            'institucion' => $request->institucion,
-            'anio' => $request->anio,
-            'archivo' => $archivo,
-        ]);
-        return back()->with('success', 'Certificado agregado');
     }
+
     public function updateCertificado(Request $request, $id) {
         $cert = Certificado::where('usuario_id', Auth::id())->findOrFail($id);
         $request->validate([
-            'nombre' => 'required|string|max:255',
-            'institucion' => 'nullable|string|max:255',
-            'anio' => 'nullable|string|max:10',
-            'archivo' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:4096',
+            'nombre_cert' => 'required|string|max:255',
+            'emisor' => 'required|string|max:255',
+            'fecha_emision_cert' => 'required|date',
+            'fecha_vencimiento_cert' => 'nullable|date|after_or_equal:fecha_emision_cert',
+            'descripcion_cert' => 'nullable|string',
         ]);
-        $data = $request->only(['nombre','institucion','anio']);
-        if ($request->hasFile('archivo')) {
-            $data['archivo'] = $request->file('archivo')->store('certificados', 'public');
+
+        try {
+            $cert->update([
+                'nombre' => $request->nombre_cert,
+                'emisor' => $request->emisor,
+                'fecha_emision' => $request->fecha_emision_cert,
+                'fecha_vencimiento' => $request->fecha_vencimiento_cert,
+                'descripcion' => $request->descripcion_cert,
+            ]);
+
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Certificado actualizado correctamente'
+                ]);
+            }
+            return back()->with('success', 'Certificado actualizado correctamente');
+        } catch (\Exception $e) {
+            Log::error('Error al actualizar certificado: ' . $e->getMessage());
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error al actualizar certificado'
+                ], 500);
+            }
+            return back()->with('error', 'Error al actualizar certificado');
         }
-        $cert->update($data);
-        return back()->with('success', 'Certificado actualizado');
     }
+
     public function destroyCertificado($id) {
-        $cert = Certificado::where('usuario_id', Auth::id())->findOrFail($id);
-        $cert->delete();
-        return back()->with('success', 'Certificado eliminado');
+        try {
+            $cert = Certificado::where('usuario_id', Auth::id())->findOrFail($id);
+            $cert->delete();
+            
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Certificado eliminado correctamente'
+                ]);
+            }
+            return back()->with('success', 'Certificado eliminado correctamente');
+        } catch (\Exception $e) {
+            Log::error('Error al eliminar certificado: ' . $e->getMessage());
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error al eliminar certificado'
+                ], 500);
+            }
+            return back()->with('error', 'Error al eliminar certificado');
+        }
     }
 
     // IDIOMAS
     public function storeIdioma(Request $request) {
+        Log::info('Datos recibidos en storeIdioma:', $request->all());
+        
         $request->validate([
             'idioma' => 'required|string|max:100',
             'nivel' => 'required|string|max:100',
+            'descripcion_idioma' => 'nullable|string',
+        ], [
+            'idioma.required' => 'El idioma es obligatorio',
+            'nivel.required' => 'El nivel es obligatorio',
         ]);
-        Idioma::create([
-            'usuario_id' => Auth::id(),
-            'idioma' => $request->idioma,
-            'nivel' => $request->nivel,
-        ]);
-        return back()->with('success', 'Idioma agregado');
+
+        try {
+            $idioma = Idioma::create([
+                'usuario_id' => Auth::id(),
+                'idioma' => $request->idioma,
+                'nivel' => $request->nivel,
+                'descripcion' => $request->descripcion_idioma,
+            ]);
+
+            Log::info('Idioma creado exitosamente:', $idioma->toArray());
+
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Idioma agregado correctamente',
+                    'data' => $idioma
+                ]);
+            }
+            return back()->with('success', 'Idioma agregado correctamente');
+        } catch (\Exception $e) {
+            Log::error('Error al crear idioma: ' . $e->getMessage());
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error al agregar idioma: ' . $e->getMessage()
+                ], 500);
+            }
+            return back()->with('error', 'Error al agregar idioma');
+        }
     }
+
     public function updateIdioma(Request $request, $id) {
         $idioma = Idioma::where('usuario_id', Auth::id())->findOrFail($id);
         $request->validate([
             'idioma' => 'required|string|max:100',
             'nivel' => 'required|string|max:100',
+            'descripcion_idioma' => 'nullable|string',
         ]);
-        $idioma->update($request->only(['idioma','nivel']));
-        return back()->with('success', 'Idioma actualizado');
+
+        try {
+            $idioma->update([
+                'idioma' => $request->idioma,
+                'nivel' => $request->nivel,
+                'descripcion' => $request->descripcion_idioma,
+            ]);
+
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Idioma actualizado correctamente'
+                ]);
+            }
+            return back()->with('success', 'Idioma actualizado correctamente');
+        } catch (\Exception $e) {
+            Log::error('Error al actualizar idioma: ' . $e->getMessage());
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error al actualizar idioma'
+                ], 500);
+            }
+            return back()->with('error', 'Error al actualizar idioma');
+        }
     }
+
     public function destroyIdioma($id) {
-        $idioma = Idioma::where('usuario_id', Auth::id())->findOrFail($id);
-        $idioma->delete();
-        return back()->with('success', 'Idioma eliminado');
+        try {
+            $idioma = Idioma::where('usuario_id', Auth::id())->findOrFail($id);
+            $idioma->delete();
+            
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Idioma eliminado correctamente'
+                ]);
+            }
+            return back()->with('success', 'Idioma eliminado correctamente');
+        } catch (\Exception $e) {
+            Log::error('Error al eliminar idioma: ' . $e->getMessage());
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error al eliminar idioma'
+                ], 500);
+            }
+            return back()->with('error', 'Error al eliminar idioma');
+        }
     }
 }

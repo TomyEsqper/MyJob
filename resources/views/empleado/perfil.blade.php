@@ -5,596 +5,276 @@
 
 @section('content')
 
-@if (session('success') && session('success') === 'Tu foto de perfil ha sido actualizada.')
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-        <i class="fas fa-check-circle me-2"></i>
-        {{ session('success') }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+<!-- Sistema de Feedback Mejorado - Imposible de Ignorar -->
+@if (session('success'))
+    <div class="feedback-notification feedback-success" id="successNotification">
+        <div class="feedback-content">
+            <div class="feedback-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="feedback-message">
+                <h4>¡Éxito!</h4>
+                <p>{{ session('success') }}</p>
+            </div>
+            <button type="button" class="feedback-close" onclick="closeNotification('successNotification')">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="feedback-progress"></div>
+    </div>
+@endif
+
+@if (session('error'))
+    <div class="feedback-notification feedback-error" id="errorNotification">
+        <div class="feedback-content">
+            <div class="feedback-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <div class="feedback-message">
+                <h4>¡Error!</h4>
+                <p>{{ session('error') }}</p>
+            </div>
+            <button type="button" class="feedback-close" onclick="closeNotification('errorNotification')">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="feedback-progress"></div>
+    </div>
+@endif
+
+@if (session('warning'))
+    <div class="feedback-notification feedback-warning" id="warningNotification">
+        <div class="feedback-content">
+            <div class="feedback-icon">
+                <i class="fas fa-exclamation-circle"></i>
+            </div>
+            <div class="feedback-message">
+                <h4>¡Atención!</h4>
+                <p>{{ session('warning') }}</p>
+            </div>
+            <button type="button" class="feedback-close" onclick="closeNotification('warningNotification')">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="feedback-progress"></div>
     </div>
 @endif
 
 @if ($errors->any())
-<div class="alert alert-danger">
-    <i class="fas fa-exclamation-triangle me-2"></i>
-    <ul class="mb-0">
-        @foreach ($errors->all() as $error)
-            <li>{{ $error }}</li>
-        @endforeach
-    </ul>
-</div>
+    <div class="feedback-notification feedback-error" id="validationErrors">
+        <div class="feedback-content">
+            <div class="feedback-icon">
+                <i class="fas fa-times-circle"></i>
+            </div>
+            <div class="feedback-message">
+                <h4>¡Hay errores en el formulario!</h4>
+                <ul class="error-list">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+            <button type="button" class="feedback-close" onclick="closeNotification('validationErrors')">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="feedback-progress"></div>
+    </div>
 @endif
 
-<div class="perfil-container perfil-nuevo-layout">
-    {{-- Cabecera tipo tarjeta --}}
-    <div class="perfil-header-card mb-5 animate__animated animate__fadeInDown">
-        <div class="perfil-header-bg">
-            @if(file_exists(public_path('images/portada-demo.jpg')))
-                <img src="{{ asset('images/portada-demo.jpg') }}" alt="Portada">
-            @endif
+<!-- Indicador de Guardado en Tiempo Real -->
+<div class="save-indicator" id="saveIndicator" style="display: none;">
+    <div class="save-content">
+        <div class="save-spinner">
+            <i class="fas fa-spinner fa-spin"></i>
         </div>
-        <div class="perfil-header-content d-flex flex-column align-items-center justify-content-center text-center">
-            <div class="perfil-avatar-xl mb-3">
+        <span>Guardando cambios...</span>
+    </div>
+</div>
+
+<div class="profile-container">
+    <!-- Fondo animado y burbujas -->
+    <div class="animated-bg">
+        <div class="bubble bubble1"></div>
+        <div class="bubble bubble2"></div>
+        <div class="bubble bubble3"></div>
+        <div class="bubble bubble4"></div>
+        <div class="bubble bubble5"></div>
+    </div>
+    <!-- Hero Section -->
+    <div class="profile-hero" style="position:relative;z-index:2;">
+        <div class="profile-avatar-section fade-in-up">
+            <div class="avatar-container" style="position:relative;">
                 @if ($empleado->foto_perfil)
-                    <img id="previewFotoPerfil" src="{{ Str::startsWith($empleado->foto_perfil, 'http') ? $empleado->foto_perfil : asset('storage/' . $empleado->foto_perfil) }}" alt="Foto de Perfil">
+                    <img id="previewFotoPerfil" src="{{ Str::startsWith($empleado->foto_perfil, 'http') ? $empleado->foto_perfil : asset('storage/' . $empleado->foto_perfil) }}" alt="Foto de Perfil" class="animated-avatar">
                 @else
-                    <img id="previewFotoPerfil" src="{{ asset('images/default-user.png') }}" alt="Foto de Perfil">
+                    <img id="previewFotoPerfil" src="{{ asset('images/default-user.png') }}" alt="Foto de Perfil" class="animated-avatar">
                 @endif
-                <form action="{{ route('empleado.actualizar-foto') }}" method="POST" enctype="multipart/form-data" id="fotoPerfilForm" style="position:relative;">
-                    @csrf
-                    <button type="button" class="perfil-avatar-btn-xl" title="Cambiar foto de perfil" onclick="document.getElementById('foto_perfil_upload').click();">
-                        <i class="fas fa-camera"></i>
-                    </button>
-                    <input type="file" name="foto_perfil" id="foto_perfil_upload" accept=".jpg,.jpeg,.png" hidden onchange="this.form.submit()">
-                </form>
-            </div>
-            <h2 class="perfil-nombre-xl mb-1">{{ $empleado->nombre_usuario }}</h2>
-            <div class="perfil-profesion-xl mb-2">{{ $empleado->profesion ?? 'Sin profesión definida' }}</div>
-            <div class="perfil-resumen-xl">{{ $empleado->resumen_profesional ?? 'Agrega un resumen profesional para destacar.' }}</div>
-        </div>
-    </div>
-
-    <div class="row g-4 mb-4">
-        <div class="col-lg-8">
-            <div class="row g-4">
-                <div class="col-md-6">
-                    {{-- Información de Contacto --}}
-                    <section class="perfil-card perfil-section-card h-100">
-                        <h5 class="mb-3"><i class="fas fa-share-alt me-2"></i> Contacto</h5>
-                        <div class="perfil-social-links-grid">
-                            @foreach(['whatsapp','facebook','instagram','linkedin'] as $red)
-                                @php
-                                    $icon = [
-                                        'whatsapp' => 'fab fa-whatsapp',
-                                        'facebook' => 'fab fa-facebook',
-                                        'instagram' => 'fab fa-instagram',
-                                        'linkedin' => 'fab fa-linkedin',
-                                    ][$red];
-                                    $valor = $empleado->$red;
-                                @endphp
-                                <div class="d-flex align-items-center mb-2" data-campo="{{ $red }}">
-                                    <i class="{{ $icon }} me-2"></i>
-                                    <span class="valor-campo flex-grow-1">{{ $valor }}</span>
-                                    <button class="btn btn-sm btn-link text-primary editar-campo ms-2" title="Editar" type="button"><i class="fas fa-edit"></i></button>
-                                </div>
-                            @endforeach
-                        </div>
-                        <button class="btn btn-success w-100 mt-3">
-                            <i class="fab fa-whatsapp me-2"></i>
-                            Contactar
+                <div class="avatar-overlay">
+                    <form action="{{ route('empleado.actualizar-foto') }}" method="POST" enctype="multipart/form-data" id="fotoPerfilForm">
+                        @csrf
+                        <button type="button" class="avatar-edit-btn" title="Cambiar foto de perfil" onclick="document.getElementById('foto_perfil_upload').click();">
+                            <i class="fas fa-camera"></i>
                         </button>
-                    </section>
-                </div>
-                <div class="col-md-6">
-                    {{-- Disponibilidad Laboral --}}
-                    <section class="perfil-card perfil-section-card h-100">
-                        <h5 class="mb-3"><i class="fas fa-calendar-check me-2"></i> Disponibilidad</h5>
-                        <div class="row text-center">
-                            <div class="col-4">
-                                <div class="fw-bold">Horario</div>
-                                <span class="valor-campo">{{ $empleado->disponibilidad_horario ?? '-' }}</span>
-                            </div>
-                            <div class="col-4">
-                                <div class="fw-bold">Jornada</div>
-                                <span class="valor-campo">{{ $empleado->disponibilidad_jornada ?? '-' }}</span>
-                            </div>
-                            <div class="col-4">
-                                <div class="fw-bold">Movilidad</div>
-                                <span class="valor-campo">{{ $empleado->disponibilidad_movilidad ? 'Sí' : 'No' }}</span>
-                            </div>
-                        </div>
-                    </section>
-                </div>
-                <div class="col-12">
-                    {{-- Habilidades Destacadas --}}
-                    <section class="perfil-card perfil-section-card">
-                        <h5 class="mb-3"><i class="fas fa-star me-2"></i> Habilidades</h5>
-                        <div class="perfil-list mb-2">
-                            @foreach(explode(',', $empleado->habilidades ?? '') as $habilidad)
-                                @if(trim($habilidad))
-                                    <span class="badge badge-habilidad selected">
-                                        <i class="fas fa-check-circle"></i> {{ trim($habilidad) }}
-                                    </span>
-                                @endif
-                            @endforeach
-                        </div>
-                    </section>
+                        <input type="file" name="foto_perfil" id="foto_perfil_upload" accept=".jpg,.jpeg,.png" hidden onchange="this.form.submit()">
+                    </form>
                 </div>
             </div>
         </div>
-        <div class="col-lg-4">
-            {{-- Información Personal y CV --}}
-            <section class="perfil-card perfil-section-card mb-4">
-                <h5 class="mb-3"><i class="fas fa-user-edit me-2"></i> Información Personal</h5>
-                <form action="{{ route('empleado.perfil.update', $empleado->id_usuario) }}" method="POST" enctype="multipart/form-data" id="perfilForm">
-                    @csrf
-                    @method('PUT')
-                    <div class="mb-3">
-                        <label for="nombre_usuario" class="form-label"><i class="fas fa-user me-1"></i> Nombre *</label>
-                        <input type="text" class="form-control" name="nombre_usuario" id="nombre_usuario" value="{{ old('nombre_usuario', $empleado->nombre_usuario) }}" required maxlength="50">
+        <div class="profile-info fade-in-up delay-1">
+            <h1 class="profile-name">{{ $empleado->nombre_usuario }}</h1>
+            <p class="profile-title">{{ $empleado->profesion ?? 'Sin profesión definida' }}</p>
+            <p class="profile-bio">{{ $empleado->resumen_profesional ?? 'Agrega un resumen profesional para destacar.' }}</p>
+            <div class="profile-stats fade-in-up delay-2">
+                <a href="#experiencia-section" class="stat-item-link">
+                    <div class="stat-item">
+                        <span class="stat-icon text-white"><i class="fas fa-briefcase"></i></span>
+                        <span class="stat-number" id="stat-exp">0</span>
+                        <span class="stat-label">EXPERIENCIAS</span>
                     </div>
-                    <div class="mb-3">
-                        <label for="telefono" class="form-label"><i class="fas fa-phone me-1"></i> Teléfono</label>
-                        <input type="tel" class="form-control" name="telefono" id="telefono" value="{{ old('telefono', $empleado->telefono) }}" maxlength="20">
+                </a>
+                <a href="#educacion-section" class="stat-item-link">
+                    <div class="stat-item">
+                        <span class="stat-icon text-white"><i class="fas fa-graduation-cap"></i></span>
+                        <span class="stat-number" id="stat-edu">0</span>
+                        <span class="stat-label">EDUCACIÓN</span>
                     </div>
-                    <div class="mb-3">
-                        <label for="ciudad" class="form-label"><i class="fas fa-map-marker-alt me-1"></i> Ciudad</label>
-                        <input type="text" class="form-control" name="ciudad" id="ciudad" value="{{ old('ciudad', $empleado->ciudad) }}" maxlength="100">
+                </a>
+                <a href="#certificados-section" class="stat-item-link">
+                    <div class="stat-item">
+                        <span class="stat-icon text-white"><i class="fas fa-certificate"></i></span>
+                        <span class="stat-number" id="stat-cert">0</span>
+                        <span class="stat-label">CERTIFICADOS</span>
                     </div>
-                    <div class="mb-3">
-                        <label for="profesion" class="form-label"><i class="fas fa-briefcase me-1"></i> Profesión</label>
-                        <input type="text" class="form-control" name="profesion" id="profesion" value="{{ old('profesion', $empleado->profesion) }}" maxlength="100">
+                </a>
+                <a href="#idiomas-section" class="stat-item-link">
+                    <div class="stat-item">
+                        <span class="stat-icon text-white"><i class="fas fa-language"></i></span>
+                        <span class="stat-number" id="stat-idioma">0</span>
+                        <span class="stat-label">IDIOMAS</span>
                     </div>
-                    <div class="mb-3">
-                        <label for="resumen_profesional" class="form-label"><i class="fas fa-file-alt me-1"></i> Resumen</label>
-                        <textarea class="form-control" name="resumen_profesional" id="resumen_profesional" rows="3" maxlength="1000">{{ old('resumen_profesional', $empleado->resumen_profesional) }}</textarea>
-                    </div>
-                    <div class="form-actions">
-                        <button type="submit" class="btn btn-primary w-100"><i class="fas fa-save me-2"></i> Guardar Cambios</button>
-                    </div>
-                </form>
-            </section>
-            <section class="perfil-card perfil-section-card">
-                <h5 class="mb-3"><i class="fas fa-file-alt me-2"></i> Currículum Vitae (CV)</h5>
-                <label for="cv" class="form-label"><i class="fas fa-upload me-1"></i> Subir nuevo CV</label>
-                <input type="file" class="form-control" name="cv" id="cv" accept=".pdf,.doc,.docx">
-                <div class="form-text"><i class="fas fa-info-circle me-1"></i> Formatos permitidos: PDF, DOC, DOCX (máx. 10MB)</div>
-                @if ($empleado->cv_path)
-                    <div class="mt-3">
-                        <div class="alert alert-info"><i class="fas fa-file-pdf me-2"></i> <strong>CV actual:</strong> {{ basename($empleado->cv_path) }}</div>
-                    </div>
-                @endif
-            </section>
+                </a>
+            </div>
         </div>
     </div>
 
-    <div class="row g-4">
-        <div class="col-md-6 col-lg-4">
-            {{-- Experiencia Laboral --}}
-            <section class="perfil-card perfil-section-card h-100">
-                <h5 class="mb-3"><i class="fas fa-briefcase me-2"></i> Experiencia</h5>
-                <div class="perfil-list">
-                    @forelse($empleado->experiencias as $exp)
-                        <div class="mb-3">
-                            <div class="perfil-card-title">{{ $exp->puesto }}</div>
-                            <div class="perfil-card-sub">{{ $exp->empresa }} • {{ $exp->periodo }}</div>
-                            <div class="perfil-card-desc">{{ $exp->descripcion }}
-                                @if($exp->logro)
-                                    <span class="badge badge-habilidad ms-2">{{ $exp->logro }}</span>
-                                @endif
-                            </div>
-                        </div>
-                    @empty
-                        <div class="text-muted">Sin experiencia registrada.</div>
-                    @endforelse
+    <!-- Main Content Grid -->
+    <div class="profile-content">
+        <div class="content-grid">
+            <!-- Left Column -->
+            <div class="left-column">
+                <div class="glass-card fade-in-up delay-2">
+                    @include('empleado.perfil._about', ['empleado' => $empleado])
                 </div>
-            </section>
-        </div>
-        <div class="col-md-6 col-lg-4">
-            {{-- Educación --}}
-            <section class="perfil-card perfil-section-card h-100">
-                <h5 class="mb-3"><i class="fas fa-graduation-cap me-2"></i> Educación</h5>
-                <div class="perfil-list">
-                    @forelse($empleado->educaciones as $edu)
-                        <div class="mb-3">
-                            <div class="perfil-card-title">{{ $edu->titulo }}</div>
-                            <div class="perfil-card-sub">{{ $edu->institucion }} • {{ $edu->periodo }}</div>
-                        </div>
-                    @empty
-                        <div class="text-muted">Sin educación registrada.</div>
-                    @endforelse
+                <div class="glass-card fade-in-up delay-3">
+                    @include('empleado.perfil._contact', ['empleado' => $empleado])
                 </div>
-            </section>
-        </div>
-        <div class="col-md-12 col-lg-4">
-            {{-- Certificados y Cursos --}}
-            <section class="perfil-card perfil-section-card h-100">
-                <h5 class="mb-3"><i class="fas fa-certificate me-2"></i> Certificados y Cursos</h5>
-                <div class="perfil-list perfil-list-grid">
-                    @forelse($empleado->certificados as $cert)
-                        <div class="perfil-card perfil-card-cert mb-2">
-                            <i class="fas fa-file-pdf fa-2x"></i>
-                            <div>
-                                <strong>{{ $cert->nombre }}</strong>
-                                <div class="perfil-card-sub">{{ $cert->anio }}</div>
-                            </div>
-                        </div>
-                    @empty
-                        <div class="text-muted">Sin certificados registrados.</div>
-                    @endforelse
+                <div class="glass-card fade-in-up delay-3">
+                    @include('empleado.perfil._skills', ['empleado' => $empleado])
                 </div>
-            </section>
-        </div>
-        <div class="col-md-6 col-lg-4">
-            {{-- Idiomas --}}
-            <section class="perfil-card perfil-section-card h-100">
-                <h5 class="mb-3"><i class="fas fa-language me-2"></i> Idiomas</h5>
-                <div class="perfil-list">
-                    @forelse($empleado->idiomas as $idioma)
-                        <span class="badge badge-idioma mb-2" data-id="{{ $idioma->id }}">
-                            <i class="fas fa-flag"></i> {{ $idioma->idioma }} <span class="small">({{ $idioma->nivel }})</span>
-                        </span>
-                    @empty
-                        <div class="text-muted">Sin idiomas registrados.</div>
-                    @endforelse
+            </div>
+
+            <!-- Right Column -->
+            <div class="right-column">
+                <div class="glass-card fade-in-up delay-2" id="experiencia-section">
+                    @include('empleado.perfil._experiencia', ['empleado' => $empleado])
                 </div>
-            </section>
+                <div class="glass-card fade-in-up delay-3" id="educacion-section">
+                    @include('empleado.perfil._educacion', ['empleado' => $empleado])
+                </div>
+                <div class="glass-card fade-in-up delay-3" id="certificados-section">
+                    @include('empleado.perfil._certificados', ['empleado' => $empleado])
+                </div>
+                <div class="glass-card fade-in-up delay-3" id="idiomas-section">
+                    @include('empleado.perfil._idiomas', ['empleado' => $empleado])
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
-<div id="alerta-contacto" class="alert d-none mt-2" role="alert"></div>
+@endsection
 
+@section('scripts')
+<script src="{{ asset('js/profile-forms.js') }}"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const mainForm = document.getElementById('perfilForm');
-    const fotoForm = document.getElementById('fotoPerfilForm');
-    const inputs = mainForm.querySelectorAll('input:not([type="file"]), textarea');
-    
-    // Función para mostrar error
-    function showError(input, message) {
-        input.classList.add('is-invalid');
-        const errorDiv = document.getElementById(input.id + '-error');
-        if (errorDiv) {
-            errorDiv.textContent = message;
-        }
-    }
-    
-    // Función para limpiar error
-    function clearError(input) {
-        input.classList.remove('is-invalid');
-        const errorDiv = document.getElementById(input.id + '-error');
-        if (errorDiv) {
-            errorDiv.textContent = '';
-        }
-    }
-    
-    // Validar teléfono (formato básico)
-    function isValidPhone(phone) {
-        if (!phone) return true; // Opcional
-        const phoneRegex = /^[\+]?[0-9\s\-\(\)]{7,20}$/;
-        return phoneRegex.test(phone);
-    }
-    
-    // Validar archivo de imagen
-    function isValidImageFile(file) {
-        if (!file) return true; // Opcional
-        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-        const maxSize = 5 * 1024 * 1024; // 5MB
-        
-        if (!allowedTypes.includes(file.type)) {
-            return false;
-        }
-        
-        if (file.size > maxSize) {
-            return false;
-        }
-        
-        return true;
-    }
-    
-    // Validar archivo CV
-    function isValidCVFile(file) {
-        if (!file) return true; // Opcional
-        const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
-        const maxSize = 10 * 1024 * 1024; // 10MB
-        
-        if (!allowedTypes.includes(file.type)) {
-            return false;
-        }
-        
-        if (file.size > maxSize) {
-            return false;
-        }
-        
-        return true;
-    }
-    
-    // Validar campo individual
-    function validateField(input) {
-        const value = input.value.trim();
-        
-        // Limpiar error previo
-        clearError(input);
-        
-        // Validar campos requeridos
-        if (input.hasAttribute('required') && !value) {
-            showError(input, 'Este campo es obligatorio.');
-            return false;
-        }
-        
-        // Validar longitud máxima
-        if (input.hasAttribute('maxlength') && value.length > parseInt(input.getAttribute('maxlength'))) {
-            showError(input, `Máximo ${input.getAttribute('maxlength')} caracteres.`);
-            return false;
-        }
-        
-        // Validaciones específicas
-        switch (input.id) {
-            case 'telefono':
-                if (value && !isValidPhone(value)) {
-                    showError(input, 'Ingresa un número de teléfono válido.');
-                    return false;
-                }
-                break;
-                
-            case 'foto_perfil_upload':
-                if (input.files.length > 0 && !isValidImageFile(input.files[0])) {
-                    const file = input.files[0];
-                    if (!['image/jpeg', 'image/jpg', 'image/png'].includes(file.type)) {
-                        showError(input, 'Solo se permiten archivos JPG y PNG.');
-                    } else if (file.size > 5 * 1024 * 1024) {
-                        showError(input, 'La imagen no puede pesar más de 5MB.');
-                    }
-                    return false;
-                }
-                break;
-                
-            case 'cv':
-                if (input.files.length > 0 && !isValidCVFile(input.files[0])) {
-                    const file = input.files[0];
-                    if (!['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'].includes(file.type)) {
-                        showError(input, 'Solo se permiten archivos PDF, DOC y DOCX.');
-                    } else if (file.size > 10 * 1024 * 1024) {
-                        showError(input, 'El archivo no puede ser mayor a 10MB.');
-                    }
-                    return false;
-                }
-                break;
-        }
-        
-        return true;
-    }
-    
-    // Event listeners para validación en tiempo real
-    inputs.forEach(input => {
-        input.addEventListener('blur', () => validateField(input));
-        input.addEventListener('input', () => {
-            if (input.classList.contains('is-invalid')) {
-                validateField(input);
-            }
-        });
-    });
-    
-    // Validación al enviar el formulario
-    mainForm.addEventListener('submit', function(e) {
-        let isValid = true;
-        
-        // Validar todos los campos
-        inputs.forEach(input => {
-            if (!validateField(input)) {
-                isValid = false;
-            }
-        });
-        
-        if (!isValid) {
-            e.preventDefault();
-            // Mostrar mensaje de error general
-            const firstError = mainForm.querySelector('.is-invalid');
-            if (firstError) {
-                firstError.focus();
-            }
-        }
-    });
+    // Animación de conteo para stats
+    animateCount('stat-exp', {{ $empleado->experiencias->count() }});
+    animateCount('stat-edu', {{ $empleado->educaciones->count() }});
+    animateCount('stat-cert', {{ $empleado->certificados->count() }});
+    animateCount('stat-idioma', {{ $empleado->idiomas->count() }});
 
-    // Previsualización de la foto de perfil
+    // Preview de foto
     const fotoInput = document.getElementById('foto_perfil_upload');
     const previewFoto = document.getElementById('previewFotoPerfil');
-    fotoInput.addEventListener('change', function() {
-        if (this.files && this.files[0]) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                previewFoto.src = e.target.result;
-            };
-            reader.readAsDataURL(this.files[0]);
-        }
-    });
-
-    function mostrarAlertaContacto(mensaje, tipo = 'success') {
-        const alerta = document.getElementById('alerta-contacto');
-        alerta.textContent = mensaje;
-        alerta.className = 'alert alert-' + tipo + ' mt-2';
-        alerta.classList.remove('d-none');
-        setTimeout(() => alerta.classList.add('d-none'), 2500);
+    if (fotoInput && previewFoto) {
+        fotoInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewFoto.src = e.target.result;
+                };
+                reader.readAsDataURL(this.files[0]);
+            }
+        });
     }
-    document.querySelectorAll('.editar-campo').forEach(btn => {
-        btn.onclick = function() {
-            const row = this.closest('[data-campo]');
-            row.querySelector('.valor-campo').classList.add('d-none');
-            row.querySelector('.input-campo').classList.remove('d-none');
-            row.querySelector('.guardar-campo').classList.remove('d-none');
-            this.classList.add('d-none');
-        };
-    });
-    document.querySelectorAll('.guardar-campo').forEach(btn => {
-        btn.onclick = function() {
-            const row = this.closest('[data-campo]');
-            const campo = row.getAttribute('data-campo');
-            const input = row.querySelector('.input-campo');
-            const valor = input.value;
-            const errorDiv = row.querySelector('.error-campo');
-            fetch("{{ route('empleado.perfil.campo') }}", {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content
-                },
-                body: JSON.stringify({ campo, valor })
-            })
-            .then(async res => {
-                if(res.ok) return res.json();
-                const data = await res.json();
-                throw data;
-            })
-            .then(data => {
-                row.querySelector('.valor-campo').textContent = valor;
-                row.querySelector('.valor-campo').classList.remove('d-none');
-                input.classList.remove('is-invalid');
-                input.classList.add('d-none');
-                errorDiv.style.display = 'none';
-                errorDiv.textContent = '';
-                row.querySelector('.guardar-campo').classList.add('d-none');
-                row.querySelector('.editar-campo').classList.remove('d-none');
-                if(valor) row.querySelector('.eliminar-campo').style.display = '';
-                else row.querySelector('.eliminar-campo').style.display = 'none';
-            })
-            .catch(data => {
-                let msg = 'Error al guardar.';
-                if(data && data.errors && data.errors.valor && data.errors.valor.length) {
-                    msg = data.errors.valor[0];
-                }
-                input.classList.add('is-invalid');
-                errorDiv.textContent = msg;
-                errorDiv.style.display = '';
-            });
-        };
-    });
-    document.querySelectorAll('.eliminar-campo').forEach(btn => {
-        btn.onclick = function() {
-            const row = this.closest('[data-campo]');
-            const campo = row.getAttribute('data-campo');
-            fetch("{{ route('empleado.perfil.campo.eliminar') }}", {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content
-                },
-                body: JSON.stringify({ campo })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if(data.success) {
-                    row.querySelector('.valor-campo').textContent = '';
-                    row.querySelector('.input-campo').value = '';
-                    this.style.display = 'none';
-                    mostrarAlertaContacto('Campo eliminado.', 'success');
-                } else {
-                    mostrarAlertaContacto('Error al eliminar. Intenta de nuevo.', 'danger');
-                }
-            })
-            .catch(() => {
-                mostrarAlertaContacto('Error de red. Intenta de nuevo.', 'danger');
-            });
-        };
-    });
 
-    document.getElementById('btnAgregarExp').onclick = function() {
-        document.getElementById('formAgregarExp').classList.remove('d-none');
-    };
-    document.getElementById('cancelarAgregarExp').onclick = function() {
-        document.getElementById('formAgregarExp').classList.add('d-none');
-    };
-    document.getElementById('formAgregarExp').onsubmit = function(e) {
-        e.preventDefault();
-        const form = e.target;
-        fetch("{{ route('empleado.perfil.experiencia.store') }}", {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content,
-                'Accept': 'application/json',
-            },
-            body: new FormData(form)
-        })
-        .then(res => res.ok ? location.reload() : res.json().then(data => alert(data.message || 'Error')));
-    };
-    document.querySelectorAll('.btnEliminarExp').forEach(btn => {
-        btn.onclick = function() {
-            if(!confirm('¿Eliminar esta experiencia?')) return;
-            const id = this.closest('.timeline-item').getAttribute('data-id');
-            fetch(`/empleado/perfil/experiencia/${id}`, {
-                method: 'DELETE',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content,
-                    'Accept': 'application/json',
-                }
-            }).then(res => res.ok ? location.reload() : res.json().then(data => alert(data.message || 'Error')));
-        };
-    });
+    // Manejo del formulario "Sobre Mí" con feedback visual
+    const perfilForm = document.getElementById('perfilForm');
+    if (perfilForm) {
+        perfilForm.addEventListener('submit', function(e) {
+            showSaveIndicator();
+            
+            // Validación básica en frontend
+            const nombre = document.getElementById('nombre_usuario').value.trim();
+            const profesion = document.getElementById('profesion').value.trim();
+            
+            if (!nombre) {
+                e.preventDefault();
+                hideSaveIndicator();
+                showNotification('error', 'El nombre completo es obligatorio', 'Campo Requerido');
+                document.getElementById('nombre_usuario').focus();
+                return false;
+            }
+            
+            if (!profesion) {
+                e.preventDefault();
+                hideSaveIndicator();
+                showNotification('warning', 'La profesión es importante para tu perfil', 'Campo Recomendado');
+                document.getElementById('profesion').focus();
+                return false;
+            }
+            
+            // Si todo está bien, el formulario se envía normalmente
+            setTimeout(() => {
+                hideSaveIndicator();
+            }, 1000);
+        });
+    }
 
-    document.getElementById('btnAgregarEdu').onclick = function() {
-        document.getElementById('formAgregarEdu').classList.remove('d-none');
-    };
-    document.getElementById('cancelarAgregarEdu').onclick = function() {
-        document.getElementById('formAgregarEdu').classList.add('d-none');
-    };
-    document.getElementById('formAgregarEdu').onsubmit = function(e) {
-        e.preventDefault();
-        const form = e.target;
-        fetch("{{ route('empleado.perfil.educacion.store') }}", {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content,
-                'Accept': 'application/json',
-            },
-            body: new FormData(form)
-        })
-        .then(res => res.ok ? location.reload() : res.json().then(data => alert(data.message || 'Error')));
-    };
-    document.querySelectorAll('.btnEliminarEdu').forEach(btn => {
-        btn.onclick = function() {
-            if(!confirm('¿Eliminar esta educación?')) return;
-            const id = this.closest('.timeline-item').getAttribute('data-id');
-            fetch(`/empleado/perfil/educacion/${id}`, {
-                method: 'DELETE',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content,
-                    'Accept': 'application/json',
-                }
-            }).then(res => res.ok ? location.reload() : res.json().then(data => alert(data.message || 'Error')));
-        };
-    });
+    // Manejo del botón de agregar habilidad
+    const btnAgregarHabilidad = document.getElementById('btnAgregarHabilidad');
+    if (btnAgregarHabilidad) {
+        btnAgregarHabilidad.addEventListener('click', function() {
+            if (typeof mostrarFormularioHabilidades === 'function') {
+                mostrarFormularioHabilidades();
+            } else {
+                showNotification('info', 'Haz clic en "Agregar Habilidades" para editar tu lista');
+            }
+        });
+    }
 
-    document.getElementById('btnAgregarIdioma').onclick = function() {
-        document.getElementById('formAgregarIdioma').classList.remove('d-none');
-    };
-    document.getElementById('cancelarAgregarIdioma').onclick = function() {
-        document.getElementById('formAgregarIdioma').classList.add('d-none');
-    };
-    document.getElementById('formAgregarIdioma').onsubmit = function(e) {
-        e.preventDefault();
-        const form = e.target;
-        fetch("{{ route('empleado.perfil.idioma.store') }}", {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content,
-                'Accept': 'application/json',
-            },
-            body: new FormData(form)
-        })
-        .then(res => res.ok ? location.reload() : res.json().then(data => alert(data.message || 'Error')));
-    };
-    document.querySelectorAll('.btnEliminarIdioma').forEach(btn => {
-        btn.onclick = function() {
-            if(!confirm('¿Eliminar este idioma?')) return;
-            const id = this.closest('.perfil-idioma-chip').getAttribute('data-id');
-            fetch(`/empleado/perfil/idioma/${id}`, {
-                method: 'DELETE',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content,
-                    'Accept': 'application/json',
-                }
-            }).then(res => res.ok ? location.reload() : res.json().then(data => alert(data.message || 'Error')));
-        };
-    });
+    // Refuerzo para asegurar que el submit de habilidades NUNCA sea tradicional
+    const habilidadesForm = document.getElementById('habilidadesForm');
+    if (habilidadesForm) {
+        habilidadesForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            // El submit real lo maneja profile-forms.js
+            // Si por alguna razón no lo hace, aquí evitamos el submit tradicional
+            return false;
+        });
+    }
 });
 </script>
-@endsection 
+@endsection
