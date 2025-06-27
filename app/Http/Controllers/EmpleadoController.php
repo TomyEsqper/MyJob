@@ -477,18 +477,6 @@ class EmpleadoController extends Controller
         return redirect('/')->with('success', 'Tu cuenta ha sido eliminada.');
     }
 
-    public function guardarPreferencias(Request $request)
-    {
-        $request->validate([
-            'notificaciones_email' => 'required',
-            'idioma' => 'required',
-            'tema' => 'required',
-        ]);
-        $usuario = Auth::user();
-        $usuario->update($request->only(['notificaciones_email', 'idioma', 'tema']));
-        return back()->with('success', 'Preferencias actualizadas correctamente.');
-    }
-
     public function actualizarCorreo(Request $request)
     {
         $request->validate([

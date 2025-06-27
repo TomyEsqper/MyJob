@@ -28,28 +28,38 @@
     </div>
 </div>
 <section class="stats-row-empleado mb-4 animate__animated animate__fadeInUp">
-    <div class="stat-card-empleado">
-        <div class="stat-icon"><i class="fas fa-paper-plane"></i></div>
+    <div class="stat-card-empleado d-flex align-items-center gap-3" style="min-width:200px;">
+        <div class="stat-icon d-flex align-items-center justify-content-center" style="width:60px;height:60px;border-radius:50%;margin-right:1rem;"><i class="fas fa-paper-plane"></i></div>
         <div>
             <div class="stat-value">{{ $aplicacionesEnviadas }}</div>
-            <div class="stat-label">Aplicaciones Enviadas</div>
+            <div class="stat-label text-uppercase" style="font-weight:700;letter-spacing:1.5px;">Aplicaciones Enviadas</div>
         </div>
     </div>
-    <div class="stat-card-empleado">
-        <div class="stat-icon"><i class="fas fa-eye"></i></div>
+    <div class="stat-card-empleado d-flex align-items-center gap-3" style="min-width:200px;">
+        <div class="stat-icon d-flex align-items-center justify-content-center" style="width:60px;height:60px;border-radius:50%;margin-right:1rem;"><i class="fas fa-eye"></i></div>
         <div>
             <div class="stat-value">{{ $vistasPerfilCount }}</div>
-            <div class="stat-label">Vistas de Perfil</div>
+            <div class="stat-label text-uppercase" style="font-weight:700;letter-spacing:1.5px;">Vistas de Perfil</div>
         </div>
     </div>
-    <div class="stat-card-empleado">
-        <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+    <div class="stat-card-empleado d-flex align-items-center gap-3" style="min-width:200px;">
+        <div class="stat-icon d-flex align-items-center justify-content-center" style="width:60px;height:60px;border-radius:50%;margin-right:1rem;"><i class="fas fa-check-circle"></i></div>
         <div>
             <div class="stat-value">{{ $entrevistasCount }}</div>
-            <div class="stat-label">Entrevistas Programadas</div>
+            <div class="stat-label text-uppercase" style="font-weight:700;letter-spacing:1.5px;">Entrevistas Programadas</div>
         </div>
     </div>
 </section>
+<script>
+document.querySelectorAll('.stat-card-empleado').forEach(function(card, idx) {
+    const icons = [
+        '<i class="fas fa-paper-plane"></i>',
+        '<i class="fas fa-eye"></i>',
+        '<i class="fas fa-check-circle"></i>'
+    ];
+    card.querySelector('.stat-icon').innerHTML = icons[idx];
+});
+</script>
 <section class="card-empleado mb-4 animate__animated animate__fadeInUp animate__delay-1s">
     <div class="card-header-empleado d-flex justify-content-between align-items-center">
         <h5 class="mb-0">Aplicaciones Recientes</h5>
