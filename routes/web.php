@@ -12,8 +12,13 @@ use App\Http\Controllers\EmpleadorController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Http\Controllers\NotificacionController;
-use App\Http\Controllers\Admin\DashboardController;
-use App\Http\Controllers\Admin\UserController;
+use App\Models\Usuario;
+use App\Models\Oferta;
+use App\Models\Empleador;
+use Illuminate\Support\Facades\Hash;
+// use App\Http\Controllers\Admin\ExportAdminController;
+// use App\Http\Controllers\Admin\DashboardController;
+// use App\Http\Controllers\Admin\UserController;
 // use App\Http\Controllers\Admin\JobController;
 // use App\Http\Controllers\Admin\CompanyController;
 // use App\Http\Controllers\Admin\ReportController;
@@ -127,35 +132,499 @@ Route::middleware(['auth'])->group(function () {
     });
 });
 
-Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
-});
-
 Route::middleware(['auth'])->group(function () {
     Route::post('/empleado/perfil/campo', [App\Http\Controllers\EmpleadoController::class, 'actualizarCampo'])->name('empleado.perfil.campo');
     Route::delete('/empleado/perfil/campo', [App\Http\Controllers\EmpleadoController::class, 'eliminarCampo'])->name('empleado.perfil.campo.eliminar');
 });
 
 // Rutas del panel de administración
-Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
-    
-    // Gestión de usuarios
-    Route::resource('users', UserController::class);
-    
-    // Gestión de empleos - Comentado hasta que se cree el JobController
-    // Route::get('/jobs', [JobController::class, 'index'])->name('admin.jobs');
-    // Route::get('/jobs/{job}', [JobController::class, 'show'])->name('admin.jobs.show');
-    // Route::delete('/jobs/{job}', [JobController::class, 'destroy'])->name('admin.jobs.destroy');
-    // Route::patch('/jobs/{job}/toggle-status', [JobController::class, 'toggleStatus'])->name('admin.jobs.toggle-status');
-    
-    // Gestión de empresas - Comentado hasta que se cree el CompanyController
-    // Route::get('/companies', [CompanyController::class, 'index'])->name('admin.companies');
-    // Route::get('/companies/{company}', [CompanyController::class, 'show'])->name('admin.companies.show');
-    // Route::delete('/companies/{company}', [CompanyController::class, 'destroy'])->name('admin.companies.destroy');
-    // Route::patch('/companies/{company}/toggle-status', [CompanyController::class, 'toggleStatus'])->name('admin.companies.toggle-status');
-    
-    // Reportes - Comentado hasta que se cree el ReportController
-    // Route::get('/reports', [ReportController::class, 'index'])->name('admin.reports');
-    // Route::get('/reports/download', [ReportController::class, 'downloadReport'])->name('admin.reports.download');
+// Eliminadas rutas y controladores de admin
+
+// Ruta para dashboard de admin solo para correos predefinidos
+Route::middleware(['auth'])->get('/admin/dashboard', function () {
+    $allowedEmails = [
+        't.esquivel@myjob.com.co',
+        's.murillo@myjob.com.co',
+        'c.cuervo@myjob.com.co',
+        'n.plazas@myjob.com.co',
+        's.lozano@myjob.com.co',
+    ];
+    $user = auth()->user();
+    if ($user && in_array(strtolower($user->correo_electronico), $allowedEmails)) {
+        $usuariosCount = Usuario::whereNotIn('correo_electronico', $allowedEmails)->count();
+        $ofertasCount = Oferta::where('estado', 'activa')->count();
+        $empresasCount = Empleador::count();
+        return view('admin-dashboard', compact('usuariosCount', 'ofertasCount', 'empresasCount'));
+    }
+    abort(403, 'No autorizado.');
+})->name('admin.dashboard');
+
+Route::middleware(['auth'])->get('/admin/usuarios', function (Illuminate\Http\Request $request) {
+    $allowedEmails = [
+        't.esquivel@myjob.com.co',
+        's.murillo@myjob.com.co',
+        'c.cuervo@myjob.com.co',
+        'n.plazas@myjob.com.co',
+        's.lozano@myjob.com.co',
+    ];
+    $user = auth()->user();
+    if ($user && in_array(strtolower($user->correo_electronico), $allowedEmails)) {
+        $query = \App\Models\Usuario::where('rol', 'empleado');
+        
+        // Filtro de búsqueda
+        if ($request->filled('q')) {
+            $q = $request->input('q');
+            $query->where(function($sub) use ($q) {
+                $sub->where('nombre_usuario', 'like', "%$q%")
+                    ->orWhere('correo_electronico', 'like', "%$q%")
+                    ->orWhere('id_usuario', $q);
+            });
+        }
+        
+        // Filtro de estado activo
+        if ($request->filled('activo')) {
+            $query->where('activo', $request->input('activo'));
+        }
+        
+        // Filtro de verificado
+        if ($request->filled('verificado')) {
+            $query->where('verificado', $request->input('verificado'));
+        }
+        
+        // Filtro de destacado
+        if ($request->filled('destacado')) {
+            $query->where('destacado', $request->input('destacado'));
+        }
+        
+        $usuarios = $query->orderByDesc('id_usuario')->get();
+        return view('admin.users.index', compact('usuarios'));
+    }
+    abort(403, 'No autorizado.');
 });
+
+// Ruta para bulk actions de usuarios
+Route::middleware(['auth'])->post('/admin/usuarios/bulk-action', function (Illuminate\Http\Request $request) {
+    $allowedEmails = [
+        't.esquivel@myjob.com.co',
+        's.murillo@myjob.com.co',
+        'c.cuervo@myjob.com.co',
+        'n.plazas@myjob.com.co',
+        's.lozano@myjob.com.co',
+    ];
+    $user = auth()->user();
+    if ($user && in_array(strtolower($user->correo_electronico), $allowedEmails)) {
+        $action = $request->input('action');
+        $userIds = $request->input('users', []);
+        
+        if (empty($userIds)) {
+            return response()->json(['success' => false, 'message' => 'No hay usuarios seleccionados']);
+        }
+        
+        $usuarios = \App\Models\Usuario::whereIn('id_usuario', $userIds)->get();
+        $count = 0;
+        
+        foreach ($usuarios as $usuario) {
+            switch ($action) {
+                case 'activar':
+                    $usuario->activo = true;
+                    $usuario->save();
+                    $count++;
+                    break;
+                case 'desactivar':
+                    $usuario->activo = false;
+                    $usuario->save();
+                    $count++;
+                    break;
+                case 'verificar':
+                    $usuario->verificado = true;
+                    $usuario->save();
+                    $count++;
+                    break;
+                case 'destacar':
+                    $usuario->destacado = true;
+                    $usuario->save();
+                    $count++;
+                    break;
+                case 'eliminar':
+                    $usuario->delete();
+                    $count++;
+                    break;
+            }
+        }
+        
+        $messages = [
+            'activar' => "$count usuarios activados correctamente",
+            'desactivar' => "$count usuarios desactivados correctamente",
+            'verificar' => "$count usuarios verificados correctamente",
+            'destacar' => "$count usuarios destacados correctamente",
+            'eliminar' => "$count usuarios eliminados correctamente"
+        ];
+        
+        return response()->json([
+            'success' => true,
+            'message' => $messages[$action] ?? 'Acción completada'
+        ]);
+    }
+    abort(403, 'No autorizado.');
+});
+
+// Ruta para vista de ofertas admin
+Route::middleware(['auth'])->get('/admin/ofertas', function (Illuminate\Http\Request $request) {
+    $allowedEmails = [
+        't.esquivel@myjob.com.co',
+        's.murillo@myjob.com.co',
+        'c.cuervo@myjob.com.co',
+        'n.plazas@myjob.com.co',
+        's.lozano@myjob.com.co',
+    ];
+    $user = auth()->user();
+    if ($user && in_array(strtolower($user->correo_electronico), $allowedEmails)) {
+        $query = \App\Models\Oferta::with(['empleador.empleador']);
+        
+        // Filtros
+        if ($request->filled('q')) {
+            $q = $request->input('q');
+            $query->where(function($sub) use ($q) {
+                $sub->where('titulo', 'like', "%$q%")
+                    ->orWhere('descripcion', 'like', "%$q%")
+                    ->orWhere('ubicacion', 'like', "%$q%");
+            });
+        }
+        
+        if ($request->filled('estado')) {
+            $query->where('estado', $request->input('estado'));
+        }
+        
+        if ($request->filled('tipo_contrato')) {
+            $query->where('tipo_contrato', $request->input('tipo_contrato'));
+        }
+        
+        $ofertas = $query->orderByDesc('created_at')->paginate(15);
+        $ofertas->appends($request->all());
+        
+        return view('admin.ofertas.index', compact('ofertas'));
+    }
+    abort(403, 'No autorizado.');
+});
+
+// Ruta para vista de empresas admin
+Route::middleware(['auth'])->get('/admin/empresas', function (Illuminate\Http\Request $request) {
+    $allowedEmails = [
+        't.esquivel@myjob.com.co',
+        's.murillo@myjob.com.co',
+        'c.cuervo@myjob.com.co',
+        'n.plazas@myjob.com.co',
+        's.lozano@myjob.com.co',
+    ];
+    $user = auth()->user();
+    if ($user && in_array(strtolower($user->correo_electronico), $allowedEmails)) {
+        $query = \App\Models\Usuario::where('rol', 'empleador')->with('empleador');
+        
+        // Filtro de búsqueda
+        if ($request->filled('q')) {
+            $q = $request->input('q');
+            $query->where(function($sub) use ($q) {
+                $sub->where('nombre_usuario', 'like', "%$q%")
+                    ->orWhere('correo_electronico', 'like', "%$q%")
+                    ->orWhere('id_usuario', $q);
+            });
+        }
+        
+        // Filtro de estado activo
+        if ($request->filled('activo')) {
+            $query->where('activo', $request->input('activo'));
+        }
+        
+        // Filtro de verificado
+        if ($request->filled('verificado')) {
+            $query->where('verificado', $request->input('verificado'));
+        }
+        
+        $empresas = $query->orderByDesc('id_usuario')->get();
+        return view('admin.empresas.index', compact('empresas'));
+    }
+    abort(403, 'No autorizado.');
+});
+
+// Ruta para bulk actions de empresas
+Route::middleware(['auth'])->post('/admin/empresas/bulk-action', function (Illuminate\Http\Request $request) {
+    $allowedEmails = [
+        't.esquivel@myjob.com.co',
+        's.murillo@myjob.com.co',
+        'c.cuervo@myjob.com.co',
+        'n.plazas@myjob.com.co',
+        's.lozano@myjob.com.co',
+    ];
+    $user = auth()->user();
+    if ($user && in_array(strtolower($user->correo_electronico), $allowedEmails)) {
+        $action = $request->input('action');
+        $empresaIds = $request->input('empresas', []);
+        
+        if (empty($empresaIds)) {
+            return response()->json(['success' => false, 'message' => 'No hay empresas seleccionadas']);
+        }
+        
+        $empresas = \App\Models\Usuario::whereIn('id_usuario', $empresaIds)->get();
+        $count = 0;
+        
+        foreach ($empresas as $empresa) {
+            switch ($action) {
+                case 'activar':
+                    $empresa->activo = true;
+                    $empresa->save();
+                    $count++;
+                    break;
+                case 'desactivar':
+                    $empresa->activo = false;
+                    $empresa->save();
+                    $count++;
+                    break;
+                case 'verificar':
+                    $empresa->verificado = true;
+                    $empresa->save();
+                    $count++;
+                    break;
+                case 'eliminar':
+                    $empresa->delete();
+                    $count++;
+                    break;
+            }
+        }
+        
+        $messages = [
+            'activar' => "$count empresas activadas correctamente",
+            'desactivar' => "$count empresas desactivadas correctamente",
+            'verificar' => "$count empresas verificadas correctamente",
+            'eliminar' => "$count empresas eliminadas correctamente"
+        ];
+        
+        return response()->json([
+            'success' => true,
+            'message' => $messages[$action] ?? 'Acción completada'
+        ]);
+    }
+    abort(403, 'No autorizado.');
+});
+
+// Acciones AJAX para usuarios admin
+Route::middleware(['auth'])->post('/admin/usuarios/{usuario}/eliminar', function ($usuarioId) {
+    $allowedEmails = [
+        't.esquivel@myjob.com.co',
+        's.murillo@myjob.com.co',
+        'c.cuervo@myjob.com.co',
+        'n.plazas@myjob.com.co',
+        's.lozano@myjob.com.co',
+    ];
+    $user = auth()->user();
+    if ($user && in_array(strtolower($user->correo_electronico), $allowedEmails)) {
+        $usuario = \App\Models\Usuario::findOrFail($usuarioId);
+        $usuario->delete();
+        return response()->json(['success' => true]);
+    }
+    abort(403, 'No autorizado.');
+});
+Route::middleware(['auth'])->post('/admin/usuarios/{usuario}/verificar', function ($usuarioId) {
+    $allowedEmails = [
+        't.esquivel@myjob.com.co',
+        's.murillo@myjob.com.co',
+        'c.cuervo@myjob.com.co',
+        'n.plazas@myjob.com.co',
+        's.lozano@myjob.com.co',
+    ];
+    $user = auth()->user();
+    if ($user && in_array(strtolower($user->correo_electronico), $allowedEmails)) {
+        $usuario = \App\Models\Usuario::findOrFail($usuarioId);
+        $usuario->verificado = !$usuario->verificado;
+        $usuario->save();
+        return response()->json(['success' => true, 'verificado' => $usuario->verificado]);
+    }
+    abort(403, 'No autorizado.');
+});
+Route::middleware(['auth'])->post('/admin/usuarios/{usuario}/destacar', function ($usuarioId) {
+    $allowedEmails = [
+        't.esquivel@myjob.com.co',
+        's.murillo@myjob.com.co',
+        'c.cuervo@myjob.com.co',
+        'n.plazas@myjob.com.co',
+        's.lozano@myjob.com.co',
+    ];
+    $user = auth()->user();
+    if ($user && in_array(strtolower($user->correo_electronico), $allowedEmails)) {
+        $usuario = \App\Models\Usuario::findOrFail($usuarioId);
+        $usuario->destacado = !$usuario->destacado;
+        $usuario->save();
+        return response()->json(['success' => true, 'destacado' => $usuario->destacado]);
+    }
+    abort(403, 'No autorizado.');
+});
+
+Route::middleware(['auth'])->post('/admin/empresas/{empresa}/eliminar', function ($empresaId) {
+    $allowedEmails = [
+        't.esquivel@myjob.com.co',
+        's.murillo@myjob.com.co',
+        'c.cuervo@myjob.com.co',
+        'n.plazas@myjob.com.co',
+        's.lozano@myjob.com.co',
+    ];
+    $user = auth()->user();
+    if ($user && in_array(strtolower($user->correo_electronico), $allowedEmails)) {
+        $empresa = \App\Models\Usuario::findOrFail($empresaId);
+        $empresa->delete();
+        return response()->json(['success' => true]);
+    }
+    abort(403, 'No autorizado.');
+});
+
+Route::middleware(['auth'])->post('/admin/empresas/{empresa}/verificar', function ($empresaId) {
+    $allowedEmails = [
+        't.esquivel@myjob.com.co',
+        's.murillo@myjob.com.co',
+        'c.cuervo@myjob.com.co',
+        'n.plazas@myjob.com.co',
+        's.lozano@myjob.com.co',
+    ];
+    $user = auth()->user();
+    if ($user && in_array(strtolower($user->correo_electronico), $allowedEmails)) {
+        $empresa = \App\Models\Usuario::findOrFail($empresaId);
+        $empresa->verificado = !$empresa->verificado;
+        $empresa->save();
+        return response()->json(['success' => true, 'verificado' => $empresa->verificado]);
+    }
+    abort(403, 'No autorizado.');
+});
+
+// Acciones AJAX para ofertas admin
+Route::middleware(['auth'])->post('/admin/ofertas/{oferta}/eliminar', function ($ofertaId) {
+    $allowedEmails = [
+        't.esquivel@myjob.com.co',
+        's.murillo@myjob.com.co',
+        'c.cuervo@myjob.com.co',
+        'n.plazas@myjob.com.co',
+        's.lozano@myjob.com.co',
+    ];
+    $user = auth()->user();
+    if ($user && in_array(strtolower($user->correo_electronico), $allowedEmails)) {
+        $oferta = \App\Models\Oferta::findOrFail($ofertaId);
+        $oferta->delete();
+        return response()->json(['success' => true]);
+    }
+    abort(403, 'No autorizado.');
+});
+
+Route::middleware(['auth'])->post('/admin/ofertas/{oferta}/cambiar-estado', function ($ofertaId) {
+    $allowedEmails = [
+        't.esquivel@myjob.com.co',
+        's.murillo@myjob.com.co',
+        'c.cuervo@myjob.com.co',
+        'n.plazas@myjob.com.co',
+        's.lozano@myjob.com.co',
+    ];
+    $user = auth()->user();
+    if ($user && in_array(strtolower($user->correo_electronico), $allowedEmails)) {
+        $oferta = \App\Models\Oferta::findOrFail($ofertaId);
+        $oferta->estado = $oferta->estado == 'activa' ? 'inactiva' : 'activa';
+        $oferta->save();
+        return response()->json(['success' => true, 'estado' => $oferta->estado]);
+    }
+    abort(403, 'No autorizado.');
+});
+
+// Ruta para vista de reportes admin
+Route::middleware(['auth'])->get('/admin/reportes', function () {
+    $allowedEmails = [
+        't.esquivel@myjob.com.co',
+        's.murillo@myjob.com.co',
+        'c.cuervo@myjob.com.co',
+        'n.plazas@myjob.com.co',
+        's.lozano@myjob.com.co',
+    ];
+    $user = auth()->user();
+    if ($user && in_array(strtolower($user->correo_electronico), $allowedEmails)) {
+        // Totales
+        $usuariosCount = \App\Models\Usuario::where('rol', 'empleado')->count();
+        $empresasCount = \App\Models\Usuario::where('rol', 'empleador')->count();
+        $ofertasCount = \App\Models\Oferta::count();
+        $aplicacionesCount = \App\Models\Aplicacion::count();
+        $usuariosActivos = \App\Models\Usuario::where('rol', 'empleado')->where('activo', 1)->count();
+        $usuariosInactivos = \App\Models\Usuario::where('rol', 'empleado')->where('activo', 0)->count();
+        $empresasVerificadas = \App\Models\Usuario::where('rol', 'empleador')->where('verificado', 1)->count();
+        $empresasNoVerificadas = \App\Models\Usuario::where('rol', 'empleador')->where('verificado', 0)->count();
+        $ofertasActivas = \App\Models\Oferta::where('estado', 'activa')->count();
+        $ofertasInactivas = \App\Models\Oferta::where('estado', 'inactiva')->count();
+
+        // Evolución mensual (últimos 12 meses)
+        $meses = collect(range(0, 11))->map(function($i) {
+            return now()->subMonths($i)->format('Y-m');
+        })->reverse()->values();
+        $usuariosPorMes = $meses->mapWithKeys(function($mes) {
+            return [$mes => \App\Models\Usuario::where('rol', 'empleado')->whereRaw("DATE_FORMAT(created_at, '%Y-%m') = ?", [$mes])->count()];
+        });
+        $empresasPorMes = $meses->mapWithKeys(function($mes) {
+            return [$mes => \App\Models\Usuario::where('rol', 'empleador')->whereRaw("DATE_FORMAT(created_at, '%Y-%m') = ?", [$mes])->count()];
+        });
+        $ofertasPorMes = $meses->mapWithKeys(function($mes) {
+            return [$mes => \App\Models\Oferta::whereRaw("DATE_FORMAT(created_at, '%Y-%m') = ?", [$mes])->count()];
+        });
+        $aplicacionesPorMes = $meses->mapWithKeys(function($mes) {
+            return [$mes => \App\Models\Aplicacion::whereRaw("DATE_FORMAT(created_at, '%Y-%m') = ?", [$mes])->count()];
+        });
+
+        // Rankings
+        $topUsuarios = \App\Models\Usuario::where('rol', 'empleado')->orderByDesc('destacado')->orderByDesc('verificado')->take(5)->get();
+        $topEmpresas = \App\Models\Usuario::where('rol', 'empleador')->orderByDesc('verificado')->take(5)->get();
+        $topOfertas = \App\Models\Oferta::withCount('aplicaciones')->orderByDesc('aplicaciones_count')->take(5)->get();
+
+        return view('admin.reportes.index', compact(
+            'usuariosCount', 'empresasCount', 'ofertasCount', 'aplicacionesCount',
+            'usuariosActivos', 'usuariosInactivos', 'empresasVerificadas', 'empresasNoVerificadas',
+            'ofertasActivas', 'ofertasInactivas',
+            'meses', 'usuariosPorMes', 'empresasPorMes', 'ofertasPorMes', 'aplicacionesPorMes',
+            'topUsuarios', 'topEmpresas', 'topOfertas'
+        ));
+    }
+    abort(403, 'No autorizado.');
+});
+
+// Ruta para vista de configuración del admin
+Route::middleware(['auth'])->get('/admin/configuracion', function () {
+    $allowedEmails = [
+        't.esquivel@myjob.com.co',
+        's.murillo@myjob.com.co',
+        'c.cuervo@myjob.com.co',
+        'n.plazas@myjob.com.co',
+        's.lozano@myjob.com.co',
+    ];
+    $user = auth()->user();
+    if ($user && in_array(strtolower($user->correo_electronico), $allowedEmails)) {
+        return view('admin.configuracion');
+    }
+    abort(403, 'No autorizado.');
+})->name('admin.configuracion');
+
+// Rutas para actualizar configuración del admin
+Route::middleware(['auth'])->post('/admin/configuracion/cambiar-contrasena', function (Illuminate\Http\Request $request) {
+    $allowedEmails = [
+        't.esquivel@myjob.com.co',
+        's.murillo@myjob.com.co',
+        'c.cuervo@myjob.com.co',
+        'n.plazas@myjob.com.co',
+        's.lozano@myjob.com.co',
+    ];
+    $user = auth()->user();
+    if ($user && in_array(strtolower($user->correo_electronico), $allowedEmails)) {
+        $request->validate([
+            'current_password' => 'required',
+            'new_password' => 'required|string|min:8|confirmed',
+        ]);
+        if (!Hash::check($request->input('current_password'), $user->contrasena)) {
+            return redirect()->back()->withErrors(['current_password' => 'La contraseña actual es incorrecta.']);
+        }
+        $user->contrasena = Hash::make($request->input('new_password'));
+        $user->save();
+        return redirect()->back()->with('success', 'Contraseña actualizada correctamente.');
+    }
+    abort(403, 'No autorizado.');
+});
+
+// EXPORTACIONES ADMIN
+// ... existing code ...

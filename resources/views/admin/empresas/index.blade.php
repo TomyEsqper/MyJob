@@ -1,13 +1,13 @@
 @extends('layouts.admin')
 
-@section('title', 'Gestión de Usuarios')
+@section('title', 'Gestión de Empresas')
 
-@section('page-title', 'Gestión de Usuarios')
+@section('page-title', 'Gestión de Empresas')
 
 @section('content')
 <div class="filters-card">
     <h3><i class="fa-solid fa-filter me-2"></i>Filtros Avanzados</h3>
-    <form method="GET" action="/admin/usuarios" class="row g-3">
+    <form method="GET" action="/admin/empresas" class="row g-3">
         <div class="col-md-4">
             <label class="form-label">Buscar</label>
             <input type="text" name="q" class="form-control" placeholder="Nombre, correo o ID..." value="{{ request('q') }}">
@@ -16,8 +16,8 @@
             <label class="form-label">Estado</label>
             <select name="activo" class="form-select">
                 <option value="">Todos</option>
-                <option value="1" {{ request('activo') === '1' ? 'selected' : '' }}>Activo</option>
-                <option value="0" {{ request('activo') === '0' ? 'selected' : '' }}>Inactivo</option>
+                <option value="1" {{ request('activo') === '1' ? 'selected' : '' }}>Activa</option>
+                <option value="0" {{ request('activo') === '0' ? 'selected' : '' }}>Inactiva</option>
             </select>
         </div>
         <div class="col-md-2">
@@ -26,14 +26,6 @@
                 <option value="">Todos</option>
                 <option value="1" {{ request('verificado') === '1' ? 'selected' : '' }}>Verificado</option>
                 <option value="0" {{ request('verificado') === '0' ? 'selected' : '' }}>No verificado</option>
-            </select>
-        </div>
-        <div class="col-md-2">
-            <label class="form-label">Destacado</label>
-            <select name="destacado" class="form-select">
-                <option value="">Todos</option>
-                <option value="1" {{ request('destacado') === '1' ? 'selected' : '' }}>Destacado</option>
-                <option value="0" {{ request('destacado') === '0' ? 'selected' : '' }}>No destacado</option>
             </select>
         </div>
         <div class="col-md-2 d-flex align-items-end">
@@ -47,13 +39,13 @@
 <div class="table-card">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <div>
-            <h3><i class="fa-solid fa-users me-2"></i>Listado de Usuarios</h3>
-            <small class="text-muted">Selecciona usuarios para aplicar acciones masivas</small>
+            <h3><i class="fa-solid fa-building me-2"></i>Listado de Empresas</h3>
+            <small class="text-muted">Selecciona empresas para aplicar acciones masivas</small>
         </div>
         <div class="d-flex align-items-center gap-2">
-            <span class="badge bg-success fs-6">{{ $usuarios->count() }} usuarios encontrados</span>
+            <span class="badge bg-success fs-6">{{ $empresas->count() }} empresas encontradas</span>
             <button class="btn btn-outline-primary btn-sm" onclick="selectAll()">
-                <i class="fa-solid fa-check-double me-1"></i> Seleccionar todos
+                <i class="fa-solid fa-check-double me-1"></i> Seleccionar todas
             </button>
             <button class="btn btn-outline-secondary btn-sm" onclick="deselectAll()">
                 <i class="fa-solid fa-times me-1"></i> Deseleccionar
@@ -65,8 +57,8 @@
     <div id="bulkActions" class="alert alert-info mb-3" style="display: none;">
         <div class="d-flex justify-content-between align-items-center">
             <div>
-                <i class="fa-solid fa-users me-2"></i>
-                <span id="selectedCount">0</span> usuarios seleccionados
+                <i class="fa-solid fa-building me-2"></i>
+                <span id="selectedCount">0</span> empresas seleccionadas
             </div>
             <div class="btn-group">
                 <button class="btn btn-success btn-sm" onclick="bulkAction('activar')">
@@ -76,10 +68,7 @@
                     <i class="fa-solid fa-ban me-1"></i> Desactivar
                 </button>
                 <button class="btn btn-info btn-sm" onclick="bulkAction('verificar')">
-                    <i class="fa-solid fa-user-check me-1"></i> Verificar
-                </button>
-                <button class="btn btn-primary btn-sm" onclick="bulkAction('destacar')">
-                    <i class="fa-solid fa-star me-1"></i> Destacar
+                    <i class="fa-solid fa-building-circle-check me-1"></i> Verificar
                 </button>
                 <button class="btn btn-danger btn-sm" onclick="bulkAction('eliminar')">
                     <i class="fa-solid fa-trash me-1"></i> Eliminar
@@ -96,7 +85,7 @@
                         <input type="checkbox" id="selectAllCheckbox" class="form-check-input">
                     </th>
                     <th>ID</th>
-                    <th>Usuario</th>
+                    <th>Empresa</th>
                     <th>Correo</th>
                     <th>Estado</th>
                     <th>Fecha Registro</th>
@@ -104,55 +93,49 @@
                 </tr>
             </thead>
             <tbody>
-                @forelse($usuarios as $usuario)
+                @forelse($empresas as $empresa)
                     <tr>
                         <td>
-                            <input type="checkbox" class="form-check-input user-checkbox" value="{{ $usuario->id_usuario }}">
+                            <input type="checkbox" class="form-check-input empresa-checkbox" value="{{ $empresa->id_usuario }}">
                         </td>
-                        <td>{{ $usuario->id_usuario }}</td>
+                        <td>{{ $empresa->id_usuario }}</td>
                         <td>
                             <div class="d-flex align-items-center">
-                                <div class="avatar me-2">
-                                    @if($usuario->foto_perfil)
-                                        <img src="{{ asset($usuario->foto_perfil) }}" alt="Avatar" class="rounded-circle" style="width: 32px; height: 32px; object-fit: cover;">
+                                <div class="company-logo me-2">
+                                    @if($empresa->empleador && $empresa->empleador->logo_empresa)
+                                        <img src="{{ asset($empresa->empleador->logo_empresa) }}" alt="Logo" class="rounded-circle" style="width: 32px; height: 32px; object-fit: cover;">
                                     @else
                                         <div class="bg-secondary rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
-                                            <i class="fa-solid fa-user text-white"></i>
+                                            <i class="fa-solid fa-building text-white"></i>
                                         </div>
                                     @endif
                                 </div>
                                 <div>
-                                    <div class="fw-bold">{{ $usuario->nombre_usuario }}</div>
+                                    <div class="fw-bold">{{ $empresa->nombre_usuario }}</div>
                                     <div class="small text-muted">
-                                        @if($usuario->verificado)
-                                            <span class="badge bg-info me-1"><i class="fa-solid fa-check me-1"></i>Verificado</span>
-                                        @endif
-                                        @if($usuario->destacado)
-                                            <span class="badge bg-warning"><i class="fa-solid fa-star me-1"></i>Destacado</span>
+                                        @if($empresa->verificado)
+                                            <span class="badge bg-info"><i class="fa-solid fa-check me-1"></i>Verificado</span>
                                         @endif
                                     </div>
                                 </div>
                             </div>
                         </td>
-                        <td>{{ $usuario->correo_electronico }}</td>
+                        <td>{{ $empresa->correo_electronico }}</td>
                         <td>
-                            @if($usuario->activo)
-                                <span class="status-badge status-activa">Activo</span>
+                            @if($empresa->activo)
+                                <span class="status-badge status-activa">Activa</span>
                             @else
-                                <span class="status-badge status-inactiva">Inactivo</span>
+                                <span class="status-badge status-inactiva">Inactiva</span>
                             @endif
                         </td>
-                        <td>{{ $usuario->created_at->format('d/m/Y') }}</td>
+                        <td>{{ $empresa->created_at->format('d/m/Y') }}</td>
                         <td>
                             <div class="btn-group">
-                                <button class="btn btn-danger btn-action" onclick="eliminarUsuario({{ $usuario->id_usuario }})" title="Eliminar usuario">
-                                    <i class="fa-solid fa-user-xmark"></i>
+                                <button class="btn btn-danger btn-action" onclick="eliminarEmpresa({{ $empresa->id_usuario }})" title="Eliminar empresa">
+                                    <i class="fa-solid fa-trash"></i>
                                 </button>
-                                <button class="btn btn-info btn-action" onclick="verificarUsuario({{ $usuario->id_usuario }})" title="Verificar usuario">
-                                    <i class="fa-solid fa-user-check"></i>
-                                </button>
-                                <button class="btn btn-warning btn-action" onclick="destacarUsuario({{ $usuario->id_usuario }})" title="Destacar usuario">
-                                    <i class="fa-solid fa-star"></i>
+                                <button class="btn btn-info btn-action" onclick="verificarEmpresa({{ $empresa->id_usuario }})" title="Verificar empresa">
+                                    <i class="fa-solid fa-building-circle-check"></i>
                                 </button>
                             </div>
                         </td>
@@ -160,8 +143,8 @@
                 @empty
                     <tr>
                         <td colspan="7" class="text-center py-5">
-                            <i class="fa-solid fa-users fa-3x text-muted mb-3 d-block"></i>
-                            <h5 class="text-muted">No se encontraron usuarios</h5>
+                            <i class="fa-solid fa-building fa-3x text-muted mb-3 d-block"></i>
+                            <h5 class="text-muted">No se encontraron empresas</h5>
                             <p class="text-muted">Intenta ajustar los filtros de búsqueda.</p>
                         </td>
                     </tr>
@@ -176,7 +159,7 @@
 <script>
 // Funciones de selección
 function selectAll() {
-    document.querySelectorAll('.user-checkbox').forEach(checkbox => {
+    document.querySelectorAll('.empresa-checkbox').forEach(checkbox => {
         checkbox.checked = true;
     });
     document.getElementById('selectAllCheckbox').checked = true;
@@ -184,7 +167,7 @@ function selectAll() {
 }
 
 function deselectAll() {
-    document.querySelectorAll('.user-checkbox').forEach(checkbox => {
+    document.querySelectorAll('.empresa-checkbox').forEach(checkbox => {
         checkbox.checked = false;
     });
     document.getElementById('selectAllCheckbox').checked = false;
@@ -192,7 +175,7 @@ function deselectAll() {
 }
 
 function updateBulkActions() {
-    const checkboxes = document.querySelectorAll('.user-checkbox:checked');
+    const checkboxes = document.querySelectorAll('.empresa-checkbox:checked');
     const bulkActions = document.getElementById('bulkActions');
     const selectedCount = document.getElementById('selectedCount');
     
@@ -208,24 +191,24 @@ function updateBulkActions() {
 document.addEventListener('DOMContentLoaded', function() {
     // Select all checkbox
     document.getElementById('selectAllCheckbox').addEventListener('change', function() {
-        document.querySelectorAll('.user-checkbox').forEach(checkbox => {
+        document.querySelectorAll('.empresa-checkbox').forEach(checkbox => {
             checkbox.checked = this.checked;
         });
         updateBulkActions();
     });
     
     // Individual checkboxes
-    document.querySelectorAll('.user-checkbox').forEach(checkbox => {
+    document.querySelectorAll('.empresa-checkbox').forEach(checkbox => {
         checkbox.addEventListener('change', updateBulkActions);
     });
 });
 
 // Bulk actions
 function bulkAction(action) {
-    const selectedUsers = Array.from(document.querySelectorAll('.user-checkbox:checked')).map(cb => cb.value);
+    const selectedEmpresas = Array.from(document.querySelectorAll('.empresa-checkbox:checked')).map(cb => cb.value);
     
-    if (selectedUsers.length === 0) {
-        Swal.fire('Error', 'No hay usuarios seleccionados', 'error');
+    if (selectedEmpresas.length === 0) {
+        Swal.fire('Error', 'No hay empresas seleccionadas', 'error');
         return;
     }
     
@@ -233,28 +216,23 @@ function bulkAction(action) {
     
     switch(action) {
         case 'activar':
-            title = '¿Activar usuarios?';
-            text = `¿Estás seguro de activar ${selectedUsers.length} usuarios?`;
+            title = '¿Activar empresas?';
+            text = `¿Estás seguro de activar ${selectedEmpresas.length} empresas?`;
             confirmButtonText = 'Sí, activar';
             break;
         case 'desactivar':
-            title = '¿Desactivar usuarios?';
-            text = `¿Estás seguro de desactivar ${selectedUsers.length} usuarios?`;
+            title = '¿Desactivar empresas?';
+            text = `¿Estás seguro de desactivar ${selectedEmpresas.length} empresas?`;
             confirmButtonText = 'Sí, desactivar';
             break;
         case 'verificar':
-            title = '¿Verificar usuarios?';
-            text = `¿Estás seguro de verificar ${selectedUsers.length} usuarios?`;
+            title = '¿Verificar empresas?';
+            text = `¿Estás seguro de verificar ${selectedEmpresas.length} empresas?`;
             confirmButtonText = 'Sí, verificar';
             break;
-        case 'destacar':
-            title = '¿Destacar usuarios?';
-            text = `¿Estás seguro de destacar ${selectedUsers.length} usuarios?`;
-            confirmButtonText = 'Sí, destacar';
-            break;
         case 'eliminar':
-            title = '¿Eliminar usuarios?';
-            text = `¿Estás seguro de eliminar ${selectedUsers.length} usuarios? Esta acción no se puede deshacer.`;
+            title = '¿Eliminar empresas?';
+            text = `¿Estás seguro de eliminar ${selectedEmpresas.length} empresas? Esta acción no se puede deshacer.`;
             confirmButtonText = 'Sí, eliminar';
             break;
     }
@@ -270,7 +248,7 @@ function bulkAction(action) {
         cancelButtonText: 'Cancelar'
     }).then((result) => {
         if (result.isConfirmed) {
-            fetch(`/admin/usuarios/bulk-action`, {
+            fetch(`/admin/empresas/bulk-action`, {
                 method: 'POST',
                 headers: {
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
@@ -278,7 +256,7 @@ function bulkAction(action) {
                 },
                 body: JSON.stringify({
                     action: action,
-                    users: selectedUsers
+                    empresas: selectedEmpresas
                 })
             })
             .then(response => response.json())
@@ -299,10 +277,10 @@ function bulkAction(action) {
 }
 
 // Funciones individuales existentes
-function eliminarUsuario(usuarioId) {
+function eliminarEmpresa(empresaId) {
     Swal.fire({
         title: '¿Estás seguro?',
-        text: "Esta acción no se puede deshacer",
+        text: "Esta acción eliminará la empresa y todas sus ofertas. No se puede deshacer.",
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#dc3545',
@@ -311,7 +289,7 @@ function eliminarUsuario(usuarioId) {
         cancelButtonText: 'Cancelar'
     }).then((result) => {
         if (result.isConfirmed) {
-            fetch(`/admin/usuarios/${usuarioId}/eliminar`, {
+            fetch(`/admin/empresas/${empresaId}/eliminar`, {
                 method: 'POST',
                 headers: {
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
@@ -321,22 +299,22 @@ function eliminarUsuario(usuarioId) {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    Swal.fire('¡Eliminado!', 'El usuario ha sido eliminado.', 'success')
+                    Swal.fire('¡Eliminado!', 'La empresa ha sido eliminada.', 'success')
                     .then(() => location.reload());
                 } else {
-                    Swal.fire('Error', 'No se pudo eliminar el usuario.', 'error');
+                    Swal.fire('Error', 'No se pudo eliminar la empresa.', 'error');
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
-                Swal.fire('Error', 'Ocurrió un error al eliminar el usuario.', 'error');
+                Swal.fire('Error', 'Ocurrió un error al eliminar la empresa.', 'error');
             });
         }
     });
 }
 
-function verificarUsuario(usuarioId) {
-    fetch(`/admin/usuarios/${usuarioId}/verificar`, {
+function verificarEmpresa(empresaId) {
+    fetch(`/admin/empresas/${empresaId}/verificar`, {
         method: 'POST',
         headers: {
             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
@@ -355,29 +333,6 @@ function verificarUsuario(usuarioId) {
     .catch(error => {
         console.error('Error:', error);
         Swal.fire('Error', 'Ocurrió un error al cambiar la verificación.', 'error');
-    });
-}
-
-function destacarUsuario(usuarioId) {
-    fetch(`/admin/usuarios/${usuarioId}/destacar`, {
-        method: 'POST',
-        headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-            'Content-Type': 'application/json',
-        },
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            Swal.fire('¡Actualizado!', 'El estado de destacado ha sido cambiado.', 'success')
-            .then(() => location.reload());
-        } else {
-            Swal.fire('Error', 'No se pudo cambiar el destacado.', 'error');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        Swal.fire('Error', 'Ocurrió un error al cambiar el destacado.', 'error');
     });
 }
 </script>

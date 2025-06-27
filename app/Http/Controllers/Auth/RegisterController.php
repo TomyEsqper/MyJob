@@ -104,13 +104,8 @@ class RegisterController extends Controller
             ], 422);
         }
 
-        // Asignación de rol extra 'admin' si el correo termina en @myjob.com
-        $rol = str_ends_with(strtolower($request->email), '@myjob.com')
-            ? 'admin'
-            : $request->rol;
-
         // Determinar qué contraseña usar según el rol
-        $password = $rol === 'empleador' ? $request->password_empresa : $request->password;
+        $password = $request->rol === 'empleador' ? $request->password_empresa : $request->password;
 
         // Creación del registro en la tabla usuarios.
         $fotoPerfilPath = null;
@@ -118,15 +113,15 @@ class RegisterController extends Controller
             $fotoPerfilPath = $request->file('foto_perfil')->store('fotos_perfil', 'public');
         }
         $usuario = Usuario::create([
-            'nombre_usuario'     => $rol === 'empleador' ? $request->nombre_empresa : $request->name,
+            'nombre_usuario'     => $request->rol === 'empleador' ? $request->nombre_empresa : $request->name,
             'correo_electronico' => $request->email,
             'contrasena'         => Hash::make($password),
-            'rol'                => $rol,
+            'rol'                => $request->rol,
             'foto_perfil'        => $fotoPerfilPath,
         ]);
 
         // Si es empleador, crea registro en empleadores.
-        if ($rol === 'empleador') {
+        if ($request->rol === 'empleador') {
             Empleador::create([
                 'usuario_id'         => $usuario->id_usuario,
                 'nit'                => $request->nit,

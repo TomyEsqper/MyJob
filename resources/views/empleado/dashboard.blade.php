@@ -22,7 +22,11 @@
         <img src="{{ Auth::user()->foto_perfil ? (Str::startsWith(Auth::user()->foto_perfil, 'http') ? Auth::user()->foto_perfil : asset('storage/' . Auth::user()->foto_perfil)) : asset('images/default-user.png') }}" class="rounded-circle shadow" width="80" height="80" style="object-fit: cover; border: 4px solid #fff; background: #f8f9fa;">
     </div>
     <div>
-        <h1 class="mb-1" style="font-weight: 800; font-size: 2.2rem; letter-spacing: 1px;">¡Hola, {{ Auth::user()->nombre_usuario }}!</h1>
+        <h1 class="mb-1" style="font-weight: 800; font-size: 2.2rem; letter-spacing: 1px;">¡Hola, {{ Auth::user()->nombre_usuario }}
+        @if(Auth::user()->verificado || Auth::user()->destacado)
+            <span title="Usuario verificado" style="color:#3b82f6; font-size:1.1em; vertical-align:middle; margin-left:0.2em;"><i class="fa-solid fa-circle-check"></i></span>
+        @endif
+        !</h1>
         <div class="mb-1" style="font-size: 1.15rem; opacity: 0.93;">Te damos la bienvenida a tu espacio de oportunidades.</div>
         <div class="fw-bold" style="font-size: 1.05rem; opacity: 0.85;">"El éxito es la suma de pequeños esfuerzos repetidos cada día."</div>
     </div>

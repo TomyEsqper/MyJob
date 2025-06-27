@@ -3,289 +3,306 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Panel de Administración') - MyJob</title>
-    
-    <!-- CSS -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    @livewireStyles
-    
     <style>
-        :root {
-            --sidebar-width: 280px;
-            --header-height: 60px;
-            --primary-color: #4CAF50;
-            --primary-dark: #388E3C;
-        }
-
-        /* Layout principal */
-        .admin-wrapper {
-            display: flex;
-            min-height: 100vh;
-        }
-
-        /* Sidebar */
-        .admin-sidebar {
-            width: var(--sidebar-width);
-            background: #2C3E50;
-            position: fixed;
-            left: 0;
-            top: 0;
-            height: 100vh;
-            overflow-y: auto;
-            z-index: 1000;
-            transition: all 0.3s ease;
-        }
-
-        .sidebar-header {
-            height: var(--header-height);
-            display: flex;
-            align-items: center;
-            padding: 0 1.5rem;
-            background: rgba(0,0,0,0.2);
-        }
-
-        .sidebar-header h1 {
-            color: white;
-            font-size: 1.5rem;
+        body {
             margin: 0;
+            font-family: 'Roboto', Arial, sans-serif;
+            background: #f4f6fb;
+            color: #222;
         }
-
-        .sidebar-nav {
-            padding: 1.5rem 0;
-        }
-
-        .nav-item {
-            margin-bottom: 0.5rem;
-        }
-
-        .nav-link {
-            color: rgba(255,255,255,0.8);
-            padding: 0.8rem 1.5rem;
+        .admin-layout {
             display: flex;
-            align-items: center;
-            transition: all 0.3s ease;
-        }
-
-        .nav-link:hover {
-            color: white;
-            background: rgba(255,255,255,0.1);
-        }
-
-        .nav-link.active {
-            color: white;
-            background: var(--primary-color);
-        }
-
-        .nav-link i {
-            width: 20px;
-            margin-right: 10px;
-            text-align: center;
-        }
-
-        /* Contenido principal */
-        .admin-content {
-            flex: 1;
-            margin-left: var(--sidebar-width);
             min-height: 100vh;
-            background: #f8f9fa;
         }
-
-        .admin-header {
-            height: var(--header-height);
-            background: white;
-            border-bottom: 1px solid #e9ecef;
+        .sidebar {
+            width: 250px;
+            background: linear-gradient(135deg, #1e293b 80%, #10b981 100%);
+            color: #fff;
             display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 2rem;
-            position: sticky;
-            top: 0;
-            z-index: 900;
+            flex-direction: column;
+            padding: 2rem 1rem 1rem 1.5rem;
+            box-shadow: 2px 0 12px #0001;
         }
-
-        .admin-header .user-menu {
+        .sidebar h2 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 2rem;
+            margin-bottom: 2.5rem;
+            letter-spacing: 1px;
+        }
+        .sidebar nav {
+            flex: 1;
+        }
+        .sidebar nav a {
             display: flex;
             align-items: center;
             gap: 1rem;
+            color: #fff;
+            text-decoration: none;
+            font-size: 1.1rem;
+            padding: 0.8rem 0.5rem;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            transition: background 0.2s;
         }
-
-        .admin-header .user-menu img {
-            width: 35px;
-            height: 35px;
-            border-radius: 50%;
-            object-fit: cover;
+        .sidebar nav a.active, .sidebar nav a:hover {
+            background: #10b981;
         }
-
+        .sidebar .logout {
+            margin-top: 2rem;
+            color: #f87171;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+        }
         .main-content {
-            padding: 2rem;
+            flex: 1;
+            padding: 2.5rem 3rem;
+            display: flex;
+            flex-direction: column;
         }
-
-        /* Cards y elementos UI */
-        .stats-card {
-            background: white;
-            border-radius: 10px;
-            padding: 1.5rem;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 2.5rem;
         }
-
-        .stats-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        .header .welcome {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: #1e293b;
         }
-
-        .stats-card .icon {
-            width: 50px;
-            height: 50px;
-            border-radius: 10px;
+        .header .admin-info {
+            display: flex;
+            align-items: center;
+            gap: 1.2rem;
+        }
+        .header .admin-info .avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: #10b981;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.5rem;
+            color: #fff;
+            font-size: 1.7rem;
+            font-weight: bold;
+        }
+        .header .admin-info .name {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: #222;
+        }
+        .dashboard-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2.5rem;
+        }
+        .card {
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 2px 12px #0001;
+            padding: 2rem 1.5rem 1.5rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            position: relative;
+            overflow: hidden;
+        }
+        .card .icon {
+            font-size: 2.2rem;
             margin-bottom: 1rem;
+            color: #10b981;
         }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .admin-sidebar {
-                transform: translateX(-100%);
-            }
-
-            .admin-sidebar.show {
-                transform: translateX(0);
-            }
-
-            .admin-content {
-                margin-left: 0;
-            }
-
-            .admin-header {
-                padding: 0 1rem;
-            }
+        .card .label {
+            font-size: 1.1rem;
+            color: #64748b;
+            margin-bottom: 0.3rem;
         }
-
-        /* Animaciones */
-        .fade-enter {
-            opacity: 0;
+        .card .value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1e293b;
         }
-
-        .fade-enter-active {
-            opacity: 1;
-            transition: opacity 0.3s ease;
+        .quick-actions {
+            margin-top: 1.5rem;
         }
-
-        .fade-exit {
-            opacity: 1;
+        .quick-actions h3 {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: #10b981;
         }
-
-        .fade-exit-active {
-            opacity: 0;
-            transition: opacity 0.3s ease;
+        .quick-actions .actions {
+            display: flex;
+            gap: 1.5rem;
+        }
+        .quick-actions .actions a {
+            background: #10b981;
+            color: #fff;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1rem;
+            box-shadow: 0 2px 8px #10b98133;
+            transition: background 0.2s;
+        }
+        .quick-actions .actions a:hover {
+            background: #059669;
+        }
+        .filters-card {
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 2px 12px #0001;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        .filters-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 1.5rem;
+            color: #10b981;
+            font-weight: 600;
+        }
+        .table-card {
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 2px 12px #0001;
+            padding: 2rem;
+        }
+        .table-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 1.5rem;
+            color: #10b981;
+            font-weight: 600;
+        }
+        .table {
+            margin-bottom: 0;
+        }
+        .table th {
+            border-top: none;
+            font-weight: 600;
+            color: #64748b;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .table td {
+            vertical-align: middle;
+            border-color: #f1f5f9;
+        }
+        .btn-action {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.85rem;
+            border-radius: 6px;
+            margin-right: 0.3rem;
+        }
+        .status-badge {
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        .status-activa {
+            background: #dcfce7;
+            color: #166534;
+        }
+        .status-inactiva {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+        .company-logo {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            background: #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .pagination {
+            margin-top: 2rem;
+        }
+        .pagination .page-link {
+            color: #10b981;
+            border-color: #e2e8f0;
+        }
+        .pagination .page-item.active .page-link {
+            background: #10b981;
+            border-color: #10b981;
+        }
+        @media (max-width: 900px) {
+            .main-content { padding: 1.5rem 0.5rem; }
+            .dashboard-cards { gap: 1rem; }
+        }
+        @media (max-width: 600px) {
+            .admin-layout { flex-direction: column; }
+            .sidebar { width: 100%; flex-direction: row; padding: 1rem; }
+            .sidebar h2 { font-size: 1.3rem; margin-bottom: 1rem; }
+            .sidebar nav { flex-direction: row; gap: 0.5rem; }
+            .main-content { padding: 1rem 0.2rem; }
         }
     </style>
+    @stack('styles')
 </head>
 <body>
-    <div class="admin-wrapper">
-        <!-- Sidebar -->
-        <aside class="admin-sidebar">
-            <div class="sidebar-header">
-                <h1>MyJob Admin</h1>
+<div class="admin-layout">
+    <aside class="sidebar">
+        <h2><i class="fa-solid fa-user-shield"></i> Admin</h2>
+        <nav>
+            <a href="/admin/dashboard" class="{{ request()->is('admin/dashboard') ? 'active' : '' }}">
+                <i class="fa-solid fa-gauge"></i> Dashboard
+            </a>
+            <a href="/admin/usuarios" class="{{ request()->is('admin/usuarios') ? 'active' : '' }}">
+                <i class="fa-solid fa-users"></i> Usuarios
+            </a>
+            <a href="/admin/ofertas" class="{{ request()->is('admin/ofertas*') ? 'active' : '' }}">
+                <i class="fa-solid fa-briefcase"></i> Ofertas
+            </a>
+            <a href="/admin/empresas" class="{{ request()->is('admin/empresas*') ? 'active' : '' }}">
+                <i class="fa-solid fa-building"></i> Empresas
+            </a>
+            <a href="/admin/reportes" class="{{ request()->is('admin/reportes*') ? 'active' : '' }}">
+                <i class="fa-solid fa-file-lines"></i> Reportes
+            </a>
+            <a href="/admin/configuracion" class="{{ request()->is('admin/configuracion*') ? 'active' : '' }}">
+                <i class="fa-solid fa-gear"></i> Configuración
+            </a>
+        </nav>
+        <form method="POST" action="/logout">
+            <input type="hidden" name="_token" value="{{ csrf_token() }}">
+            <button type="submit" class="logout">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i> Cerrar sesión
+            </button>
+        </form>
+    </aside>
+    <main class="main-content">
+        <div class="header">
+            <div class="welcome">@yield('page-title', 'Panel de Administración')</div>
+            <div class="admin-info">
+                <div class="avatar"><i class="fa-solid fa-user-tie"></i></div>
+                <div class="name">{{ auth()->user()->nombre_usuario ?? 'Admin' }}</div>
             </div>
-            <nav class="sidebar-nav">
-                <div class="nav-item">
-                    <a href="{{ route('admin.dashboard') }}" class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
-                        <i class="fas fa-home"></i>
-                        <span>Dashboard</span>
-                    </a>
-                </div>
-                <div class="nav-item">
-                    <a href="{{ route('admin.users.index') }}" class="nav-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
-                        <i class="fas fa-users"></i>
-                        <span>Usuarios</span>
-                    </a>
-                </div>
-                <div class="nav-item">
-                    <a href="{{ route('admin.jobs.index') }}" class="nav-link {{ request()->routeIs('admin.jobs.*') ? 'active' : '' }}">
-                        <i class="fas fa-briefcase"></i>
-                        <span>Ofertas</span>
-                    </a>
-                </div>
-                <div class="nav-item">
-                    <a href="{{ route('admin.companies.index') }}" class="nav-link {{ request()->routeIs('admin.companies.*') ? 'active' : '' }}">
-                        <i class="fas fa-building"></i>
-                        <span>Empresas</span>
-                    </a>
-                </div>
-                <div class="nav-item">
-                    <a href="{{ route('admin.reports') }}" class="nav-link {{ request()->routeIs('admin.reports') ? 'active' : '' }}">
-                        <i class="fas fa-chart-bar"></i>
-                        <span>Reportes</span>
-                    </a>
-                </div>
-                <div class="nav-item">
-                    <a href="{{ route('admin.settings') }}" class="nav-link {{ request()->routeIs('admin.settings') ? 'active' : '' }}">
-                        <i class="fas fa-cog"></i>
-                        <span>Configuración</span>
-                    </a>
-                </div>
-            </nav>
-        </aside>
+        </div>
+        
+        @yield('content')
+    </main>
+</div>
 
-        <!-- Contenido Principal -->
-        <main class="admin-content">
-            <header class="admin-header">
-                <button class="btn d-md-none" type="button" onclick="toggleSidebar()">
-                    <i class="fas fa-bars"></i>
-                </button>
-                <div class="user-menu">
-                    <div class="dropdown">
-                        <button class="btn dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown">
-                            <img src="{{ Auth::user()->foto_perfil ?? 'https://ui-avatars.com/api/?name=Admin&background=4CAF50&color=fff' }}" 
-                                 alt="Profile" 
-                                 class="rounded-circle">
-                            <span class="ms-2">{{ Auth::user()->nombre_usuario }}</span>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end">
-                            <li>
-                                <a class="dropdown-item" href="{{ route('admin.profile') }}">
-                                    <i class="fas fa-user me-2"></i>Mi Perfil
-                                </a>
-                            </li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
-                                <a class="dropdown-item text-danger" href="#" 
-                                   onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                                    <i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </header>
-
-            <div class="main-content">
-                @yield('content')
-            </div>
-        </main>
-    </div>
-
-    <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
-        @csrf
-    </form>
-
-    <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    @livewireScripts
-
-    <script>
-        function toggleSidebar() {
-            document.querySelector('.admin-sidebar').classList.toggle('show');
-        }
-    </script>
-
-    @stack('scripts')
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+@stack('scripts')
 </body>
 </html> 

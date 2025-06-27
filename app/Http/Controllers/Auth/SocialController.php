@@ -58,9 +58,7 @@ class SocialController extends Controller
         }
 
         // Redirección unificada según el rol del usuario
-        if ($user->rol === 'admin') {
-            return redirect()->intended('/admin/dashboard');
-        } elseif ($user->rol === 'empleado') {
+        if ($user->rol === 'empleado') {
             return redirect()->intended('/empleado/dashboard');
         } elseif ($user->rol === 'empleador') {
             return redirect()->intended('/empleador/dashboard');

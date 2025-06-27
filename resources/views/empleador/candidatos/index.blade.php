@@ -78,7 +78,12 @@
                                         @endphp
                                         <img src="{{ $avatarUrl }}" alt="Avatar" class="rounded-circle me-3" style="width: 40px; height: 40px; object-fit: cover;">
                                         <div>
-                                            <h6 class="mb-0">{{ $aplicacion->empleado->nombre_usuario }}</h6>
+                                            <h6 class="mb-0">
+                                                {{ $aplicacion->empleado->nombre_usuario }}
+                                                @if($aplicacion->empleado->verificado || $aplicacion->empleado->destacado)
+                                                    <span title="Usuario verificado" style="color:#3b82f6; font-size:1.1em; vertical-align:middle; margin-left:0.2em;"><i class="fa-solid fa-circle-check"></i></span>
+                                                @endif
+                                            </h6>
                                             <small class="text-muted">{{ $aplicacion->empleado->profesion ?? 'No especificada' }}</small>
                                         </div>
                                     </div>

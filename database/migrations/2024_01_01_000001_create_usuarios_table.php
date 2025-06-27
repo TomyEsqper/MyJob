@@ -45,6 +45,8 @@ return new class extends Migration
             $table->string('disponibilidad_horario')->nullable();
             $table->string('disponibilidad_jornada')->nullable();
             $table->boolean('disponibilidad_movilidad')->nullable();
+            $table->boolean('verificado')->default(false);
+            $table->boolean('destacado')->default(false);
             $table->rememberToken();
             $table->timestamps();
         });

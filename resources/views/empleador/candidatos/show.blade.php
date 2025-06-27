@@ -80,7 +80,12 @@
                                     </span>
                                 @endif
                             </div>
-                            <h4 class="card-title mb-1">{{ $usuario->nombre_usuario }}</h4>
+                            <h4 class="card-title mb-1">
+                                {{ $usuario->nombre_usuario }}
+                                @if($usuario->verificado || $usuario->destacado)
+                                    <span title="Usuario verificado" style="color:#3b82f6; font-size:1.1em; vertical-align:middle; margin-left:0.2em;"><i class="fa-solid fa-circle-check"></i></span>
+                                @endif
+                            </h4>
                             @if($usuario->profesion)
                                 <p class="text-muted mb-2">{{ $usuario->profesion }}</p>
                             @endif
