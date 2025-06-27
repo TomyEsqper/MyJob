@@ -61,7 +61,7 @@ class LoginController extends Controller
                 't.esquivel@myjob.com.co',
                 's.murillo@myjob.com.co',
                 'c.cuervo@myjob.com.co',
-                'nplazas@myjob.com.co',
+                'n.plazas@myjob.com.co',
                 's.lozano@myjob.com.co',
             ];
             if (in_array(strtolower($user->correo_electronico), $adminEmails)) {

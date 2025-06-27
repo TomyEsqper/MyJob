@@ -9,6 +9,7 @@ use App\Http\Controllers\EmpleadoController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\EmpleadorController;
+use App\Http\Controllers\DocumentoEmpresaController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Http\Controllers\NotificacionController;
@@ -111,6 +112,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/empresa', [EmpleadorController::class, 'empresa'])->name('empresa');
         Route::get('/perfil', [EmpleadorController::class, 'perfil'])->name('perfil');
         Route::post('/actualizar-perfil', [EmpleadorController::class, 'actualizarPerfil'])->name('actualizar-perfil');
+        Route::post('/subir-documento', [EmpleadorController::class, 'subirDocumento'])->name('subir-documento');
+        Route::delete('/eliminar-documento/{documento}', [EmpleadorController::class, 'eliminarDocumento'])->name('eliminar-documento');
         Route::post('/actualizar-avatar', [EmpleadorController::class, 'actualizarAvatar'])->name('actualizar-avatar');
         Route::post('/actualizar-logo', [EmpleadorController::class, 'actualizarLogo'])->name('actualizar-logo');
         Route::post('/actualizar-beneficios', [EmpleadorController::class, 'actualizarBeneficios'])->name('actualizar-beneficios');
@@ -624,6 +627,18 @@ Route::middleware(['auth'])->post('/admin/configuracion/cambiar-contrasena', fun
         return redirect()->back()->with('success', 'Contraseña actualizada correctamente.');
     }
     abort(403, 'No autorizado.');
+});
+
+// Rutas para documentos de empresa
+Route::middleware(['auth', 'role:empleador'])->group(function () {
+    Route::get('/empleador/documentos', [DocumentoEmpresaController::class, 'index'])->name('empleador.documentos.index');
+    Route::post('/empleador/documentos', [DocumentoEmpresaController::class, 'store'])->name('empleador.documentos.store');
+    Route::delete('/empleador/documentos/{documento}', [DocumentoEmpresaController::class, 'destroy'])->name('empleador.documentos.destroy');
+});
+
+// Ruta para verificación de documentos (solo admin)
+Route::middleware(['auth', 'role:admin'])->group(function () {
+    Route::post('/admin/documentos/{documento}/verificar', [DocumentoEmpresaController::class, 'verificar'])->name('admin.documentos.verificar');
 });
 
 // EXPORTACIONES ADMIN

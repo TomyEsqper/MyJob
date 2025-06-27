@@ -240,7 +240,7 @@
                                       <path d="M8 11V7a4 4 0 0 1 8 0v4"/>
                                     </svg>
                                   </span>
-                            <input type="password" id="password_confirmation_empresa" name="password_confirmation_empresa" class="input" placeholder="Repita su contraseña" data-required="true" required/>
+                            <input type="password" id="password_confirmation_empresa" name="password_empresa_confirmation" class="input" placeholder="Repita su contraseña" data-required="true" required/>
                         </label>
                     </div>
                 </div>
