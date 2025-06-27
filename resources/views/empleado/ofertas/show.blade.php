@@ -22,7 +22,11 @@
                         </div>
                         <div>
                             <h2 class="mb-1" style="font-weight: 800; color: #219150; letter-spacing: 1px;">{{ $oferta->titulo }}</h2>
-                            <span class="badge bg-light text-dark border px-3 py-2" style="font-size: 1rem; font-weight: 600;"><i class="fas fa-user-tie me-1"></i> {{ $oferta->empleador->empleador->nombre_empresa ?? 'Empresa no especificada' }}</span>
+                            <span class="badge bg-light text-dark border px-3 py-2" style="font-size: 1rem; font-weight: 600;"><i class="fas fa-user-tie me-1"></i> {{ $oferta->empleador->empleador->nombre_empresa ?? 'Empresa no especificada' }}
+                            @if(optional($oferta->empleador->empleador)->verificado)
+                                <span title="Empresa verificada" style="color:#3b82f6; font-size:1.1em; vertical-align:middle; margin-left:0.2em;"><i class="fa-solid fa-circle-check"></i></span>
+                            @endif
+                            </span>
                         </div>
                     </div>
                     <div class="mb-4 p-4 rounded-4 bg-light border shadow-sm" style="max-width: 100%;">

@@ -30,6 +30,7 @@ return new class extends Migration
             $table->text('vision')->nullable();
             $table->text('beneficios')->nullable();
             $table->string('logo_empresa')->nullable();
+            $table->boolean('verificado')->default(false);
             $table->timestamps();
         });
     }

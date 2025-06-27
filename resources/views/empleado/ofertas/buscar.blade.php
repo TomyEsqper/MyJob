@@ -111,7 +111,12 @@
                                     <div class="col-12">
                                         <div class="d-flex align-items-center text-muted mb-1">
                                             <i class="fas fa-building me-2"></i>
-                                            <small>{{ $oferta->empleador->empleador->nombre_empresa ?? 'Empresa no especificada' }}</small>
+                                            <small>
+                                                {{ $oferta->empleador->empleador->nombre_empresa ?? 'Empresa no especificada' }}
+                                                @if(optional($oferta->empleador->empleador)->verificado)
+                                                    <span title="Empresa verificada" style="color:#3b82f6; font-size:1.1em; vertical-align:middle; margin-left:0.2em;"><i class="fa-solid fa-circle-check"></i></span>
+                                                @endif
+                                            </small>
                                         </div>
                                     </div>
                                     <div class="col-12">

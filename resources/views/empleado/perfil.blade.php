@@ -145,7 +145,12 @@ $errors->any())
             </div>
         </div>
         <div class="profile-info fade-in-up delay-1">
-            <h1 class="profile-name">{{ $empleado->nombre_usuario }}</h1>
+            <h1 class="profile-name">
+                {{ $empleado->nombre_usuario }}
+                @if($empleado->verificado || $empleado->destacado)
+                    <span title="Usuario verificado" style="color:#3b82f6; font-size:1.3em; vertical-align:middle; margin-left:0.3em;"><i class="fa-solid fa-circle-check"></i></span>
+                @endif
+            </h1>
             <p class="profile-title">{{ $empleado->profesion ?? 'Sin profesión definida' }}</p>
             <p class="profile-bio">{{ $empleado->resumen_profesional ?? 'Agrega un resumen profesional para destacar.' }}</p>
             <div class="profile-stats fade-in-up delay-2">
@@ -322,3 +327,8 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 @endsection
+
+<head>
+    <!-- ... otros tags ... -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+</head>

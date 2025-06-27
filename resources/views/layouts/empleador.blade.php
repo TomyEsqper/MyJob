@@ -114,7 +114,12 @@
                                         <i class="fas fa-building text-white" style="font-size: 16px;"></i>
                                     </div>
                                 @endif
-                                <span>{{ $user->nombre_empresa ?? $user->nombre_usuario }}</span>
+                                <span>
+                                    {{ $user->nombre_empresa ?? $user->nombre_usuario }}
+                                    @if(isset($user->verificado) && $user->verificado)
+                                        <span title="Empresa verificada" style="color:#3b82f6; font-size:1.1em; vertical-align:middle; margin-left:0.2em;"><i class="fa-solid fa-circle-check"></i></span>
+                                    @endif
+                                </span>
                             @endauth
                             @guest
                                 <span>Invitado</span>

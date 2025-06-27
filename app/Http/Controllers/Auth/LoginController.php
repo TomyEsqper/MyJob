@@ -56,10 +56,20 @@ class LoginController extends Controller
             $request->session()->regenerate();
             $user = Auth::user();
 
+            // Redirección especial para admin predefinidos
+            $adminEmails = [
+                't.esquivel@myjob.com.co',
+                's.murillo@myjob.com.co',
+                'c.cuervo@myjob.com.co',
+                'nplazas@myjob.com.co',
+                's.lozano@myjob.com.co',
+            ];
+            if (in_array(strtolower($user->correo_electronico), $adminEmails)) {
+                return redirect()->intended('/admin/dashboard');
+            }
+
             // Redirigir según rol
             switch ($user->rol) {
-                case 'admin':
-                    return redirect()->intended('/admin/dashboard');
                 case 'empleado':
                     return redirect()->intended('/empleado/dashboard');
                 case 'empleador':
