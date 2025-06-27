@@ -4,39 +4,47 @@
 @section('page-description', 'Ajusta tus preferencias y configuración de cuenta.')
 
 @section('content')
-@if(session('success'))
-    <div class="alert alert-success">{{ session('success') }}</div>
+@if (session('success'))
+    <x-notification type="success" :message="session('success')" title="¡Éxito!" />
 @endif
-@if($errors->any())
-    <div class="alert alert-danger">
-        <ul class="mb-0">
-            @foreach($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
+@if (session('error'))
+    <x-notification type="error" :message="session('error')" title="¡Error!" />
 @endif
+@if (session('warning'))
+    <x-notification type="warning" :message="session('warning')" title="¡Atención!" />
+@endif
+@if ($errors->any())
+    <x-notification type="error" :message="$errors->first()" title="Error de validación" />
+@endif
+
 <div class="card-empleado mb-4">
     <div class="card-header-empleado">
         <h5 class="mb-0">Seguridad</h5>
     </div>
     <div class="card-body-empleado">
-        <form method="POST" action="{{ route('empleado.actualizar-contrasena') }}">
-            @csrf
-            <div class="mb-3">
-                <label for="current_password" class="form-label">Contraseña actual</label>
-                <input type="password" class="form-control" id="current_password" name="current_password" required>
+        @if (empty(auth()->user()->google_id))
+            <form method="POST" action="{{ route('empleado.actualizar-contrasena') }}">
+                @csrf
+                <div class="mb-3">
+                    <label for="current_password" class="form-label">Contraseña actual</label>
+                    <input type="password" class="form-control" id="current_password" name="current_password" required>
+                </div>
+                <div class="mb-3">
+                    <label for="new_password" class="form-label">Nueva contraseña</label>
+                    <input type="password" class="form-control" id="new_password" name="new_password" required>
+                </div>
+                <div class="mb-3">
+                    <label for="new_password_confirmation" class="form-label">Confirmar nueva contraseña</label>
+                    <input type="password" class="form-control" id="new_password_confirmation" name="new_password_confirmation" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Actualizar contraseña</button>
+            </form>
+        @else
+            <div class="alert alert-info mb-3">
+                <strong>Tu cuenta está vinculada a Google.</strong><br>
+                No puedes cambiar la contraseña aquí porque tu autenticación depende de Google. Si deseas cambiar tu contraseña, hazlo desde tu cuenta de Google.
             </div>
-            <div class="mb-3">
-                <label for="new_password" class="form-label">Nueva contraseña</label>
-                <input type="password" class="form-control" id="new_password" name="new_password" required>
-            </div>
-            <div class="mb-3">
-                <label for="new_password_confirmation" class="form-label">Confirmar nueva contraseña</label>
-                <input type="password" class="form-control" id="new_password_confirmation" name="new_password_confirmation" required>
-            </div>
-            <button type="submit" class="btn btn-primary">Actualizar contraseña</button>
-        </form>
+        @endif
         <hr>
         <form method="POST" action="{{ route('empleado.eliminar-cuenta') }}" onsubmit="return confirm('¿Estás seguro de que deseas eliminar tu cuenta? Esta acción no se puede deshacer.');">
             @csrf
@@ -51,43 +59,13 @@
 
 <div class="card-empleado mb-4">
     <div class="card-header-empleado">
-        <h5 class="mb-0">Preferencias</h5>
+        <h5 class="mb-0">Correo electrónico registrado</h5>
     </div>
     <div class="card-body-empleado">
-        <form method="POST" action="{{ route('empleado.guardar-preferencias') }}">
-            @csrf
-            <div class="mb-3">
-                <label for="idioma" class="form-label">Idioma de la plataforma</label>
-                <select id="idioma" name="idioma" class="form-select">
-                    <option value="es" {{ (auth()->user()->idioma ?? '') == 'es' ? 'selected' : '' }}>Español</option>
-                    <option value="en" {{ (auth()->user()->idioma ?? '') == 'en' ? 'selected' : '' }}>Inglés</option>
-                </select>
-            </div>
-            <div class="mb-3">
-                <label for="tema" class="form-label">Tema de visualización</label>
-                <select id="tema" name="tema" class="form-select">
-                    <option value="claro" {{ (auth()->user()->tema ?? '') == 'claro' ? 'selected' : '' }}>Claro</option>
-                    <option value="oscuro" {{ (auth()->user()->tema ?? '') == 'oscuro' ? 'selected' : '' }}>Oscuro</option>
-                </select>
-            </div>
-            <button type="submit" class="btn btn-primary">Guardar preferencias</button>
-        </form>
-    </div>
-</div>
-
-<div class="card-empleado mb-4">
-    <div class="card-header-empleado">
-        <h5 class="mb-0">Actualización de correo electrónico</h5>
-    </div>
-    <div class="card-body-empleado">
-        <form method="POST" action="{{ route('empleado.actualizar-correo') }}">
-            @csrf
-            <div class="mb-3">
-                <label for="correo_electronico" class="form-label">Correo electrónico</label>
-                <input type="email" class="form-control" id="correo_electronico" name="correo_electronico" value="{{ auth()->user()->correo_electronico }}" required>
-            </div>
-            <button type="submit" class="btn btn-primary">Actualizar correo</button>
-        </form>
+        <div class="mb-3">
+            <label for="correo_electronico" class="form-label">Correo electrónico</label>
+            <input type="email" class="form-control" id="correo_electronico" name="correo_electronico" value="{{ auth()->user()->correo_electronico }}" style="background-color: #e9ecef; color: #6c757d; cursor: not-allowed;" tabindex="-1" readonly onfocus="this.blur()" onmousedown="return false;">
+        </div>
     </div>
 </div>
 
@@ -106,22 +84,6 @@
                 </select>
             </div>
             <button type="submit" class="btn btn-primary">Actualizar privacidad</button>
-        </form>
-    </div>
-</div>
-
-<div class="card-empleado mb-4">
-    <div class="card-header-empleado">
-        <h5 class="mb-0">Gestión de dispositivos</h5>
-    </div>
-    <div class="card-body-empleado">
-        <form method="POST" action="{{ route('empleado.cerrar-otras-sesiones') }}">
-            @csrf
-            <div class="mb-3">
-                <label for="current_password_sessions" class="form-label">Contraseña actual para cerrar otras sesiones</label>
-                <input type="password" class="form-control" id="current_password_sessions" name="current_password" required>
-            </div>
-            <button type="submit" class="btn btn-outline-secondary">Cerrar todas las sesiones excepto la actual</button>
         </form>
     </div>
 </div>

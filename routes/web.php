@@ -14,10 +14,11 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\NotificacionController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\UserController;
-use App\Http\Controllers\Admin\JobController;
-use App\Http\Controllers\Admin\CompanyController;
-use App\Http\Controllers\Admin\ReportController;
+// use App\Http\Controllers\Admin\JobController;
+// use App\Http\Controllers\Admin\CompanyController;
+// use App\Http\Controllers\Admin\ReportController;
 
+// Rutas públicas
 Route::get('/', function () {
     return view('index');
 });
@@ -37,16 +38,12 @@ Route::post('/logout', function (Request $request) {
 Route::get('auth/google/redirect', [SocialController::class, 'redirectToGoogle'])->name('google.redirect');
 // callback que procesa la respuesta de Google
 Route::get('auth/google/callback', [SocialController::class, 'handleGoogleCallback'])->name('google.callback');
-
 Route::get('password/reset', [ForgotPasswordController::class, 'showLinkRequestForm'])
     ->name('password.request');
-
 Route::post('password/email', [ForgotPasswordController::class, 'sendResetLinkEmail'])
     ->name('password.email');
-
 Route::get('password/reset/{token}', [ResetPasswordController::class, 'showResetForm'])
     ->name('password.reset');
-
 Route::post('password/reset', [ResetPasswordController::class, 'reset'])
     ->name('password.update');
 
@@ -74,6 +71,26 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/cerrar-otras-sesiones', [EmpleadoController::class, 'cerrarOtrasSesiones'])->name('cerrar-otras-sesiones');
         Route::put('/perfil/{id}', [EmpleadoController::class, 'actualizarPerfil'])->name('perfil.update');
         Route::get('/notificaciones-ajax', [EmpleadoController::class, 'notificacionesAjax'])->name('notificaciones.ajax');
+        
+        // Rutas para experiencia
+        Route::post('/perfil/experiencia', [EmpleadoController::class, 'storeExperiencia'])->name('perfil.experiencia.store');
+        Route::put('/perfil/experiencia/{id}', [EmpleadoController::class, 'updateExperiencia'])->name('perfil.experiencia.update');
+        Route::delete('/perfil/experiencia/{id}', [EmpleadoController::class, 'destroyExperiencia'])->name('perfil.experiencia.destroy');
+        
+        // Rutas para educación
+        Route::post('/perfil/educacion', [EmpleadoController::class, 'storeEducacion'])->name('perfil.educacion.store');
+        Route::put('/perfil/educacion/{id}', [EmpleadoController::class, 'updateEducacion'])->name('perfil.educacion.update');
+        Route::delete('/perfil/educacion/{id}', [EmpleadoController::class, 'destroyEducacion'])->name('perfil.educacion.destroy');
+        
+        // Rutas para certificados
+        Route::post('/perfil/certificado', [EmpleadoController::class, 'storeCertificado'])->name('perfil.certificado.store');
+        Route::put('/perfil/certificado/{id}', [EmpleadoController::class, 'updateCertificado'])->name('perfil.certificado.update');
+        Route::delete('/perfil/certificado/{id}', [EmpleadoController::class, 'destroyCertificado'])->name('perfil.certificado.destroy');
+        
+        // Rutas para idiomas
+        Route::post('/perfil/idioma', [EmpleadoController::class, 'storeIdioma'])->name('perfil.idioma.store');
+        Route::put('/perfil/idioma/{id}', [EmpleadoController::class, 'updateIdioma'])->name('perfil.idioma.update');
+        Route::delete('/perfil/idioma/{id}', [EmpleadoController::class, 'destroyIdioma'])->name('perfil.idioma.destroy');
     });
 });
 
@@ -126,19 +143,19 @@ Route::prefix('admin')->middleware(['auth', 'admin'])->group(function () {
     // Gestión de usuarios
     Route::resource('users', UserController::class);
     
-    // Gestión de empleos
-    Route::get('/jobs', [JobController::class, 'index'])->name('admin.jobs');
-    Route::get('/jobs/{job}', [JobController::class, 'show'])->name('admin.jobs.show');
-    Route::delete('/jobs/{job}', [JobController::class, 'destroy'])->name('admin.jobs.destroy');
-    Route::patch('/jobs/{job}/toggle-status', [JobController::class, 'toggleStatus'])->name('admin.jobs.toggle-status');
+    // Gestión de empleos - Comentado hasta que se cree el JobController
+    // Route::get('/jobs', [JobController::class, 'index'])->name('admin.jobs');
+    // Route::get('/jobs/{job}', [JobController::class, 'show'])->name('admin.jobs.show');
+    // Route::delete('/jobs/{job}', [JobController::class, 'destroy'])->name('admin.jobs.destroy');
+    // Route::patch('/jobs/{job}/toggle-status', [JobController::class, 'toggleStatus'])->name('admin.jobs.toggle-status');
     
-    // Gestión de empresas
-    Route::get('/companies', [CompanyController::class, 'index'])->name('admin.companies');
-    Route::get('/companies/{company}', [CompanyController::class, 'show'])->name('admin.companies.show');
-    Route::delete('/companies/{company}', [CompanyController::class, 'destroy'])->name('admin.companies.destroy');
-    Route::patch('/companies/{company}/toggle-status', [CompanyController::class, 'toggleStatus'])->name('admin.companies.toggle-status');
+    // Gestión de empresas - Comentado hasta que se cree el CompanyController
+    // Route::get('/companies', [CompanyController::class, 'index'])->name('admin.companies');
+    // Route::get('/companies/{company}', [CompanyController::class, 'show'])->name('admin.companies.show');
+    // Route::delete('/companies/{company}', [CompanyController::class, 'destroy'])->name('admin.companies.destroy');
+    // Route::patch('/companies/{company}/toggle-status', [CompanyController::class, 'toggleStatus'])->name('admin.companies.toggle-status');
     
-    // Reportes
-    Route::get('/reports', [ReportController::class, 'index'])->name('admin.reports');
-    Route::get('/reports/download', [ReportController::class, 'downloadReport'])->name('admin.reports.download');
+    // Reportes - Comentado hasta que se cree el ReportController
+    // Route::get('/reports', [ReportController::class, 'index'])->name('admin.reports');
+    // Route::get('/reports/download', [ReportController::class, 'downloadReport'])->name('admin.reports.download');
 });

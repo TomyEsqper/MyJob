@@ -26,9 +26,11 @@
                 <li class="nav-item"><a href="{{ route('empleado.perfil') }}" class="nav-link {{ request()->routeIs('empleado.perfil') ? 'active' : '' }}"><i class="fas fa-user"></i> Mi Perfil</a></li>
                 <li class="nav-item"><a href="{{ route('empleado.configuracion') }}" class="nav-link {{ request()->routeIs('empleado.configuracion') ? 'active' : '' }}"><i class="fas fa-cog"></i> Configuración</a></li>
                 <li class="nav-item mt-5">
-                    <form action="{{ route('logout') }}" method="POST" class="nav-link">
+                    <form action="{{ route('logout') }}" method="POST" style="width:100%;">
                         @csrf
-                        <button type="submit" class="btn btn-logout p-0"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</button>
+                        <button type="submit" class="btn btn-logout w-100 d-flex align-items-center justify-content-center" style="font-size:1.1rem;gap:0.7rem;">
+                            <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                        </button>
                     </form>
                 </li>
             </ul>
@@ -44,6 +46,7 @@
         </main>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         // Hamburguesa para sidebar en móviles
         document.getElementById('hamburgerMenu').addEventListener('click', function() {

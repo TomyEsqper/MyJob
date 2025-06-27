@@ -4,6 +4,19 @@
 @section('page-description', 'Encuentra ofertas de trabajo que se adapten a tu perfil.')
 
 @section('content')
+@if (session('success'))
+    <x-notification type="success" :message="session('success')" title="¡Éxito!" />
+@endif
+@if (session('error'))
+    <x-notification type="error" :message="session('error')" title="¡Error!" />
+@endif
+@if (session('warning'))
+    <x-notification type="warning" :message="session('warning')" title="¡Atención!" />
+@endif
+@if ($errors->any())
+    <x-notification type="error" :message="$errors->first()" title="Error de validación" />
+@endif
+
 <div class="busqueda-header" style="background: linear-gradient(90deg, #4CAF7A 0%, #7BC47F 100%); padding: 2rem 1rem; border-radius: 2rem; margin-bottom: 1.5rem; text-align: center; color: #fff;">
     <i class="fas fa-search icono-busqueda" style="font-size: 2.5rem; margin-bottom: 0.5rem;"></i>
     <h2 style="font-size: 2rem; margin-bottom: 0.5rem;">Buscar Empleo</h2>
@@ -47,7 +60,7 @@
         </div>
         <div class="col-md-1 d-grid">
             <button type="submit" class="btn btn-busqueda">
-                <i class="fas fa-search"></i>
+                <i class="fas fa-search"></i> Buscar
             </button>
         </div>
     </form>
