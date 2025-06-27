@@ -109,6 +109,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/actualizar-avatar', [EmpleadorController::class, 'actualizarAvatar'])->name('actualizar-avatar');
         Route::post('/actualizar-logo', [EmpleadorController::class, 'actualizarLogo'])->name('actualizar-logo');
         Route::post('/actualizar-beneficios', [EmpleadorController::class, 'actualizarBeneficios'])->name('actualizar-beneficios');
+        Route::post('/subir-documento-legal', [EmpleadorController::class, 'subirDocumentoLegal'])->name('subir-documento-legal');
 
         // Rutas de candidatos
         Route::get('/candidatos', [EmpleadorController::class, 'candidatos'])->name('candidatos');

@@ -350,6 +350,8 @@ class EmpleadorController extends Controller
             'sitio_web' => 'nullable|url|max:200',
             'telefono' => 'nullable|string|max:20',
             'logo' => 'nullable|image|mimes:jpeg,png,jpg|max:5120', // 5MB
+            'nit' => 'required|string|max:20',
+            'correo_empresarial' => 'required|email|max:100',
         ]);
 
         $usuario = Auth::user();
@@ -358,9 +360,6 @@ class EmpleadorController extends Controller
         if (!$empleador) {
             $empleador = new Empleador();
             $empleador->usuario_id = $usuario->id_usuario;
-            $empleador->nit = 'TEMP-' . uniqid();
-            $empleador->correo_empresarial = $usuario->correo_electronico;
-            $empleador->direccion_empresa = 'Por definir';
         }
 
         // Actualizar información básica
@@ -370,17 +369,33 @@ class EmpleadorController extends Controller
         $empleador->descripcion = $request->descripcion;
         $empleador->sitio_web = $request->sitio_web;
         $empleador->telefono_contacto = $request->telefono;
+        $empleador->nit = $request->nit;
+        $empleador->correo_empresarial = $request->correo_empresarial;
 
         // Manejar logo si se subió
         if ($request->hasFile('logo')) {
-            // Eliminar logo anterior si existe
-            if ($empleador->logo_empresa) {
-                Storage::delete('public/' . $empleador->logo_empresa);
-            }
+            try {
+                // Eliminar logo anterior si existe
+                if ($empleador->logo_empresa) {
+                    Storage::delete('public/' . $empleador->logo_empresa);
+                }
 
-            // Guardar nuevo logo
-            $path = $request->file('logo')->store('logos', 'public');
-            $empleador->logo_empresa = $path;
+                // Guardar nuevo logo
+                $file = $request->file('logo');
+                $fileName = time() . '_' . $file->getClientOriginalName();
+                $path = $file->storeAs('logos', $fileName, 'public');
+                $empleador->logo_empresa = $path;
+                
+                // Verificar que el archivo se guardó correctamente
+                if (!Storage::disk('public')->exists($path)) {
+                    throw new \Exception('Error al guardar el logo');
+                }
+            } catch (\Exception $e) {
+                \Log::error('Error al procesar el logo: ' . $e->getMessage());
+                return redirect()->back()
+                    ->withInput()
+                    ->withErrors(['logo' => 'Error al procesar el logo. Por favor, intente nuevamente.']);
+            }
         }
 
         try {
@@ -504,5 +519,48 @@ class EmpleadorController extends Controller
         ]);
 
         return redirect()->back()->with('success', 'Estado de la aplicación actualizado correctamente');
+    }
+
+    public function subirDocumentoLegal(Request $request)
+    {
+        $request->validate([
+            'documento' => 'required|file|mimes:pdf|max:10240', // 10MB max
+            'tipo' => 'required|in:camara_comercio,rut,acta_constitucion,otros'
+        ]);
+
+        try {
+            $empleador = Auth::user()->empleador;
+            
+            if (!$empleador) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No se encontró información del empleador'
+                ], 404);
+            }
+
+            $file = $request->file('documento');
+            $fileName = time() . '_' . $request->tipo . '_' . $file->getClientOriginalName();
+            $path = $file->storeAs('documentos_legales/' . $empleador->id, $fileName, 'public');
+
+            // Verificar que el archivo se guardó correctamente
+            if (!Storage::disk('public')->exists($path)) {
+                throw new \Exception('Error al guardar el documento');
+            }
+
+            // Aquí podrías guardar la referencia del documento en la base de datos si lo necesitas
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Documento cargado correctamente',
+                'path' => $path
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('Error al subir documento legal: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al subir el documento. Por favor, intente nuevamente.'
+            ], 500);
+        }
     }
 } 
