@@ -87,12 +87,18 @@
                                 </li>
                             </ul>
                             <div class="d-grid gap-2">
+                                @if(!$yaAplicado)
                                 <form action="{{ route('empleado.aplicar', $oferta) }}" method="POST">
                                     @csrf
                                     <button type="submit" class="btn" style="background: linear-gradient(90deg, #43e97b 0%, #38f9d7 100%); color: #fff; font-weight: 700; font-size: 1.1rem; border-radius: 999px; box-shadow: 0 4px 15px rgba(67,233,123,0.13);">
                                         <i class="fas fa-paper-plane me-1"></i> Aplicar a esta Oferta
                                     </button>
                                 </form>
+                                @else
+                                    <button class="btn" style="background: linear-gradient(90deg, #43e97b 0%, #38f9d7 100%); color: #fff; font-weight: 700; font-size: 1.1rem; border-radius: 999px; box-shadow: 0 4px 15px rgba(67,233,123,0.13);" disabled>
+                                        <i class="fas fa-check-circle me-1"></i> Ya aplicaste
+                                    </button>
+                                @endif
                                 <a href="{{ route('empleado.dashboard') }}" class="btn btn-outline-secondary" style="border-radius: 999px;">
                                     <i class="fas fa-arrow-left me-1"></i> Volver al Dashboard
                                 </a>

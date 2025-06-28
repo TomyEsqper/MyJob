@@ -66,54 +66,46 @@ document.querySelectorAll('.stat-card-empleado').forEach(function(card, idx) {
 </script>
 <section class="card-empleado mb-4 animate__animated animate__fadeInUp animate__delay-1s">
     <div class="card-header-empleado d-flex justify-content-between align-items-center">
-        <h5 class="mb-0">Aplicaciones Recientes</h5>
-        <a href="{{ route('empleado.aplicaciones') }}" class="btn btn-outline-success btn-sm">Ver Todas</a>
+        <h5 class="mb-0">Entrevistas Programadas</h5>
     </div>
     <div class="card-body-empleado">
-        @forelse($aplicacionesRecientes as $aplicacion)
-            <div class="job-card-empleado">
-                <div class="company-logo-empleado">
-                    @if($aplicacion->oferta->empleador->empleador && $aplicacion->oferta->empleador->empleador->logo_empresa)
-                        <img src="{{ asset($aplicacion->oferta->empleador->empleador->logo_empresa) }}" alt="Logo" class="rounded" width="40" height="40">
-                    @else
-                        <i class="fas fa-building"></i>
-                    @endif
-                </div>
-                <div class="job-info-empleado">
-                    <h4>{{ $aplicacion->oferta->titulo }}</h4>
-                    <p>{{ $aplicacion->oferta->empleador->nombre_usuario }} • {{ $aplicacion->oferta->ubicacion }} • {{ $aplicacion->created_at->diffForHumans() }}</p>
-                </div>
-                <div class="job-actions-empleado">
-                    @switch($aplicacion->estado)
-                        @case('aceptada')
-                            <span class="badge bg-success">Entrevista</span>
-                            @break
-                        @case('revisada')
-                            <span class="badge bg-warning text-dark">En Revisión</span>
-                            @break
-                        @case('rechazada')
-                            <span class="badge bg-danger">No Seleccionado</span>
-                            @break
-                        @default
-                            <span class="badge bg-secondary">Pendiente</span>
-                    @endswitch
-                    <a href="{{ route('empleado.ofertas.show', $aplicacion->oferta) }}" class="btn btn-sm btn-outline-primary ms-2">
-                        <i class="fas fa-eye"></i> Ver Oferta
-                    </a>
-                </div>
+        @if($entrevistasProgramadas->count())
+            <ul class="list-group list-group-flush">
+                @foreach($entrevistasProgramadas as $entrevista)
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <a href="{{ route('empleado.ofertas.show', $entrevista->oferta) }}" style="font-weight:bold; text-decoration:underline; color:#219150;">
+                                {{ $entrevista->oferta->titulo }}
+                            </a><br>
+                            <small class="text-muted">{{ $entrevista->oferta->empleador->empleador->nombre_empresa ?? $entrevista->oferta->empleador->nombre_usuario ?? 'Empresa no especificada' }}</small>
+                            @if($entrevista->entrevista)
+                                <div class="mt-1">
+                                    <span class="badge bg-info text-dark">
+                                        <i class="fas fa-calendar-alt me-1"></i>
+                                        {{ \Carbon\Carbon::parse($entrevista->entrevista->fecha_hora)->format('d/m/Y H:i') }}
+                                        @if($entrevista->entrevista->lugar)
+                                            | <i class="fas fa-map-marker-alt me-1"></i>{{ $entrevista->entrevista->lugar }}
+                                        @endif
+                                    </span>
+                                    @if($entrevista->entrevista->notas)
+                                        <div class="small text-muted mt-1">{{ $entrevista->entrevista->notas }}</div>
+                                    @endif
+                                </div>
+                            @endif
+                        </div>
+                        <span class="badge bg-success">Aceptada el {{ $entrevista->updated_at->format('d/m/Y') }}</span>
+                    </li>
+                @endforeach
+            </ul>
+        @else
+            <div class="text-center py-4">
+                <i class="fas fa-calendar-check fa-2x text-muted mb-2"></i>
+                <p class="text-muted mb-0">No tienes entrevistas programadas aún.</p>
             </div>
-        @empty
-            <div class="text-center py-5">
-                <i class="fas fa-briefcase fa-3x text-muted mb-3"></i>
-                <p class="text-muted mb-0">No hay aplicaciones recientes</p>
-                <a href="{{ route('empleado.buscar') }}" class="btn btn-success dashboard-empty-btn mt-3">
-                    <i class="fas fa-search me-1"></i> Buscar Ofertas
-                </a>
-            </div>
-        @endforelse
+        @endif
     </div>
 </section>
-<section class="card-empleado animate__animated animate__fadeInUp animate__delay-2s">
+<section class="card-empleado mb-4 animate__animated animate__fadeInUp animate__delay-2s">
     <div class="card-header-empleado d-flex justify-content-between align-items-center">
         <h5 class="mb-0">Ofertas Disponibles</h5>
         <a href="#" class="btn btn-outline-success btn-sm">Ver Más</a>

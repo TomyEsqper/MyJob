@@ -29,4 +29,9 @@ class Aplicacion extends Model
     {
         return $this->belongsTo(Usuario::class, 'empleado_id', 'id_usuario');
     }
+
+    public function entrevista()
+    {
+        return $this->hasOne(Entrevista::class);
+    }
 } 

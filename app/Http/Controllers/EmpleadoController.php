@@ -30,6 +30,12 @@ class EmpleadoController extends Controller
         $aplicacionesEnviadas = $usuario->aplicaciones()->count();
         $vistasPerfilCount = VistaPerfil::where('empleado_id', $usuario->id_usuario)->count();
         $entrevistasCount = $usuario->aplicaciones()->where('estado', 'aceptada')->count();
+        $entrevistasProgramadas = $usuario->aplicaciones()
+            ->with(['oferta.empleador'])
+            ->where('estado', 'aceptada')
+            ->orderBy('updated_at', 'desc')
+            ->take(5)
+            ->get();
         
         // Get recent applications
         $aplicacionesRecientes = $usuario->aplicaciones()
@@ -49,6 +55,7 @@ class EmpleadoController extends Controller
             'aplicacionesEnviadas',
             'vistasPerfilCount',
             'entrevistasCount',
+            'entrevistasProgramadas',
             'aplicacionesRecientes',
             'ofertas'
         ));
@@ -394,12 +401,11 @@ class EmpleadoController extends Controller
         // Cargar las relaciones necesarias
         $oferta->load([
             'empleador.empleador', // Cargar el usuario empleador y sus datos de empleador
-            'aplicaciones' => function ($query) {
-                $query->where('empleado_id', Auth::id());
-            }
         ]);
 
-        return view('empleado.ofertas.show', compact('oferta'));
+        $yaAplicado = Auth::user()->aplicaciones()->where('oferta_id', $oferta->id)->exists();
+
+        return view('empleado.ofertas.show', compact('oferta', 'yaAplicado'));
     }
 
     public function aplicaciones(Request $request)
@@ -1021,5 +1027,14 @@ class EmpleadoController extends Controller
             }
             return back()->with('error', 'Error al eliminar idioma');
         }
+    }
+
+    public function agendaEntrevistas()
+    {
+        $usuario = Auth::user();
+        $entrevistas = \App\Models\Entrevista::whereHas('aplicacion', function($q) use ($usuario) {
+            $q->where('empleado_id', $usuario->id_usuario);
+        })->with(['aplicacion.oferta.empleador.empleador'])->orderBy('fecha_hora')->get();
+        return view('empleado.agenda', compact('entrevistas'));
     }
 }

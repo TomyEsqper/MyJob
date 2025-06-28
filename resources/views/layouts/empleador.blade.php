@@ -45,6 +45,12 @@
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link {{ request()->routeIs('empleador.agenda') ? 'active' : '' }}" href="{{ route('empleador.agenda') }}">
+                        <i class="fas fa-fw fa-calendar-alt"></i>
+                        <span>Agenda de Entrevistas</span>
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link {{ request()->routeIs('empleador.estadisticas') ? 'active' : '' }}" href="{{ route('empleador.estadisticas') }}">
                         <i class="fas fa-fw fa-chart-bar"></i>
                         <span>Estadísticas</span>

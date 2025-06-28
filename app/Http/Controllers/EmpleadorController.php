@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use App\Models\DocumentoEmpresa;
+use App\Models\Entrevista;
 
 class EmpleadorController extends Controller
 {
@@ -519,5 +520,39 @@ class EmpleadorController extends Controller
         $documento->delete();
 
         return redirect()->back()->with('success', 'Documento eliminado correctamente.');
+    }
+
+    public function agendarEntrevista(Request $request, Aplicacion $aplicacion)
+    {
+        // Verificar que la aplicación pertenezca a una oferta del empleador actual y esté aceptada
+        if ($aplicacion->oferta->empleador_id !== Auth::user()->id_usuario || $aplicacion->estado !== 'aceptada') {
+            abort(403);
+        }
+
+        $request->validate([
+            'fecha_hora' => 'required|date|after:now',
+            'lugar' => 'nullable|string|max:255',
+            'notas' => 'nullable|string|max:1000',
+        ]);
+
+        // Si ya existe una entrevista, actualizarla. Si no, crearla.
+        $entrevista = $aplicacion->entrevista;
+        if ($entrevista) {
+            $entrevista->update($request->only(['fecha_hora', 'lugar', 'notas']));
+        } else {
+            $aplicacion->entrevista()->create($request->only(['fecha_hora', 'lugar', 'notas']));
+        }
+
+        return redirect()->back()->with('success', 'Entrevista agendada correctamente.');
+    }
+
+    public function agendaEntrevistas()
+    {
+        $userId = Auth::user()->id_usuario;
+        $ofertasIds = \App\Models\Oferta::where('empleador_id', $userId)->pluck('id');
+        $entrevistas = \App\Models\Entrevista::whereHas('aplicacion', function($q) use ($ofertasIds) {
+            $q->whereIn('oferta_id', $ofertasIds);
+        })->with(['aplicacion.oferta', 'aplicacion.empleado'])->orderBy('fecha_hora')->get();
+        return view('empleador.agenda', compact('entrevistas'));
     }
 } 

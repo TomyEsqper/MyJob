@@ -120,8 +120,29 @@
                                                     <button type="submit" class="dropdown-item"><i class="fas fa-times-circle me-2 text-danger"></i>Rechazar</button>
                                                 </form>
                                             </li>
+                                            @if($aplicacion->estado == 'aceptada')
+                                            <li>
+                                                <button type="button" class="dropdown-item text-primary" data-bs-toggle="modal" data-bs-target="#modalEntrevista-{{ $aplicacion->id }}">
+                                                    <i class="fas fa-calendar-plus me-2"></i> Agendar Entrevista
+                                                </button>
+                                            </li>
+                                            @endif
                                          </ul>
                                      </div>
+                                     @if($aplicacion->estado == 'aceptada' && $aplicacion->entrevista)
+                                     <div class="mt-2">
+                                         <span class="badge bg-info text-dark">
+                                             <i class="fas fa-calendar-alt me-1"></i>
+                                             {{ \Carbon\Carbon::parse($aplicacion->entrevista->fecha_hora)->format('d/m/Y H:i') }}
+                                             @if($aplicacion->entrevista->lugar)
+                                                 | <i class="fas fa-map-marker-alt me-1"></i>{{ $aplicacion->entrevista->lugar }}
+                                             @endif
+                                         </span>
+                                         @if($aplicacion->entrevista->notas)
+                                             <div class="small text-muted mt-1">{{ $aplicacion->entrevista->notas }}</div>
+                                         @endif
+                                     </div>
+                                     @endif
                                 </td>
                             </tr>
                         @endforeach
@@ -140,5 +161,42 @@
         No se encontraron candidatos con los filtros seleccionados.
     </div>
 @endif
+
+<!-- Modals fuera de la tabla -->
+@foreach($aplicaciones as $aplicacion)
+    @if($aplicacion->estado == 'aceptada')
+    <div class="modal fade" id="modalEntrevista-{{ $aplicacion->id }}" tabindex="-1" aria-labelledby="modalEntrevistaLabel-{{ $aplicacion->id }}" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="modalEntrevistaLabel-{{ $aplicacion->id }}">Agendar Entrevista</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+          </div>
+          <div class="modal-body">
+            <form id="formEntrevista-{{ $aplicacion->id }}" method="POST" action="{{ route('empleador.aplicaciones.entrevista', $aplicacion) }}">
+              @csrf
+              <div class="mb-3">
+                <label for="fecha_hora-{{ $aplicacion->id }}" class="form-label">Fecha y Hora</label>
+                <input type="datetime-local" class="form-control" id="fecha_hora-{{ $aplicacion->id }}" name="fecha_hora" required>
+              </div>
+              <div class="mb-3">
+                <label for="lugar-{{ $aplicacion->id }}" class="form-label">Lugar</label>
+                <input type="text" class="form-control" id="lugar-{{ $aplicacion->id }}" name="lugar" placeholder="Ej: Oficina, Zoom, Google Meet...">
+              </div>
+              <div class="mb-3">
+                <label for="notas-{{ $aplicacion->id }}" class="form-label">Notas</label>
+                <textarea class="form-control" id="notas-{{ $aplicacion->id }}" name="notas" rows="2" placeholder="Notas adicionales"></textarea>
+              </div>
+              <div class="d-flex justify-content-end">
+                <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-success">Agendar</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    @endif
+@endforeach
 
 @endsection 

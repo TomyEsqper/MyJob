@@ -22,6 +22,7 @@
             <ul class="nav flex-column">
                 <li class="nav-item"><a href="{{ route('empleado.dashboard') }}" class="nav-link {{ request()->routeIs('empleado.dashboard') ? 'active' : '' }}"><i class="fas fa-home"></i> Dashboard</a></li>
                 <li class="nav-item"><a href="{{ route('empleado.aplicaciones') }}" class="nav-link {{ request()->routeIs('empleado.aplicaciones') ? 'active' : '' }}"><i class="fas fa-briefcase"></i> Mis Aplicaciones</a></li>
+                <li class="nav-item"><a href="{{ route('empleado.agenda') }}" class="nav-link {{ request()->routeIs('empleado.agenda') ? 'active' : '' }}"><i class="fas fa-calendar-alt"></i> Agenda de Entrevistas</a></li>
                 <li class="nav-item"><a href="{{ route('empleado.buscar') }}" class="nav-link {{ request()->routeIs('empleado.buscar') ? 'active' : '' }}"><i class="fas fa-search"></i> Buscar Empleos</a></li>
                 <li class="nav-item"><a href="{{ route('empleado.perfil') }}" class="nav-link {{ request()->routeIs('empleado.perfil') ? 'active' : '' }}"><i class="fas fa-user"></i> Mi Perfil</a></li>
                 <li class="nav-item"><a href="{{ route('empleado.configuracion') }}" class="nav-link {{ request()->routeIs('empleado.configuracion') ? 'active' : '' }}"><i class="fas fa-cog"></i> Configuración</a></li>
