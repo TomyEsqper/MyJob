@@ -8,11 +8,11 @@
 <div class="filters-card">
     <h3><i class="fa-solid fa-filter me-2"></i>Filtros de búsqueda</h3>
     <form method="GET" action="/admin/ofertas" class="row g-3">
-        <div class="col-md-4">
+        <div class="col-lg-4 col-md-6 col-12">
             <label class="form-label">Buscar</label>
             <input type="text" name="q" class="form-control" placeholder="Título, descripción o ubicación..." value="{{ request('q') }}">
         </div>
-        <div class="col-md-3">
+        <div class="col-lg-3 col-md-3 col-6">
             <label class="form-label">Estado</label>
             <select name="estado" class="form-select">
                 <option value="">Todos los estados</option>
@@ -20,7 +20,7 @@
                 <option value="inactiva" {{ request('estado') == 'inactiva' ? 'selected' : '' }}>Inactiva</option>
             </select>
         </div>
-        <div class="col-md-3">
+        <div class="col-lg-3 col-md-3 col-6">
             <label class="form-label">Tipo de contrato</label>
             <select name="tipo_contrato" class="form-select">
                 <option value="">Todos los tipos</option>
@@ -30,16 +30,16 @@
                 <option value="Prácticas" {{ request('tipo_contrato') == 'Prácticas' ? 'selected' : '' }}>Prácticas</option>
             </select>
         </div>
-        <div class="col-md-2 d-flex align-items-end">
+        <div class="col-lg-2 col-md-6 col-6 d-flex align-items-end">
             <button type="submit" class="btn btn-success w-100">
-                <i class="fa-solid fa-search me-1"></i> Buscar
+                <i class="fa-solid fa-search me-1"></i> <span class="d-none d-md-inline">Buscar</span>
             </button>
         </div>
     </form>
 </div>
 
 <div class="table-card">
-    <div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-3 gap-3">
         <h3><i class="fa-solid fa-briefcase me-2"></i>Listado de Ofertas</h3>
         <span class="badge bg-success fs-6">{{ $ofertas->total() }} ofertas encontradas</span>
     </div>
@@ -48,19 +48,19 @@
         <table class="table table-hover">
             <thead>
                 <tr>
-                    <th>Empresa</th>
+                    <th class="d-none d-md-table-cell">Empresa</th>
                     <th>Título</th>
-                    <th>Ubicación</th>
-                    <th>Tipo</th>
+                    <th class="d-none d-lg-table-cell">Ubicación</th>
+                    <th class="d-none d-md-table-cell">Tipo</th>
                     <th>Estado</th>
-                    <th>Fecha</th>
+                    <th class="d-none d-md-table-cell">Fecha</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse($ofertas as $oferta)
                     <tr>
-                        <td>
+                        <td class="d-none d-md-table-cell">
                             <div class="d-flex align-items-center">
                                 <div class="company-logo me-2">
                                     @if($oferta->empleador && $oferta->empleador->empleador && $oferta->empleador->empleador->logo_empresa)
@@ -78,25 +78,36 @@
                         <td>
                             <div class="fw-bold">{{ $oferta->titulo }}</div>
                             <small class="text-muted">{{ Str::limit($oferta->descripcion, 50) }}</small>
+                            <div class="d-md-none mt-1">
+                                <small class="text-muted">
+                                    <i class="fa-solid fa-building me-1"></i>
+                                    {{ $oferta->empleador->empleador->nombre_empresa ?? 'Sin empresa' }}
+                                </small>
+                            </div>
                         </td>
-                        <td>{{ $oferta->ubicacion }}</td>
-                        <td>{{ $oferta->tipo_contrato }}</td>
+                        <td class="d-none d-lg-table-cell">{{ $oferta->ubicacion }}</td>
+                        <td class="d-none d-md-table-cell">{{ $oferta->tipo_contrato }}</td>
                         <td>
                             <span class="status-badge {{ $oferta->estado == 'activa' ? 'status-activa' : 'status-inactiva' }}">
                                 {{ ucfirst($oferta->estado) }}
                             </span>
+                            <div class="d-md-none mt-1">
+                                <small class="text-muted">{{ $oferta->tipo_contrato }}</small>
+                            </div>
                         </td>
-                        <td>{{ $oferta->created_at->format('d/m/Y') }}</td>
+                        <td class="d-none d-md-table-cell">{{ $oferta->created_at->format('d/m/Y') }}</td>
                         <td>
-                            <button class="btn btn-danger btn-action" onclick="eliminarOferta({{ $oferta->id }})" title="Eliminar oferta">
-                                <i class="fa-solid fa-trash"></i>
-                            </button>
-                            <button class="btn btn-warning btn-action" onclick="cambiarEstado({{ $oferta->id }})" title="Cambiar estado">
-                                <i class="fa-solid fa-toggle-on"></i>
-                            </button>
-                            <a href="#" class="btn btn-info btn-action" title="Ver detalles">
-                                <i class="fa-solid fa-eye"></i>
-                            </a>
+                            <div class="btn-group btn-group-sm" role="group">
+                                <a href="/admin/ofertas/{{ $oferta->id }}" class="btn btn-info btn-action" title="Ver detalles">
+                                    <i class="fa-solid fa-eye"></i>
+                                </a>
+                                <button class="btn btn-warning btn-action" onclick="cambiarEstado({{ $oferta->id }})" title="Cambiar estado">
+                                    <i class="fa-solid fa-toggle-on"></i>
+                                </button>
+                                <button class="btn btn-danger btn-action" onclick="eliminarOferta({{ $oferta->id }})" title="Eliminar oferta">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </div>
                         </td>
                     </tr>
                 @empty
@@ -113,8 +124,8 @@
     </div>
 
     @if($ofertas->hasPages())
-        <div class="d-flex justify-content-center">
-            {{ $ofertas->links() }}
+        <div class="d-flex justify-content-center mt-4">
+            {{ $ofertas->appends(request()->query())->links() }}
         </div>
     @endif
 </div>

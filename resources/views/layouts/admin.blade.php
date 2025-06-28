@@ -8,6 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/admin.css">
     <style>
         body {
             margin: 0;
@@ -258,9 +259,22 @@
     @stack('styles')
 </head>
 <body>
+<!-- Botón hamburguesa para móvil -->
+<button class="mobile-menu-toggle" id="mobileMenuToggle">
+    <i class="fa-solid fa-bars"></i>
+</button>
+
+<!-- Overlay para cerrar sidebar -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
 <div class="admin-layout">
-    <aside class="sidebar">
-        <h2><i class="fa-solid fa-user-shield"></i> Admin</h2>
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2><i class="fa-solid fa-user-shield"></i> Admin</h2>
+            <button class="sidebar-close" id="sidebarClose">
+                <i class="fa-solid fa-times"></i>
+            </button>
+        </div>
         <nav>
             <a href="/admin/dashboard" class="{{ request()->is('admin/dashboard') ? 'active' : '' }}">
                 <i class="fa-solid fa-gauge"></i> Dashboard
@@ -274,6 +288,9 @@
             <a href="/admin/empresas" class="{{ request()->is('admin/empresas*') ? 'active' : '' }}">
                 <i class="fa-solid fa-building"></i> Empresas
             </a>
+            <a href="/admin/aplicaciones" class="{{ request()->is('admin/aplicaciones*') ? 'active' : '' }}">
+                <i class="fa-solid fa-paper-plane"></i> Aplicaciones
+            </a>
             <a href="/admin/reportes" class="{{ request()->is('admin/reportes*') ? 'active' : '' }}">
                 <i class="fa-solid fa-file-lines"></i> Reportes
             </a>
@@ -281,13 +298,14 @@
                 <i class="fa-solid fa-gear"></i> Configuración
             </a>
         </nav>
-        <form method="POST" action="/logout">
+        <form method="POST" action="/logout" class="sidebar-footer">
             <input type="hidden" name="_token" value="{{ csrf_token() }}">
             <button type="submit" class="logout">
                 <i class="fa-solid fa-arrow-right-from-bracket"></i> Cerrar sesión
             </button>
         </form>
     </aside>
+    
     <main class="main-content">
         <div class="header">
             <div class="welcome">@yield('page-title', 'Panel de Administración')</div>
@@ -303,6 +321,211 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+// Funcionalidad del sidebar móvil
+document.addEventListener('DOMContentLoaded', function() {
+    const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+    const sidebar = document.getElementById('sidebar');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    const sidebarClose = document.getElementById('sidebarClose');
+    
+    // Abrir sidebar
+    mobileMenuToggle.addEventListener('click', function() {
+        sidebar.classList.add('show');
+        sidebarOverlay.classList.add('show');
+        document.body.style.overflow = 'hidden';
+    });
+    
+    // Cerrar sidebar
+    function closeSidebar() {
+        sidebar.classList.remove('show');
+        sidebarOverlay.classList.remove('show');
+        document.body.style.overflow = '';
+    }
+    
+    sidebarClose.addEventListener('click', closeSidebar);
+    sidebarOverlay.addEventListener('click', closeSidebar);
+    
+    // Cerrar sidebar al hacer clic en un enlace (en móviles)
+    const sidebarLinks = sidebar.querySelectorAll('nav a');
+    sidebarLinks.forEach(link => {
+        link.addEventListener('click', function() {
+            if (window.innerWidth <= 768) {
+                closeSidebar();
+            }
+        });
+    });
+    
+    // Cerrar sidebar al redimensionar la ventana
+    window.addEventListener('resize', function() {
+        if (window.innerWidth > 768) {
+            closeSidebar();
+        }
+    });
+    
+    // Detectar orientación del dispositivo
+    window.addEventListener('orientationchange', function() {
+        setTimeout(function() {
+            if (window.innerWidth > 768) {
+                closeSidebar();
+            }
+        }, 100);
+    });
+});
+
+// Funcionalidad para tablas responsive
+document.addEventListener('DOMContentLoaded', function() {
+    const tables = document.querySelectorAll('.table-responsive');
+    
+    tables.forEach(table => {
+        const tableElement = table.querySelector('table');
+        if (tableElement) {
+            // Agregar indicador de scroll horizontal
+            const scrollIndicator = document.createElement('div');
+            scrollIndicator.className = 'scroll-indicator';
+            scrollIndicator.innerHTML = '<i class="fa-solid fa-arrows-left-right"></i> Desliza para ver más';
+            scrollIndicator.style.cssText = `
+                text-align: center;
+                padding: 10px;
+                color: #666;
+                font-size: 0.9rem;
+                background: #f8f9fa;
+                border-top: 1px solid #dee2e6;
+                display: none;
+            `;
+            
+            table.appendChild(scrollIndicator);
+            
+            // Mostrar indicador si la tabla es más ancha que el contenedor
+            function checkScroll() {
+                if (tableElement.scrollWidth > table.clientWidth) {
+                    scrollIndicator.style.display = 'block';
+                } else {
+                    scrollIndicator.style.display = 'none';
+                }
+            }
+            
+            checkScroll();
+            window.addEventListener('resize', checkScroll);
+        }
+    });
+});
+
+// Funcionalidad para formularios responsive
+document.addEventListener('DOMContentLoaded', function() {
+    const forms = document.querySelectorAll('form');
+    
+    forms.forEach(form => {
+        const inputs = form.querySelectorAll('input, select, textarea');
+        
+        inputs.forEach(input => {
+            // Prevenir zoom en iOS
+            if (input.type === 'text' || input.type === 'email' || input.type === 'password' || input.type === 'search') {
+                input.style.fontSize = '16px';
+            }
+            
+            // Mejorar experiencia táctil
+            input.addEventListener('focus', function() {
+                this.style.transform = 'scale(1.02)';
+            });
+            
+            input.addEventListener('blur', function() {
+                this.style.transform = 'scale(1)';
+            });
+        });
+    });
+});
+
+// Funcionalidad para botones táctiles
+document.addEventListener('DOMContentLoaded', function() {
+    const buttons = document.querySelectorAll('.btn, .action-card, .clickable');
+    
+    buttons.forEach(button => {
+        button.addEventListener('touchstart', function() {
+            this.style.transform = 'scale(0.98)';
+        });
+        
+        button.addEventListener('touchend', function() {
+            this.style.transform = 'scale(1)';
+        });
+    });
+});
+
+// Funcionalidad para lazy loading de imágenes
+document.addEventListener('DOMContentLoaded', function() {
+    const images = document.querySelectorAll('img[data-src]');
+    
+    if ('IntersectionObserver' in window) {
+        const imageObserver = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const img = entry.target;
+                    img.src = img.dataset.src;
+                    img.classList.remove('lazy');
+                    imageObserver.unobserve(img);
+                }
+            });
+        });
+        
+        images.forEach(img => imageObserver.observe(img));
+    } else {
+        // Fallback para navegadores que no soportan IntersectionObserver
+        images.forEach(img => {
+            img.src = img.dataset.src;
+            img.classList.remove('lazy');
+        });
+    }
+});
+
+// Indicador de scroll horizontal para tablas en móvil
+document.addEventListener('DOMContentLoaded', function() {
+    if (window.innerWidth <= 768) {
+        document.querySelectorAll('.table-card table, .report-section table').forEach(function(table) {
+            if (!table.parentElement.querySelector('.table-scroll-indicator')) {
+                var indicator = document.createElement('div');
+                indicator.className = 'table-scroll-indicator';
+                indicator.innerHTML = '<i class="fa-solid fa-arrows-left-right"></i> Desliza para ver más &rarr;';
+                table.parentElement.appendChild(indicator);
+            }
+        });
+    }
+});
+</script>
+
 @stack('scripts')
+
+<!-- Bottom navigation bar para móvil -->
+<nav class="bottom-nav d-none">
+    <a href="/admin/dashboard" class="{{ request()->is('admin/dashboard') ? 'active' : '' }}">
+        <i class="fa-solid fa-gauge"></i>
+        <span>Dashboard</span>
+    </a>
+    <a href="/admin/usuarios" class="{{ request()->is('admin/usuarios') ? 'active' : '' }}">
+        <i class="fa-solid fa-users"></i>
+        <span>Usuarios</span>
+    </a>
+    <a href="/admin/ofertas" class="{{ request()->is('admin/ofertas*') ? 'active' : '' }}">
+        <i class="fa-solid fa-briefcase"></i>
+        <span>Ofertas</span>
+    </a>
+    <a href="/admin/empresas" class="{{ request()->is('admin/empresas*') ? 'active' : '' }}">
+        <i class="fa-solid fa-building"></i>
+        <span>Empresas</span>
+    </a>
+    <a href="/admin/aplicaciones" class="{{ request()->is('admin/aplicaciones*') ? 'active' : '' }}">
+        <i class="fa-solid fa-paper-plane"></i>
+        <span>Aplicaciones</span>
+    </a>
+    <a href="/admin/reportes" class="{{ request()->is('admin/reportes*') ? 'active' : '' }}">
+        <i class="fa-solid fa-file-lines"></i>
+        <span>Reportes</span>
+    </a>
+    <a href="/admin/configuracion" class="{{ request()->is('admin/configuracion*') ? 'active' : '' }}">
+        <i class="fa-solid fa-gear"></i>
+        <span>Config.</span>
+    </a>
+</nav>
+
 </body>
 </html> 
