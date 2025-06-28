@@ -22,6 +22,42 @@
 </div>
 @endif
 
+<!-- Documentos -->
+<div class="mb-3">
+    <label class="form-label">Documentos</label>
+    @if(session('success'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+    
+    <form action="{{ route('empleador.subir-documento') }}" method="POST" enctype="multipart/form-data">
+        @csrf
+        <div class="input-group">
+            <input type="file" name="documento" class="form-control" required>
+            <button type="submit" class="btn btn-primary">Subir</button>
+        </div>
+    </form>
+    
+    <!-- Lista de documentos subidos -->
+    <div class="mt-3">
+        <h6>Documentos subidos:</h6>
+        @if($empleador->documentos && $empleador->documentos->count() > 0)
+            <ul class="list-group">
+                @foreach($empleador->documentos as $doc)
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        {{ $doc->nombre_archivo }}
+                        <button type="button" class="btn btn-sm btn-danger">×</button>
+                    </li>
+                @endforeach
+            </ul>
+        @else
+            <p class="text-muted">No hay documentos subidos</p>
+        @endif
+    </div>
+</div>
+
 <form action="{{ route('empleador.actualizar-perfil') }}" method="POST" enctype="multipart/form-data" id="perfilForm">
     @csrf
 
@@ -45,6 +81,32 @@
                                    required 
                                    maxlength="100">
                             @error('nombre_empresa')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="nit" class="form-label">NIT *</label>
+                            <input type="text" 
+                                   class="form-control @error('nit') is-invalid @enderror" 
+                                   name="nit" 
+                                   id="nit" 
+                                   value="{{ old('nit', $empleador->nit ?? '') }}" 
+                                   required 
+                                   maxlength="20">
+                            @error('nit')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="correo_empresarial" class="form-label">Correo Empresarial *</label>
+                            <input type="email" 
+                                   class="form-control @error('correo_empresarial') is-invalid @enderror" 
+                                   name="correo_empresarial" 
+                                   id="correo_empresarial" 
+                                   value="{{ old('correo_empresarial', $empleador->correo_empresarial ?? '') }}" 
+                                   required 
+                                   maxlength="100">
+                            @error('correo_empresarial')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
@@ -90,7 +152,7 @@
             </div>
 
             <!-- Tarjeta de Contacto -->
-            <div class="card form-section-card">
+            <div class="card form-section-card mt-4">
                 <div class="card-header">
                     Información de Contacto
                 </div>

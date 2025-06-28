@@ -11,6 +11,8 @@ use App\Models\Usuario;
 use App\Models\Empleador;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+use App\Models\DocumentoEmpresa;
 
 class EmpleadorController extends Controller
 {
@@ -342,56 +344,31 @@ class EmpleadorController extends Controller
      */
     public function actualizarPerfil(Request $request)
     {
-        $request->validate([
-            'nombre_empresa' => 'required|string|max:100',
-            'industria' => 'required|string|max:50',
-            'ubicacion' => 'required|string|max:100',
-            'descripcion' => 'nullable|string|max:500',
-            'sitio_web' => 'nullable|url|max:200',
-            'telefono' => 'nullable|string|max:20',
-            'logo' => 'nullable|image|mimes:jpeg,png,jpg|max:5120', // 5MB
-        ]);
+        $empleador = auth()->user()->empleador;
 
-        $usuario = Auth::user();
-        $empleador = $usuario->empleador;
+        // Actualizar datos básicos
+        $empleador->update($request->only([
+            'nombre_empresa',
+            'nit',
+            'correo_empresarial',
+            'direccion_empresa',
+            'telefono_contacto',
+            'sitio_web'
+        ]));
 
-        if (!$empleador) {
-            $empleador = new Empleador();
-            $empleador->usuario_id = $usuario->id_usuario;
-            $empleador->nit = 'TEMP-' . uniqid();
-            $empleador->correo_empresarial = $usuario->correo_electronico;
-            $empleador->direccion_empresa = 'Por definir';
+        // Manejar documento si se subió uno
+        if ($request->hasFile('documento')) {
+            $file = $request->file('documento');
+            $filename = $file->getClientOriginalName();
+            $file->storeAs('documentos', $filename, 'public');
+            
+            $empleador->documentos()->create([
+                'nombre_archivo' => $filename,
+                'ruta_archivo' => 'documentos/' . $filename
+            ]);
         }
 
-        // Actualizar información básica
-        $empleador->nombre_empresa = $request->nombre_empresa;
-        $empleador->sector = $request->industria; 
-        $empleador->ubicacion = $request->ubicacion;
-        $empleador->descripcion = $request->descripcion;
-        $empleador->sitio_web = $request->sitio_web;
-        $empleador->telefono_contacto = $request->telefono;
-
-        // Manejar logo si se subió
-        if ($request->hasFile('logo')) {
-            // Eliminar logo anterior si existe
-            if ($empleador->logo_empresa) {
-                Storage::delete('public/' . $empleador->logo_empresa);
-            }
-
-            // Guardar nuevo logo
-            $path = $request->file('logo')->store('logos', 'public');
-            $empleador->logo_empresa = $path;
-        }
-
-        try {
-            $empleador->save();
-            return redirect()->back()->with('success', 'Perfil actualizado correctamente');
-        } catch (\Exception $e) {
-            \Log::error('Error al actualizar el perfil del empleador: ' . $e->getMessage());
-            return redirect()->back()
-                ->withInput()
-                ->withErrors(['error' => 'Hubo un error al actualizar el perfil. Por favor, intente nuevamente.']);
-        }
+        return redirect()->back()->with('success', 'Perfil actualizado correctamente');
     }
 
     public function actualizarLogo(Request $request)
@@ -504,5 +481,43 @@ class EmpleadorController extends Controller
         ]);
 
         return redirect()->back()->with('success', 'Estado de la aplicación actualizado correctamente');
+    }
+
+    public function subirDocumento(Request $request)
+    {
+        if ($request->hasFile('documento')) {
+            $file = $request->file('documento');
+            $nombreArchivo = time() . '_' . $file->getClientOriginalName();
+            
+            // Guardar el archivo en storage/app/public/documentos
+            $file->move(public_path('documentos'), $nombreArchivo);
+            
+            // Guardar la información en la base de datos
+            DocumentoEmpresa::create([
+                'empleador_id' => auth()->user()->empleador->id,
+                'nombre_archivo' => $nombreArchivo,
+                'ruta_archivo' => 'documentos/' . $nombreArchivo,
+                'tipo_documento' => 'general'
+            ]);
+            
+            return back()->with('success', 'Archivo subido correctamente');
+        }
+        
+        return back()->with('error', 'Por favor selecciona un archivo');
+    }
+
+    public function eliminarDocumento(DocumentoEmpresa $documento)
+    {
+        if ($documento->empleador_id !== auth()->user()->empleador->id) {
+            abort(403);
+        }
+
+        // Delete the file from storage
+        Storage::delete('public/' . $documento->ruta_archivo);
+        
+        // Delete the record
+        $documento->delete();
+
+        return redirect()->back()->with('success', 'Documento eliminado correctamente.');
     }
 } 

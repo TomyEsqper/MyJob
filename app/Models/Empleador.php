@@ -69,4 +69,17 @@ class Empleador extends Model
     {
         return $this->belongsTo(Usuario::class, 'usuario_id', 'id_usuario');
     }
+
+    public function documentos()
+    {
+        return $this->hasMany(DocumentoEmpresa::class);
+    }
+
+    public function estaVerificado()
+    {
+        return $this->documentos()
+            ->whereIn('tipo_documento', ['registro_mercantil', 'rut'])
+            ->where('estado', 'aprobado')
+            ->exists();
+    }
 }

@@ -8,11 +8,11 @@
 <div class="filters-card">
     <h3><i class="fa-solid fa-filter me-2"></i>Filtros Avanzados</h3>
     <form method="GET" action="/admin/empresas" class="row g-3">
-        <div class="col-md-4">
+        <div class="col-lg-4 col-md-6 col-12">
             <label class="form-label">Buscar</label>
             <input type="text" name="q" class="form-control" placeholder="Nombre, correo o ID..." value="{{ request('q') }}">
         </div>
-        <div class="col-md-2">
+        <div class="col-lg-2 col-md-3 col-6">
             <label class="form-label">Estado</label>
             <select name="activo" class="form-select">
                 <option value="">Todos</option>
@@ -20,7 +20,7 @@
                 <option value="0" {{ request('activo') === '0' ? 'selected' : '' }}>Inactiva</option>
             </select>
         </div>
-        <div class="col-md-2">
+        <div class="col-lg-2 col-md-3 col-6">
             <label class="form-label">Verificado</label>
             <select name="verificado" class="form-select">
                 <option value="">Todos</option>
@@ -28,50 +28,52 @@
                 <option value="0" {{ request('verificado') === '0' ? 'selected' : '' }}>No verificado</option>
             </select>
         </div>
-        <div class="col-md-2 d-flex align-items-end">
+        <div class="col-lg-2 col-md-6 col-6 d-flex align-items-end">
             <button type="submit" class="btn btn-success w-100">
-                <i class="fa-solid fa-search me-1"></i> Buscar
+                <i class="fa-solid fa-search me-1"></i> <span class="d-none d-md-inline">Buscar</span>
             </button>
         </div>
     </form>
 </div>
 
 <div class="table-card">
-    <div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center mb-3 gap-3">
         <div>
             <h3><i class="fa-solid fa-building me-2"></i>Listado de Empresas</h3>
             <small class="text-muted">Selecciona empresas para aplicar acciones masivas</small>
         </div>
-        <div class="d-flex align-items-center gap-2">
+        <div class="d-flex flex-wrap align-items-center gap-2">
             <span class="badge bg-success fs-6">{{ $empresas->count() }} empresas encontradas</span>
-            <button class="btn btn-outline-primary btn-sm" onclick="selectAll()">
-                <i class="fa-solid fa-check-double me-1"></i> Seleccionar todas
-            </button>
-            <button class="btn btn-outline-secondary btn-sm" onclick="deselectAll()">
-                <i class="fa-solid fa-times me-1"></i> Deseleccionar
-            </button>
+            <div class="btn-group" role="group">
+                <button class="btn btn-outline-primary btn-sm" onclick="selectAll()">
+                    <i class="fa-solid fa-check-double me-1"></i> <span class="d-none d-sm-inline">Seleccionar todas</span>
+                </button>
+                <button class="btn btn-outline-secondary btn-sm" onclick="deselectAll()">
+                    <i class="fa-solid fa-times me-1"></i> <span class="d-none d-sm-inline">Deseleccionar</span>
+                </button>
+            </div>
         </div>
     </div>
 
     <!-- Bulk Actions -->
     <div id="bulkActions" class="alert alert-info mb-3" style="display: none;">
-        <div class="d-flex justify-content-between align-items-center">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
             <div>
                 <i class="fa-solid fa-building me-2"></i>
                 <span id="selectedCount">0</span> empresas seleccionadas
             </div>
-            <div class="btn-group">
+            <div class="btn-group flex-wrap" role="group">
                 <button class="btn btn-success btn-sm" onclick="bulkAction('activar')">
-                    <i class="fa-solid fa-check me-1"></i> Activar
+                    <i class="fa-solid fa-check me-1"></i> <span class="d-none d-sm-inline">Activar</span>
                 </button>
                 <button class="btn btn-warning btn-sm" onclick="bulkAction('desactivar')">
-                    <i class="fa-solid fa-ban me-1"></i> Desactivar
+                    <i class="fa-solid fa-ban me-1"></i> <span class="d-none d-sm-inline">Desactivar</span>
                 </button>
                 <button class="btn btn-info btn-sm" onclick="bulkAction('verificar')">
-                    <i class="fa-solid fa-building-circle-check me-1"></i> Verificar
+                    <i class="fa-solid fa-building-circle-check me-1"></i> <span class="d-none d-sm-inline">Verificar</span>
                 </button>
                 <button class="btn btn-danger btn-sm" onclick="bulkAction('eliminar')">
-                    <i class="fa-solid fa-trash me-1"></i> Eliminar
+                    <i class="fa-solid fa-trash me-1"></i> <span class="d-none d-sm-inline">Eliminar</span>
                 </button>
             </div>
         </div>
@@ -84,11 +86,11 @@
                     <th width="50">
                         <input type="checkbox" id="selectAllCheckbox" class="form-check-input">
                     </th>
-                    <th>ID</th>
+                    <th class="d-none d-md-table-cell">ID</th>
                     <th>Empresa</th>
-                    <th>Correo</th>
+                    <th class="d-none d-lg-table-cell">Correo</th>
                     <th>Estado</th>
-                    <th>Fecha Registro</th>
+                    <th class="d-none d-md-table-cell">Fecha Registro</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
@@ -98,7 +100,7 @@
                         <td>
                             <input type="checkbox" class="form-check-input empresa-checkbox" value="{{ $empresa->id_usuario }}">
                         </td>
-                        <td>{{ $empresa->id_usuario }}</td>
+                        <td class="d-none d-md-table-cell">{{ $empresa->id_usuario }}</td>
                         <td>
                             <div class="d-flex align-items-center">
                                 <div class="company-logo me-2">
@@ -110,17 +112,20 @@
                                         </div>
                                     @endif
                                 </div>
-                                <div>
+                                <div class="flex-grow-1">
                                     <div class="fw-bold">{{ $empresa->nombre_usuario }}</div>
+                                    <div class="small text-muted d-md-none">
+                                        {{ Str::limit($empresa->correo_electronico, 25) }}
+                                    </div>
                                     <div class="small text-muted">
                                         @if($empresa->verificado)
-                                            <span class="badge bg-info"><i class="fa-solid fa-check me-1"></i>Verificado</span>
+                                            <span class="badge bg-info"><i class="fa-solid fa-check me-1"></i><span class="d-none d-sm-inline">Verificado</span></span>
                                         @endif
                                     </div>
                                 </div>
                             </div>
                         </td>
-                        <td>{{ $empresa->correo_electronico }}</td>
+                        <td class="d-none d-lg-table-cell">{{ $empresa->correo_electronico }}</td>
                         <td>
                             @if($empresa->activo)
                                 <span class="status-badge status-activa">Activa</span>
@@ -128,14 +133,17 @@
                                 <span class="status-badge status-inactiva">Inactiva</span>
                             @endif
                         </td>
-                        <td>{{ $empresa->created_at->format('d/m/Y') }}</td>
+                        <td class="d-none d-md-table-cell">{{ $empresa->created_at->format('d/m/Y') }}</td>
                         <td>
-                            <div class="btn-group">
-                                <button class="btn btn-danger btn-action" onclick="eliminarEmpresa({{ $empresa->id_usuario }})" title="Eliminar empresa">
-                                    <i class="fa-solid fa-trash"></i>
-                                </button>
+                            <div class="btn-group btn-group-sm" role="group">
+                                <a href="/admin/empresas/{{ $empresa->id_usuario }}/perfil" class="btn btn-primary btn-action" title="Ver perfil completo">
+                                    <i class="fa-solid fa-eye"></i>
+                                </a>
                                 <button class="btn btn-info btn-action" onclick="verificarEmpresa({{ $empresa->id_usuario }})" title="Verificar empresa">
                                     <i class="fa-solid fa-building-circle-check"></i>
+                                </button>
+                                <button class="btn btn-danger btn-action" onclick="eliminarEmpresa({{ $empresa->id_usuario }})" title="Eliminar empresa">
+                                    <i class="fa-solid fa-trash"></i>
                                 </button>
                             </div>
                         </td>
@@ -152,6 +160,12 @@
             </tbody>
         </table>
     </div>
+    
+    @if($empresas->hasPages())
+        <div class="d-flex justify-content-center mt-4">
+            {{ $empresas->appends(request()->query())->links() }}
+        </div>
+    @endif
 </div>
 @endsection
 
