@@ -347,14 +347,17 @@ class EmpleadorController extends Controller
     {
         $empleador = auth()->user()->empleador;
 
-        // Actualizar datos básicos
+        // Actualizar datos básicos, incluyendo sector, ubicacion y descripcion
         $empleador->update($request->only([
             'nombre_empresa',
             'nit',
             'correo_empresarial',
             'direccion_empresa',
             'telefono_contacto',
-            'sitio_web'
+            'sitio_web',
+            'sector', // <- industria en el formulario
+            'ubicacion',
+            'descripcion'
         ]));
 
         // Manejar documento si se subió uno
@@ -367,6 +370,17 @@ class EmpleadorController extends Controller
                 'nombre_archivo' => $filename,
                 'ruta_archivo' => 'documentos/' . $filename
             ]);
+        }
+
+        // Manejar logo si se subió uno
+        if ($request->hasFile('logo')) {
+            // Eliminar logo anterior si existe
+            if ($empleador->logo_empresa) {
+                \Storage::delete('public/' . $empleador->logo_empresa);
+            }
+            $path = $request->file('logo')->store('public/logos');
+            $empleador->logo_empresa = str_replace('public/', '', $path);
+            $empleador->save();
         }
 
         return redirect()->back()->with('success', 'Perfil actualizado correctamente');
@@ -555,4 +569,4 @@ class EmpleadorController extends Controller
         })->with(['aplicacion.oferta', 'aplicacion.empleado'])->orderBy('fecha_hora')->get();
         return view('empleador.agenda', compact('entrevistas'));
     }
-} 
+}

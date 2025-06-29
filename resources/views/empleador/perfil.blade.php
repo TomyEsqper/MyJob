@@ -25,12 +25,6 @@
 <!-- Documentos -->
 <div class="mb-3">
     <label class="form-label">Documentos</label>
-    @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            {{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    @endif
     
     <form action="{{ route('empleador.subir-documento') }}" method="POST" enctype="multipart/form-data">
         @csrf
@@ -111,15 +105,15 @@
                             @enderror
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label for="industria" class="form-label">Industria *</label>
+                            <label for="sector" class="form-label">Industria *</label>
                             <input type="text" 
-                                   class="form-control @error('industria') is-invalid @enderror" 
-                                   name="industria" 
-                                   id="industria" 
-                                   value="{{ old('industria', $empleador->sector ?? '') }}" 
+                                   class="form-control @error('sector') is-invalid @enderror" 
+                                   name="sector" 
+                                   id="sector" 
+                                   value="{{ old('sector', $empleador->sector ?? '') }}" 
                                    required 
                                    maxlength="50">
-                            @error('industria')
+                            @error('sector')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
@@ -172,15 +166,15 @@
                             @enderror
                         </div>
                         <div class="col-md-6 mb-3">
-                             <label for="telefono" class="form-label">Teléfono</label>
+                             <label for="telefono_contacto" class="form-label">Teléfono</label>
                              <input type="tel" 
-                                    class="form-control @error('telefono') is-invalid @enderror" 
-                                    name="telefono" 
-                                    id="telefono" 
-                                    value="{{ old('telefono', $empleador->telefono_contacto ?? '') }}" 
+                                    class="form-control @error('telefono_contacto') is-invalid @enderror" 
+                                    name="telefono_contacto" 
+                                    id="telefono_contacto" 
+                                    value="{{ old('telefono_contacto', $empleador->telefono_contacto ?? '') }}" 
                                     placeholder="Ej: +34 123 456 789" 
                                     maxlength="20">
-                            @error('telefono')
+                            @error('telefono_contacto')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
