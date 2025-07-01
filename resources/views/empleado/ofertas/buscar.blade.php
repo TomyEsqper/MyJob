@@ -81,13 +81,12 @@
                     <div class="col-12 col-md-6 col-lg-4">
                         <div class="resultado-oferta-card">
                             <div class="d-flex align-items-start mb-3">
-                                <div class="company-logo-empleado flex-shrink-0 me-3">
+                                {{-- Eliminar logo de empresa --}}
+                                {{-- <div class="company-logo-empleado flex-shrink-0 me-3">
                                     @if($oferta->empleador && $oferta->empleador->logo_empresa)
                                         <img src="{{ $oferta->empleador->logo_empresa }}" alt="Logo" class="img-fluid rounded-circle" style="width: 100%; height: 100%; object-fit: cover;">
-                                    @else
-                                        <i class="fas fa-building"></i>
                                     @endif
-                                </div>
+                                </div> --}}
                                 <div class="flex-grow-1">
                                     <h5>{{ $oferta->titulo }}</h5>
                                     <div class="d-flex align-items-center gap-3 mb-2">
@@ -129,7 +128,7 @@
                                     <div class="col-12">
                                         <div class="d-flex align-items-center text-muted">
                                             <i class="fas fa-dollar-sign me-2"></i>
-                                            <small>{{ $oferta->salario }}</small>
+                                            <small>COP ${{ number_format($oferta->salario, 0, ',', '.') }}</small>
                                         </div>
                                     </div>
                                     @endif

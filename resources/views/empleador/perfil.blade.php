@@ -6,20 +6,25 @@
 @section('content')
 
 @if (session('success'))
-<div class="alert alert-success alert-dismissible fade show" role="alert">
-    {{ session('success') }}
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-</div>
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        {{ session('success') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
 @endif
-
+@if (session('error'))
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        {{ session('error') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+@endif
 @if ($errors->any())
-<div class="alert alert-danger">
-    <ul class="mb-0">
-        @foreach ($errors->all() as $error)
-            <li>{{ $error }}</li>
-        @endforeach
-    </ul>
-</div>
+    <div class="alert alert-danger">
+        <ul class="mb-0">
+            @foreach ($errors->all() as $error)
+                <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
 @endif
 
 <!-- Documentos -->
@@ -47,8 +52,14 @@
             <ul class="list-group">
                 @foreach($empleador->documentos as $doc)
                     <li class="list-group-item d-flex justify-content-between align-items-center">
-                        {{ $doc->nombre_archivo }}
-                        <button type="button" class="btn btn-sm btn-danger">×</button>
+                        <a href="{{ asset($doc->ruta_archivo) }}" target="_blank" rel="noopener noreferrer">
+                            {{ $doc->nombre_archivo }}
+                        </a>
+                        <form action="{{ route('empleador.eliminar-documento', $doc) }}" method="POST" style="display:inline;">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-sm btn-danger">×</button>
+                        </form>
                     </li>
                 @endforeach
             </ul>
@@ -191,50 +202,36 @@
 
         <!-- Columna de Logo -->
         <div class="col-lg-4">
+            <!-- Foto de Perfil -->
             <div class="card form-section-card">
                 <div class="card-header">
-                    Logo de la Empresa
+                    Foto de Perfil
                 </div>
                 <div class="card-body text-center">
-                    <div class="logo-preview-container mb-3">
-                        @if ($empleador && $empleador->logo_empresa)
-                            <img src="{{ asset('storage/' . $empleador->logo_empresa) }}" 
-                                 alt="Logo actual" 
-                                 class="img-fluid rounded-circle preview-image" 
-                                 style="width: 150px; height: 150px; object-fit: cover;">
-                        @else
-                            <div class="bg-secondary rounded-circle preview-image mx-auto d-flex justify-content-center align-items-center" 
-                                 style="width: 150px; height: 150px;">
-                                <i class="fas fa-building fa-3x text-white"></i>
+                    @php
+                        $user = Auth::user();
+                        $foto = $user->foto_perfil;
+                        if ($foto) {
+                            $src = filter_var($foto, FILTER_VALIDATE_URL) ? $foto : asset('storage/' . $foto);
+                        } else {
+                            $src = asset('images/user-default.svg');
+                        }
+                    @endphp
+                    <img id="previewFotoPerfil" src="{{ $src }}" alt="Foto de Perfil" class="rounded-circle mb-3" style="width: 120px; height: 120px; object-fit: cover;">
+                    @if($user->google_id)
+                        <div class="alert alert-info mt-3">
+                            Si tu cuenta está vinculada con Google, solo puedes cambiar tu foto de perfil desde tu cuenta de Google.<br>
+                            <small>La imagen se actualizará automáticamente aquí cuando la cambies en Google.</small>
+                        </div>
+                    @else
+                        <form action="{{ route('empleador.actualizar-foto-perfil') }}" method="POST" enctype="multipart/form-data">
+                            @csrf
+                            <div class="mb-3">
+                                <input type="file" class="form-control" name="foto_perfil" id="foto_perfil" accept=".jpg,.jpeg,.png" onchange="previewFotoPerfil(this);" required>
                             </div>
-                        @endif
-                    </div>
-
-                    <div class="logo-upload-container">
-                        <label for="logo" class="btn btn-outline-primary mb-2">
-                            <i class="fas fa-upload me-2"></i>Seleccionar Logo
-                        </label>
-                        <input type="file" 
-                               class="form-control d-none @error('logo') is-invalid @enderror" 
-                               name="logo" 
-                               id="logo" 
-                               accept=".jpg,.jpeg,.png"
-                               onchange="previewImage(this);">
-                        
-                        <div class="selected-file-name text-muted small mt-2" style="display: none;">
-                            Archivo seleccionado: <span></span>
-                        </div>
-                        
-                        <div class="form-text text-start">
-                            <small class="d-block mb-1"><i class="fas fa-info-circle me-1"></i>Formatos permitidos: JPG, PNG</small>
-                            <small class="d-block mb-1"><i class="fas fa-info-circle me-1"></i>Tamaño máximo: 5MB</small>
-                            <small class="d-block"><i class="fas fa-info-circle me-1"></i>Dimensión recomendada: 400x400px</small>
-                        </div>
-
-                        @error('logo')
-                            <div class="invalid-feedback d-block">{{ $message }}</div>
-                        @enderror
-                    </div>
+                            <button type="submit" class="btn btn-primary">Actualizar Foto de Perfil</button>
+                        </form>
+                    @endif
                 </div>
             </div>
         </div>
@@ -275,61 +272,16 @@
 
 @push('scripts')
 <script>
-function previewImage(input) {
-    const container = document.querySelector('.logo-preview-container');
-    const fileNameContainer = document.querySelector('.selected-file-name');
-    const fileNameSpan = fileNameContainer.querySelector('span');
-    
+function previewFotoPerfil(input) {
+    const preview = document.getElementById('previewFotoPerfil');
     if (input.files && input.files[0]) {
         const reader = new FileReader();
-        
         reader.onload = function(e) {
-            // Actualizar la previsualización
-            let preview = container.querySelector('.preview-image');
-            if (preview.tagName === 'DIV') {
-                // Si es el placeholder, reemplazarlo con una imagen
-                const img = document.createElement('img');
-                img.className = 'img-fluid rounded-circle preview-image';
-                img.style.width = '150px';
-                img.style.height = '150px';
-                img.style.objectFit = 'cover';
-                container.replaceChild(img, preview);
-                preview = img;
-            }
             preview.src = e.target.result;
-            
-            // Mostrar el nombre del archivo
-            fileNameSpan.textContent = input.files[0].name;
-            fileNameContainer.style.display = 'block';
         };
-        
         reader.readAsDataURL(input.files[0]);
-    } else {
-        // Si no hay archivo seleccionado, ocultar el nombre
-        fileNameContainer.style.display = 'none';
     }
 }
-
-// Validación del tamaño y tipo de archivo antes de la carga
-document.getElementById('logo').addEventListener('change', function(e) {
-    const file = e.target.files[0];
-    const maxSize = 5 * 1024 * 1024; // 5MB
-    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-    
-    if (file) {
-        if (file.size > maxSize) {
-            alert('El archivo es demasiado grande. El tamaño máximo permitido es 5MB.');
-            this.value = '';
-            return;
-        }
-        
-        if (!allowedTypes.includes(file.type)) {
-            alert('Tipo de archivo no permitido. Por favor, seleccione una imagen JPG o PNG.');
-            this.value = '';
-            return;
-        }
-    }
-});
 </script>
 @endpush
 

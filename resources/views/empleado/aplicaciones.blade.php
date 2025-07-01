@@ -51,21 +51,25 @@
     <div class="card-body-empleado">
         @forelse($aplicaciones as $aplicacion)
             <div class="job-card-empleado">
-                <div class="company-logo-empleado">
+                {{-- Eliminar logo de empresa --}}
+                {{-- <div class="company-logo-empleado">
                     @if($aplicacion->oferta->empleador->empleador && $aplicacion->oferta->empleador->empleador->logo_empresa)
                         <img src="{{ asset($aplicacion->oferta->empleador->empleador->logo_empresa) }}" alt="Logo" class="rounded" width="40" height="40">
-                    @else
-                        <i class="fas fa-building"></i>
                     @endif
-                </div>
+                </div> --}}
                 <div class="job-info-empleado">
                     <h4>{{ $aplicacion->oferta->titulo }}</h4>
                     <p>{{ $aplicacion->oferta->empleador->nombre_usuario }} • {{ $aplicacion->oferta->ubicacion }} • {{ $aplicacion->created_at->diffForHumans() }}</p>
+                    @if($aplicacion->estado === 'aceptada')
+                        <div class="alert alert-success py-2 px-3 mt-2 mb-0" style="font-weight:600; border-radius: 8px; font-size:1rem;">
+                            ¡Fuiste aceptado! La empresa podría contactarte pronto para una entrevista.
+                        </div>
+                    @endif
                 </div>
                 <div class="job-actions-empleado">
                     @switch($aplicacion->estado)
                         @case('aceptada')
-                            <span class="badge bg-success">Entrevista</span>
+                            <span class="badge bg-success">Aceptada</span>
                             @break
                         @case('revisada')
                             <span class="badge bg-warning text-dark">En Revisión</span>
@@ -79,6 +83,13 @@
                     <a href="{{ route('empleado.ofertas.show', $aplicacion->oferta) }}" class="btn btn-sm btn-outline-primary ms-2">
                         <i class="fas fa-eye"></i> Ver Oferta
                     </a>
+                    <form action="{{ route('empleado.desaplicar', $aplicacion->oferta) }}" method="POST" class="d-inline ms-2" onsubmit="return confirm('¿Estás seguro de que deseas retirar tu postulación?');">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-danger btn-sm">
+                            <i class="fas fa-times me-1"></i> Retirar
+                        </button>
+                    </form>
                 </div>
             </div>
         @empty

@@ -99,6 +99,7 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/perfil/idioma/{id}', [EmpleadoController::class, 'destroyIdioma'])->name('perfil.idioma.destroy');
 
         Route::get('/agenda', [EmpleadoController::class, 'agendaEntrevistas'])->name('agenda');
+        Route::delete('/aplicaciones/{oferta}', [EmpleadoController::class, 'desaplicar'])->name('desaplicar');
     });
 });
 
@@ -119,6 +120,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/actualizar-avatar', [EmpleadorController::class, 'actualizarAvatar'])->name('actualizar-avatar');
         Route::post('/actualizar-logo', [EmpleadorController::class, 'actualizarLogo'])->name('actualizar-logo');
         Route::post('/actualizar-beneficios', [EmpleadorController::class, 'actualizarBeneficios'])->name('actualizar-beneficios');
+        Route::post('/actualizar-foto-perfil', [\App\Http\Controllers\EmpleadorController::class, 'actualizarFotoPerfil'])->name('actualizar-foto-perfil');
 
         // Rutas de candidatos
         Route::get('/candidatos', [EmpleadorController::class, 'candidatos'])->name('candidatos');

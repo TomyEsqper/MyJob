@@ -144,12 +144,10 @@
                         <div class="d-flex align-items-center mb-2">
                             <i class="fas fa-money-bill-wave text-success me-2"></i>
                             <span>
-                                @if($oferta->salario && $oferta->salario_max)
-                                    {{ number_format($oferta->salario, 2) }}€ - {{ number_format($oferta->salario_max, 2) }}€
-                                @elseif($oferta->salario)
-                                    {{ number_format($oferta->salario, 2) }}€
+                                @if($oferta->salario_max)
+                                    COP ${{ number_format($oferta->salario, 0, ',', '.') }} - COP ${{ number_format($oferta->salario_max, 0, ',', '.') }}
                                 @else
-                                    Salario no especificado
+                                    COP ${{ number_format($oferta->salario, 0, ',', '.') }}
                                 @endif
                             </span>
                         </div>

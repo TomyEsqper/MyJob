@@ -66,7 +66,7 @@
                             <div class="text-center p-3 bg-light rounded">
                                 <i class="fa-solid fa-dollar-sign fa-2x text-warning mb-2"></i>
                                 <h6 class="mb-1">Salario</h6>
-                                <p class="mb-0 text-muted">${{ number_format($oferta->salario, 0, ',', '.') }} COP</p>
+                                <p class="mb-0 text-muted">COP ${{ number_format($oferta->salario, 0, ',', '.') }}</p>
                             </div>
                         </div>
                         <div class="col-md-3">

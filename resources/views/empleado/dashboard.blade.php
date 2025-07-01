@@ -115,13 +115,12 @@ document.querySelectorAll('.stat-card-empleado').forEach(function(card, idx) {
             <div class="job-card-empleado p-4 border-bottom position-relative">
                 <div class="row align-items-center">
                     <div class="col-auto">
-                        <div class="company-logo bg-light rounded-circle p-3 d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                        {{-- Eliminar logo de empresa --}}
+                        {{-- <div class="company-logo bg-light rounded-circle p-3 d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
                             @if($oferta->empleador && $oferta->empleador->logo_empresa)
                                 <img src="{{ $oferta->empleador->logo_empresa }}" alt="Logo" class="img-fluid rounded-circle" style="max-width: 60px; max-height: 60px;">
-                            @else
-                                <i class="fas fa-building text-primary" style="font-size: 2rem;"></i>
                             @endif
-                        </div>
+                        </div> --}}
                     </div>
                     <div class="col">
                         <div class="job-info">
@@ -141,7 +140,7 @@ document.querySelectorAll('.stat-card-empleado').forEach(function(card, idx) {
                                 </span>
                                 <span class="text-muted small">
                                     <i class="fas fa-money-bill-wave me-1 text-secondary"></i>
-                                    ${{ number_format($oferta->salario_minimo) }} - ${{ number_format($oferta->salario_maximo) }}
+                                    COP ${{ number_format($oferta->salario_minimo, 0, ',', '.') }} - COP ${{ number_format($oferta->salario_maximo, 0, ',', '.') }}
                                 </span>
                             </div>
                         </div>
@@ -156,9 +155,13 @@ document.querySelectorAll('.stat-card-empleado').forEach(function(card, idx) {
                                 $yaAplicado = Auth::user()->aplicaciones()->where('oferta_id', $oferta->id)->exists();
                             @endphp
                             @if($yaAplicado)
-                                <button class="btn btn-secondary btn-sm" disabled>
-                                    <i class="fas fa-check me-1"></i> Aplicado
-                                </button>
+                                <form action="{{ route('empleado.desaplicar', $oferta) }}" method="POST" class="d-inline" onsubmit="return confirm('¿Estás seguro de que deseas retirar tu postulación?');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-danger btn-sm">
+                                        <i class="fas fa-times me-1"></i> Retirar Postulación
+                                    </button>
+                                </form>
                             @else
                                 <form action="{{ route('empleado.aplicar', $oferta) }}" method="POST" class="d-inline">
                                     @csrf

@@ -345,27 +345,75 @@ class EmpleadorController extends Controller
      */
     public function actualizarPerfil(Request $request)
     {
-        $empleador = auth()->user()->empleador;
+        $request->validate([
+            'nombre_empresa' => 'required|string|max:100',
+            'nit' => 'required|string|max:20',
+            'correo_empresarial' => 'required|email|max:100',
+            'industria' => 'required|string|max:50',
+            'ubicacion' => 'required|string|max:100',
+            'descripcion' => 'nullable|string|max:500',
+            'sitio_web' => 'nullable|url|max:200',
+            'telefono' => 'nullable|string|max:20',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg|max:5120'
+        ]);
 
-        // Actualizar datos básicos
-        $empleador->update($request->only([
-            'nombre_empresa',
-            'nit',
-            'correo_empresarial',
-            'direccion_empresa',
-            'telefono_contacto',
-            'sitio_web'
-        ]));
+        $usuario = auth()->user();
+        $empleador = $usuario->empleador;
+
+        // Si no existe el empleador, crearlo
+        if (!$empleador) {
+            $empleador = Empleador::create([
+                'usuario_id' => $usuario->id_usuario,
+                'nombre_empresa' => $request->nombre_empresa,
+                'nit' => $request->nit,
+                'correo_empresarial' => $request->correo_empresarial,
+                'sector' => $request->industria,
+                'ubicacion' => $request->ubicacion,
+                'descripcion' => $request->descripcion,
+                'sitio_web' => $request->sitio_web,
+                'telefono_contacto' => $request->telefono,
+                'direccion_empresa' => $request->ubicacion
+            ]);
+        } else {
+            // Actualizar datos básicos
+            $empleador->update([
+                'nombre_empresa' => $request->nombre_empresa,
+                'nit' => $request->nit,
+                'correo_empresarial' => $request->correo_empresarial,
+                'sector' => $request->industria,
+                'ubicacion' => $request->ubicacion,
+                'descripcion' => $request->descripcion,
+                'sitio_web' => $request->sitio_web,
+                'telefono_contacto' => $request->telefono,
+                'direccion_empresa' => $request->ubicacion
+            ]);
+        }
+
+        // Manejar logo si se subió uno
+        if ($request->hasFile('logo')) {
+            // Eliminar logo anterior si existe
+            if ($empleador->logo_empresa) {
+                Storage::delete('public/' . $empleador->logo_empresa);
+            }
+
+            // Guardar nuevo logo
+            $path = $request->file('logo')->store('public/logos');
+            $empleador->logo_empresa = str_replace('public/', '', $path);
+            $empleador->save();
+        }
 
         // Manejar documento si se subió uno
         if ($request->hasFile('documento')) {
             $file = $request->file('documento');
-            $filename = $file->getClientOriginalName();
-            $file->storeAs('documentos', $filename, 'public');
+            $nombreArchivo = time() . '_' . $file->getClientOriginalName();
+            
+            // Guardar el archivo
+            $file->move(public_path('documentos'), $nombreArchivo);
             
             $empleador->documentos()->create([
-                'nombre_archivo' => $filename,
-                'ruta_archivo' => 'documentos/' . $filename
+                'nombre_archivo' => $nombreArchivo,
+                'ruta_archivo' => 'documentos/' . $nombreArchivo,
+                'tipo_documento' => 'general'
             ]);
         }
 
@@ -375,19 +423,27 @@ class EmpleadorController extends Controller
     public function actualizarLogo(Request $request)
     {
         $request->validate([
-            'logo' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048'
+            'logo' => 'required|image|mimes:jpeg,png,jpg|max:5120' // 5MB
         ]);
 
-        $empleador = Auth::user()->empleador;
+        $usuario = Auth::user();
+        $empleador = $usuario->empleador;
 
+        // Si no existe el empleador, crearlo
         if (!$empleador) {
-             return redirect()->back()->with('error', 'No se encontró información del empleador');
+            $empleador = \App\Models\Empleador::create([
+                'usuario_id' => $usuario->id_usuario,
+                'nombre_empresa' => 'Empresa por definir',
+                'nit' => 'TEMP-' . uniqid(),
+                'correo_empresarial' => $usuario->correo_electronico,
+                'direccion_empresa' => 'Por definir'
+            ]);
         }
 
         if ($request->hasFile('logo')) {
             // Eliminar logo anterior si existe
             if ($empleador->logo_empresa) {
-                Storage::delete('public/logos/' . basename($empleador->logo_empresa));
+                \Storage::delete('public/' . $empleador->logo_empresa);
             }
 
             // Guardar nuevo logo
@@ -486,7 +542,25 @@ class EmpleadorController extends Controller
 
     public function subirDocumento(Request $request)
     {
+        $request->validate([
+            'documento' => 'required|file|max:10240' // 10MB máximo
+        ]);
+
         if ($request->hasFile('documento')) {
+            $usuario = auth()->user();
+            $empleador = $usuario->empleador;
+
+            // Si no existe el empleador, crear uno básico
+            if (!$empleador) {
+                $empleador = Empleador::create([
+                    'usuario_id' => $usuario->id_usuario,
+                    'nombre_empresa' => 'Empresa por definir',
+                    'nit' => 'TEMP-' . uniqid(),
+                    'correo_empresarial' => $usuario->correo_electronico,
+                    'direccion_empresa' => 'Por definir'
+                ]);
+            }
+
             $file = $request->file('documento');
             $nombreArchivo = time() . '_' . $file->getClientOriginalName();
             
@@ -495,7 +569,7 @@ class EmpleadorController extends Controller
             
             // Guardar la información en la base de datos
             DocumentoEmpresa::create([
-                'empleador_id' => auth()->user()->empleador->id,
+                'empleador_id' => $empleador->id,
                 'nombre_archivo' => $nombreArchivo,
                 'ruta_archivo' => 'documentos/' . $nombreArchivo,
                 'tipo_documento' => 'general'
@@ -554,5 +628,26 @@ class EmpleadorController extends Controller
             $q->whereIn('oferta_id', $ofertasIds);
         })->with(['aplicacion.oferta', 'aplicacion.empleado'])->orderBy('fecha_hora')->get();
         return view('empleador.agenda', compact('entrevistas'));
+    }
+
+    public function actualizarFotoPerfil(Request $request)
+    {
+        $request->validate([
+            'foto_perfil' => 'required|image|mimes:jpeg,png,jpg|max:5120' // 5MB
+        ]);
+
+        $usuario = Auth::user();
+
+        // Eliminar foto anterior si es local (no URL de Google)
+        if ($usuario->foto_perfil && !filter_var($usuario->foto_perfil, FILTER_VALIDATE_URL)) {
+            \Storage::delete('public/' . $usuario->foto_perfil);
+        }
+
+        // Guardar nueva foto
+        $path = $request->file('foto_perfil')->store('public/avatars');
+        $usuario->foto_perfil = str_replace('public/', '', $path);
+        $usuario->save();
+
+        return redirect()->back()->with('success', 'Foto de perfil actualizada correctamente');
     }
 } 

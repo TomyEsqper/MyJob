@@ -1037,4 +1037,20 @@ class EmpleadoController extends Controller
         })->with(['aplicacion.oferta.empleador.empleador'])->orderBy('fecha_hora')->get();
         return view('empleado.agenda', compact('entrevistas'));
     }
+
+    /**
+     * Permite al empleado retirar su postulación a una oferta.
+     */
+    public function desaplicar($ofertaId)
+    {
+        $user = auth()->user();
+        $aplicacion = \App\Models\Aplicacion::where('empleado_id', $user->id_usuario)
+            ->where('oferta_id', $ofertaId)
+            ->first();
+        if (!$aplicacion) {
+            return back()->with('error', 'No se encontró la postulación para retirar.');
+        }
+        $aplicacion->delete();
+        return back()->with('success', 'Has retirado tu postulación de la oferta.');
+    }
 }

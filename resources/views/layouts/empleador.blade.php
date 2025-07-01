@@ -23,7 +23,16 @@
         </button>
         <aside class="sidebar-empleador" id="sidebarEmpleador">
             <div class="logo-box d-flex align-items-center p-3 mb-4">
-                <img src="{{ asset('images/logo.png') }}" alt="Logo" height="50">
+                @php
+                    $user = Auth::user();
+                    $empleador = $user?->empleador;
+                    $logoPath = $empleador && $empleador->logo_empresa ? public_path('storage/' . $empleador->logo_empresa) : null;
+                @endphp
+                @if ($empleador && $empleador->logo_empresa && $logoPath && file_exists($logoPath))
+                    <img src="{{ asset('storage/' . $empleador->logo_empresa) }}" alt="Logo empresa" height="50" style="object-fit:cover; border-radius:10px;">
+                @else
+                    <img src="{{ asset('images/logo_empresa_default.png') }}" alt="Logo empresa" height="50" style="object-fit:cover; border-radius:10px;">
+                @endif
             </div>
             <ul class="nav flex-column">
                 <li class="nav-item">
@@ -97,19 +106,16 @@
                                     $user = Auth::user();
                                     $empleador = $user->empleador;
                                     $imageSrc = null;
-
-                                    // Prioridad 1: Logo de la empresa
-                                    if ($empleador && $empleador->logo_empresa) {
+                                    if ($empleador && $empleador->logo_empresa && $logoPath && file_exists($logoPath)) {
                                         $imageSrc = asset('storage/' . $empleador->logo_empresa);
-                                    }
-                                    // Prioridad 2: Foto de perfil de Google
-                                    elseif ($user->foto_perfil) {
-                                        // Verificar si es una URL completa o una ruta guardada
+                                    } elseif ($user && $user->foto_perfil) {
                                         if (filter_var($user->foto_perfil, FILTER_VALIDATE_URL)) {
                                             $imageSrc = $user->foto_perfil;
                                         } else {
                                             $imageSrc = asset('storage/' . $user->foto_perfil);
                                         }
+                                    } else {
+                                        $imageSrc = asset('images/logo_empresa_default.png');
                                     }
                                 @endphp
 

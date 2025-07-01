@@ -197,6 +197,11 @@
       </div>
     </div>
     @endif
+    @if($aplicacion->estado != 'aceptada')
+        <div class="alert alert-info mt-2 mb-0 p-2 small">
+            Debes aceptar al candidato antes de poder agendar una entrevista.
+        </div>
+    @endif
 @endforeach
 
 @endsection 

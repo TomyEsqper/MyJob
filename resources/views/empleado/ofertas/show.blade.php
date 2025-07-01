@@ -14,11 +14,10 @@
                 <div class="col-lg-8">
                     <div class="d-flex align-items-center gap-3 mb-4 p-3 rounded-4 bg-white shadow-sm" style="border: 1.5px solid #e6f4ea;">
                         <div class="d-flex align-items-center justify-content-center bg-success bg-opacity-10 rounded-circle me-3" style="width: 56px; height: 56px; overflow: hidden;">
-                            @if(isset($oferta->empleador->empleador->logo_empresa) && $oferta->empleador->empleador->logo_empresa)
+                            {{-- Eliminar logo de empresa --}}
+                            {{-- @if(isset($oferta->empleador->empleador->logo_empresa) && $oferta->empleador->empleador->logo_empresa)
                                 <img src="{{ $oferta->empleador->empleador->logo_empresa }}" alt="Logo Empresa" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
-                            @else
-                                <i class="fas fa-building fa-2x text-success"></i>
-                            @endif
+                            @endif --}}
                         </div>
                         <div>
                             <h2 class="mb-1" style="font-weight: 800; color: #219150; letter-spacing: 1px;">{{ $oferta->titulo }}</h2>
@@ -74,9 +73,15 @@
                                     <i class="fas fa-money-bill-wave text-warning me-2"></i>
                                     <strong>Salario:</strong>
                                     @if(isset($oferta->salario_minimo) && isset($oferta->salario_maximo) && ($oferta->salario_minimo > 0 || $oferta->salario_maximo > 0))
-                                        ${{ number_format($oferta->salario_minimo) }} - ${{ number_format($oferta->salario_maximo) }}
+                                        <span class="text-muted">
+                                            <i class="fas fa-money-bill-wave me-1"></i>
+                                            COP ${{ number_format($oferta->salario_minimo, 0, ',', '.') }} - COP ${{ number_format($oferta->salario_maximo, 0, ',', '.') }}
+                                        </span>
                                     @elseif(isset($oferta->salario) && $oferta->salario > 0)
-                                        ${{ number_format($oferta->salario) }}
+                                        <span class="text-muted">
+                                            <i class="fas fa-money-bill-wave me-1"></i>
+                                            COP ${{ number_format($oferta->salario, 0, ',', '.') }}
+                                        </span>
                                     @else
                                         No especificado
                                     @endif
@@ -87,17 +92,21 @@
                                 </li>
                             </ul>
                             <div class="d-grid gap-2">
-                                @if(!$yaAplicado)
-                                <form action="{{ route('empleado.aplicar', $oferta) }}" method="POST">
-                                    @csrf
-                                    <button type="submit" class="btn" style="background: linear-gradient(90deg, #43e97b 0%, #38f9d7 100%); color: #fff; font-weight: 700; font-size: 1.1rem; border-radius: 999px; box-shadow: 0 4px 15px rgba(67,233,123,0.13);">
-                                        <i class="fas fa-paper-plane me-1"></i> Aplicar a esta Oferta
-                                    </button>
-                                </form>
+                                @if($yaAplicado)
+                                    <form action="{{ route('empleado.desaplicar', $oferta) }}" method="POST" onsubmit="return confirm('¿Estás seguro de que deseas retirar tu postulación?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-danger w-100" style="border-radius: 999px;">
+                                            <i class="fas fa-times me-1"></i> Retirar Postulación
+                                        </button>
+                                    </form>
                                 @else
-                                    <button class="btn" style="background: linear-gradient(90deg, #43e97b 0%, #38f9d7 100%); color: #fff; font-weight: 700; font-size: 1.1rem; border-radius: 999px; box-shadow: 0 4px 15px rgba(67,233,123,0.13);" disabled>
-                                        <i class="fas fa-check-circle me-1"></i> Ya aplicaste
-                                    </button>
+                                    <form action="{{ route('empleado.aplicar', $oferta) }}" method="POST">
+                                        @csrf
+                                        <button type="submit" class="btn" style="background: linear-gradient(90deg, #43e97b 0%, #38f9d7 100%); color: #fff; font-weight: 700; font-size: 1.1rem; border-radius: 999px; box-shadow: 0 4px 15px rgba(67,233,123,0.13);">
+                                            <i class="fas fa-paper-plane me-1"></i> Aplicar a esta Oferta
+                                        </button>
+                                    </form>
                                 @endif
                                 <a href="{{ route('empleado.dashboard') }}" class="btn btn-outline-secondary" style="border-radius: 999px;">
                                     <i class="fas fa-arrow-left me-1"></i> Volver al Dashboard
