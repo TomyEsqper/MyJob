@@ -44,7 +44,12 @@ document.addEventListener('DOMContentLoaded', function () {
         if (btnGoogle && googleBaseUrl) {
             const newHref = `${googleBaseUrl}?rol=${encodeURIComponent(rol)}`;
             btnGoogle.setAttribute('href', newHref);
-            console.log('Updated Google href to:', newHref);
+            // Asegurarnos de que el rol se mantenga incluso si el usuario hace clic rápidamente
+            btnGoogle.addEventListener('click', function(e) {
+                e.preventDefault();
+                const currentRol = rolField ? rolField.value : rol;
+                window.location.href = `${googleBaseUrl}?rol=${encodeURIComponent(currentRol)}`;
+            }, { once: true });
         }
     }
 
@@ -177,15 +182,38 @@ document.addEventListener('DOMContentLoaded', function () {
     if (form) {
         form.addEventListener('submit', async function (e) {
             e.preventDefault();
-            console.log('Form submitted');
+            
+            // Validar todos los campos visibles
+            const visibleInputs = Array.from(this.querySelectorAll('input:not([type="hidden"])'))
+                .filter(input => input.offsetParent !== null);
+                
+            let hasErrors = false;
+            
+            visibleInputs.forEach(input => {
+                if (!input.checkValidity()) {
+                    hasErrors = true;
+                    input.reportValidity();
+                }
+            });
+            
+            if (hasErrors) {
+                return;
+            }
 
             if (btnRegistro) btnRegistro.disabled = true;
             if (btnText) btnText.textContent = 'Registrando...';
             if (btnIcon) btnIcon.style.display = 'none';
 
-            const formData = new FormData(this);
-
             try {
+                const formData = new FormData(this);
+                
+                // Sanitizar todos los datos antes de enviar
+                for (let pair of formData.entries()) {
+                    if (typeof pair[1] === 'string' && pair[0] !== 'password' && pair[0] !== 'password_confirmation') {
+                        formData.set(pair[0], sanitizeInput(pair[1]));
+                    }
+                }
+
                 const response = await fetch(this.action, {
                     method: 'POST',
                     headers: {
@@ -198,44 +226,33 @@ document.addEventListener('DOMContentLoaded', function () {
                 const data = await response.json();
 
                 if (!response.ok) {
-                    if (typeof Swal !== 'undefined') {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Registro Fallido',
-                            html: `<p>${data.error}</p><p>Por favor verifica los datos e intenta nuevamente.</p>`,
-                            confirmButtonText: 'Cerrar'
-                        });
-                    } else {
-                        alert('Error: ' + data.error);
-                    }
-                } else {
-                    if (typeof Swal !== 'undefined') {
-                        Swal.fire({
-                            icon: 'success',
-                            title: '¡Registrado!',
-                            text: data.message,
-                            confirmButtonColor: '#007bff',
-                            timer: 2000,
-                            showConfirmButton: false
-                        }).then(() => {
-                            window.location.href = loginUrl;
-                        });
-                    } else {
-                        alert('Registro exitoso: ' + data.message);
-                        window.location.href = loginUrl;
-                    }
+                    throw new Error(data.message || 'Error en el registro');
                 }
+
+                // Éxito
+                Swal.fire({
+                    icon: 'success',
+                    title: '¡Registro exitoso!',
+                    text: 'Tu cuenta ha sido creada correctamente.',
+                    timer: 2000,
+                    showConfirmButton: false
+                }).then(() => {
+                    window.location.href = data.redirect || loginUrl;
+                });
+
             } catch (error) {
-                console.error('Form submission error:', error);
-                if (typeof Swal !== 'undefined') {
-                    Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo procesar la solicitud.' });
-                } else {
-                    alert('Error: No se pudo procesar la solicitud.');
-                }
-            } finally {
+                console.error('Error:', error);
+                
                 if (btnRegistro) btnRegistro.disabled = false;
                 if (btnText) btnText.textContent = 'Registrarme';
-                if (btnIcon) btnIcon.style.display = '';
+                if (btnIcon) btnIcon.style.display = 'inline';
+
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: error.message || 'Hubo un problema al procesar tu registro. Por favor, intenta nuevamente.',
+                    confirmButtonText: 'Entendido'
+                });
             }
         });
         
@@ -245,4 +262,75 @@ document.addEventListener('DOMContentLoaded', function () {
     }
     
     console.log('Registration form initialization complete');
+});
+
+// Función para sanitizar input
+function sanitizeInput(input) {
+    if (typeof input !== 'string') return input;
+    return input
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#x27;')
+        .replace(/\//g, '&#x2F;');
+}
+
+// Función para validar email
+function isValidEmail(email) {
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    return emailRegex.test(email);
+}
+
+// Función para validar NIT
+function isValidNIT(nit) {
+    // Eliminar guiones y espacios
+    nit = nit.replace(/[-\s]/g, '');
+    // Verificar que solo contenga números
+    return /^\d{9,14}$/.test(nit);
+}
+
+// Función para validar nombre de usuario
+function isValidUsername(username) {
+    // Solo letras, números, guiones y puntos, 3-30 caracteres
+    return /^[a-zA-Z0-9.-]{3,30}$/.test(username);
+}
+
+// Agregar validaciones a los campos del formulario
+document.querySelectorAll('input').forEach(input => {
+    input.addEventListener('input', function() {
+        // Sanitizar input en tiempo real
+        if (this.type !== 'password') {
+            this.value = sanitizeInput(this.value);
+        }
+
+        // Validaciones específicas por tipo de campo
+        switch(this.id) {
+            case 'email_usuario':
+            case 'correo_empresarial':
+                if (!isValidEmail(this.value)) {
+                    this.setCustomValidity('Por favor, ingresa un correo electrónico válido.');
+                } else {
+                    this.setCustomValidity('');
+                }
+                break;
+
+            case 'nit_empresa':
+                if (!isValidNIT(this.value)) {
+                    this.setCustomValidity('Por favor, ingresa un NIT válido (9-14 dígitos).');
+                } else {
+                    this.setCustomValidity('');
+                }
+                break;
+
+            case 'name_usuario':
+            case 'name_empresa':
+                if (!isValidUsername(this.value)) {
+                    this.setCustomValidity('El nombre debe tener entre 3 y 30 caracteres y solo puede contener letras, números, guiones y puntos.');
+                } else {
+                    this.setCustomValidity('');
+                }
+                break;
+        }
+    });
 });

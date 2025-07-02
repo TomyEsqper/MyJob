@@ -1,3 +1,7 @@
+@php
+use Illuminate\Support\Facades\Storage;
+@endphp
+
 @extends('layouts.empleador')
 
 @section('page-title', 'Perfil del Empleador')
@@ -27,54 +31,11 @@
     </div>
 @endif
 
-<!-- Documentos -->
-<div class="mb-3">
-    <label class="form-label">Documentos</label>
-    @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            {{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    @endif
-    
-    <form action="{{ route('empleador.subir-documento') }}" method="POST" enctype="multipart/form-data">
-        @csrf
-        <div class="input-group">
-            <input type="file" name="documento" class="form-control" required>
-            <button type="submit" class="btn btn-primary">Subir</button>
-        </div>
-    </form>
-    
-    <!-- Lista de documentos subidos -->
-    <div class="mt-3">
-        <h6>Documentos subidos:</h6>
-        @if($empleador->documentos && $empleador->documentos->count() > 0)
-            <ul class="list-group">
-                @foreach($empleador->documentos as $doc)
-                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                        <a href="{{ asset($doc->ruta_archivo) }}" target="_blank" rel="noopener noreferrer">
-                            {{ $doc->nombre_archivo }}
-                        </a>
-                        <form action="{{ route('empleador.eliminar-documento', $doc) }}" method="POST" style="display:inline;">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-sm btn-danger">×</button>
-                        </form>
-                    </li>
-                @endforeach
-            </ul>
-        @else
-            <p class="text-muted">No hay documentos subidos</p>
-        @endif
-    </div>
-</div>
-
-<form action="{{ route('empleador.actualizar-perfil') }}" method="POST" enctype="multipart/form-data" id="perfilForm">
-    @csrf
-
-    <div class="row">
-        <!-- Columna de Información -->
-        <div class="col-lg-8">
+<div class="row">
+    <!-- Columna de Información -->
+    <div class="col-lg-8">
+        <form action="{{ route('empleador.actualizar-perfil') }}" method="POST" enctype="multipart/form-data" id="perfilForm">
+            @csrf
             <!-- Tarjeta de Información de la Empresa -->
             <div class="card form-section-card">
                 <div class="card-header">
@@ -198,91 +159,252 @@
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Columna de Logo -->
-        <div class="col-lg-4">
-            <!-- Foto de Perfil -->
-            <div class="card form-section-card">
+            <!-- Documentos -->
+            <div class="card form-section-card mt-4">
                 <div class="card-header">
-                    Foto de Perfil
+                    Documentos
                 </div>
-                <div class="card-body text-center">
-                    @php
-                        $user = Auth::user();
-                        $foto = $user->foto_perfil;
-                        if ($foto) {
-                            $src = filter_var($foto, FILTER_VALIDATE_URL) ? $foto : asset('storage/' . $foto);
-                        } else {
-                            $src = asset('images/user-default.svg');
-                        }
-                    @endphp
-                    <img id="previewFotoPerfil" src="{{ $src }}" alt="Foto de Perfil" class="rounded-circle mb-3" style="width: 120px; height: 120px; object-fit: cover;">
-                    @if($user->google_id)
-                        <div class="alert alert-info mt-3">
-                            Si tu cuenta está vinculada con Google, solo puedes cambiar tu foto de perfil desde tu cuenta de Google.<br>
-                            <small>La imagen se actualizará automáticamente aquí cuando la cambies en Google.</small>
+                <div class="card-body">
+                    <form action="{{ route('empleador.subir-documento') }}" method="POST" enctype="multipart/form-data" class="mb-4">
+                        @csrf
+                        <div class="input-group">
+                            <input type="file" name="documento" class="form-control" required>
+                            <button type="submit" class="btn btn-primary">Subir</button>
+                        </div>
+                    </form>
+                    
+                    @if($empleador->documentos && $empleador->documentos->count() > 0)
+                        <div class="list-group">
+                            @foreach($empleador->documentos as $doc)
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    <a href="{{ asset($doc->ruta_archivo) }}" target="_blank" rel="noopener noreferrer" class="text-decoration-none">
+                                        <i class="fas fa-file-alt me-2"></i>
+                                        {{ $doc->nombre_archivo }}
+                                    </a>
+                                    <form action="{{ route('empleador.eliminar-documento', $doc) }}" method="POST" class="d-inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Eliminar documento">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            @endforeach
                         </div>
                     @else
-                        <form action="{{ route('empleador.actualizar-foto-perfil') }}" method="POST" enctype="multipart/form-data">
-                            @csrf
-                            <div class="mb-3">
-                                <input type="file" class="form-control" name="foto_perfil" id="foto_perfil" accept=".jpg,.jpeg,.png" onchange="previewFotoPerfil(this);" required>
-                            </div>
-                            <button type="submit" class="btn btn-primary">Actualizar Foto de Perfil</button>
-                        </form>
+                        <p class="text-muted mb-0">No hay documentos subidos</p>
                     @endif
                 </div>
             </div>
+
+            <div class="form-actions mt-4">
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-save me-2"></i>Actualizar Perfil
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Columna Derecha -->
+    <div class="col-lg-4">
+        <!-- Tarjeta de Foto de Perfil -->
+        <div class="card form-section-card">
+            <div class="card-header">
+                Foto de Perfil
+            </div>
+            <div class="card-body">
+                <form action="{{ route('empleador.actualizar-foto-perfil') }}" method="POST" enctype="multipart/form-data" id="fotoForm">
+                    @csrf
+                    <div class="text-center mb-3">
+                        @php
+                            $user = Auth::user();
+                            $foto = $user->foto_perfil;
+                            if ($foto) {
+                                if (filter_var($foto, FILTER_VALIDATE_URL)) {
+                                    $src = $foto;
+                                } else {
+                                    $src = Storage::url('public/' . $foto);
+                                }
+                            } else {
+                                $src = asset('images/user-default.svg');
+                            }
+                        @endphp
+                        <img src="{{ $src }}" 
+                             alt="Foto de perfil" 
+                             class="rounded-circle"
+                             id="previewFoto"
+                             style="width: 150px; height: 150px; object-fit: cover;">
+                        
+                        @if(session('error'))
+                            <div class="alert alert-danger mt-2">
+                                {{ session('error') }}
+                            </div>
+                        @endif
+                    </div>
+                    <div class="mb-3">
+                        <label for="foto" class="form-label">Selecciona una nueva foto</label>
+                        <input type="file" 
+                               name="foto" 
+                               id="foto" 
+                               class="form-control @error('foto') is-invalid @enderror" 
+                               accept="image/jpeg,image/png,image/jpg">
+                        <small class="text-muted d-block mt-1">Formatos permitidos: JPG, JPEG, PNG. Tamaño máximo: 5MB</small>
+                        @error('foto')
+                            <div class="invalid-feedback d-block">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        @if(!Auth::user()->google_id)
+        <!-- Cambiar Contraseña -->
+        <div class="card form-section-card mt-4">
+            <div class="card-header">
+                <i class="fas fa-key me-2"></i>Cambiar Contraseña
+            </div>
+            <div class="card-body">
+                <form action="{{ route('empleador.actualizar-contrasena') }}" method="POST">
+                    @csrf
+                    <div class="mb-3">
+                        <label for="current_password" class="form-label">Contraseña Actual</label>
+                        <input type="password" 
+                               class="form-control @error('current_password') is-invalid @enderror" 
+                               name="current_password" 
+                               id="current_password" 
+                               required>
+                        @error('current_password')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Nueva Contraseña</label>
+                        <input type="password" 
+                               class="form-control @error('password') is-invalid @enderror" 
+                               name="password" 
+                               id="password" 
+                               required>
+                        @error('password')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    <div class="mb-3">
+                        <label for="password_confirmation" class="form-label">Confirmar Nueva Contraseña</label>
+                        <input type="password" 
+                               class="form-control" 
+                               name="password_confirmation" 
+                               id="password_confirmation" 
+                               required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-2"></i>Actualizar Contraseña
+                    </button>
+                </form>
+            </div>
+        </div>
+        @endif
+
+        <!-- Eliminar Cuenta -->
+        <div class="card form-section-card mt-4">
+            <div class="card-header text-danger">
+                <i class="fas fa-trash-alt me-2"></i>Eliminar Cuenta
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>¡Advertencia! Esta acción es irreversible. Se eliminarán:
+                    <ul class="mb-0 mt-2">
+                        <li>Tu perfil de empleador</li>
+                        <li>Todas tus ofertas de trabajo</li>
+                        <li>Todas las aplicaciones a tus ofertas</li>
+                        <li>Tu cuenta de usuario</li>
+                    </ul>
+                </div>
+                @if(!Auth::user()->google_id)
+                <form action="{{ route('empleador.eliminar-cuenta') }}" method="POST">
+                    @csrf
+                    @method('DELETE')
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Ingresa tu contraseña para confirmar</label>
+                        <input type="password" 
+                               class="form-control @error('password') is-invalid @enderror" 
+                               name="password" 
+                               id="password" 
+                               required>
+                        @error('password')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    <button type="submit" class="btn btn-danger" onclick="return confirm('¿Estás seguro de que deseas eliminar tu cuenta? Esta acción no se puede deshacer.')">
+                        <i class="fas fa-trash-alt me-2"></i>Eliminar mi cuenta
+                    </button>
+                </form>
+                @else
+                <div class="alert alert-info mb-3">
+                    <i class="fab fa-google me-2"></i>Has iniciado sesión con Google. No necesitas ingresar una contraseña para eliminar tu cuenta.
+                </div>
+                <form action="{{ route('empleador.eliminar-cuenta') }}" method="POST">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="btn btn-danger" onclick="return confirm('¿Estás seguro de que deseas eliminar tu cuenta? Esta acción no se puede deshacer.')">
+                        <i class="fas fa-trash-alt me-2"></i>Eliminar mi cuenta
+                    </button>
+                </form>
+                @endif
+            </div>
         </div>
     </div>
+</div>
 
-    <div class="form-actions mt-4">
-        <button type="submit" class="btn btn-success">
-            <i class="fas fa-save me-2"></i>Actualizar Perfil
-        </button>
-    </div>
-</form>
-
-@push('styles')
-<style>
-.logo-preview-container {
-    position: relative;
-    display: inline-block;
-}
-
-.preview-image {
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.logo-upload-container {
-    margin-top: 1rem;
-}
-
-.selected-file-name {
-    max-width: 200px;
-    margin: 0 auto;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-</style>
-@endpush
+@endsection
 
 @push('scripts')
 <script>
-function previewFotoPerfil(input) {
-    const preview = document.getElementById('previewFotoPerfil');
-    if (input.files && input.files[0]) {
+document.getElementById('foto').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        // Validar tamaño
+        if (file.size > 5 * 1024 * 1024) {
+            alert('El archivo es demasiado grande. El tamaño máximo permitido es 5MB.');
+            this.value = '';
+            return;
+        }
+
+        // Validar tipo
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+        if (!allowedTypes.includes(file.type)) {
+            alert('Formato de archivo no permitido. Use JPG, JPEG o PNG.');
+            this.value = '';
+            return;
+        }
+
+        // Mostrar preview
         const reader = new FileReader();
         reader.onload = function(e) {
-            preview.src = e.target.result;
-        };
-        reader.readAsDataURL(input.files[0]);
+            const previewFoto = document.getElementById('previewFoto');
+            previewFoto.src = e.target.result;
+            
+            // También actualizar la foto en el header
+            const headerFoto = document.querySelector('.dropdown-toggle img');
+            if (headerFoto) {
+                headerFoto.src = e.target.result;
+            }
+        }
+        reader.readAsDataURL(file);
+        
+        // Submit del formulario
+        document.getElementById('fotoForm').submit();
     }
-}
-</script>
-@endpush
+});
 
-@endsection 
+// Actualizar la foto en el header si se subió correctamente
+@if(session('foto_url'))
+    document.addEventListener('DOMContentLoaded', function() {
+        const headerFoto = document.querySelector('.dropdown-toggle img');
+        if (headerFoto) {
+            headerFoto.src = "{{ session('foto_url') }}";
+        }
+    });
+@endif
+</script>
+@endpush 

@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use App\Models\Usuario;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -12,40 +13,46 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Crear un usuario empleador de prueba
-        \App\Models\Usuario::firstOrCreate(
-            ['correo_electronico' => 'test@example.com'],
-            [
-                'nombre_usuario' => 'Test Company',
-                'contrasena' => bcrypt('password'),
-                'rol' => 'empleador',
-                'telefono' => '123456789',
-                'ubicacion' => 'Madrid, España',
-                'descripcion' => 'Una empresa de prueba',
-                'profesion' => 'Empresa de Tecnología',
-                'activo' => true,
-            ]
-        );
-
         // Crear usuarios admin predefinidos
-        $adminEmails = [
-            't.esquivel@myjob.com.co',
-            's.murillo@myjob.com.co',
-            'c.cuervo@myjob.com.co',
-            'n.plazas@myjob.com.co',
-            's.lozano@myjob.com.co',
+        $admins = [
+            [
+                'email' => 't.esquivel@myjob.com.co',
+                'nombre' => 'Tomás Esquivel',
+                'telefono' => '3001234567'
+            ],
+            [
+                'email' => 's.murillo@myjob.com.co',
+                'nombre' => 'Sharith Murillo',
+                'telefono' => '3001234568'
+            ],
+            [
+                'email' => 'c.cuervo@myjob.com.co',
+                'nombre' => 'Camilo Cuervo',
+                'telefono' => '3001234569'
+            ],
+            [
+                'email' => 'n.plazas@myjob.com.co',
+                'nombre' => 'Nicolás Plazas',
+                'telefono' => '3001234570'
+            ],
+            [
+                'email' => 's.lozano@myjob.com.co',
+                'nombre' => 'Santiago Lozano',
+                'telefono' => '3001234571'
+            ],
         ];
-        foreach ($adminEmails as $email) {
-            \App\Models\Usuario::firstOrCreate(
-                ['correo_electronico' => $email],
+
+        foreach ($admins as $admin) {
+            Usuario::firstOrCreate(
+                ['correo_electronico' => $admin['email']],
                 [
-                    'nombre_usuario' => explode('@', $email)[0],
-                    'contrasena' => bcrypt('admin1234'),
+                    'nombre_usuario' => $admin['nombre'],
+                    'contrasena' => Hash::make('admin1234'),
                     'rol' => 'admin',
-                    'telefono' => '000000000',
+                    'telefono' => $admin['telefono'],
                     'ubicacion' => 'Colombia',
-                    'descripcion' => 'Usuario admin predefinido',
-                    'profesion' => 'Administrador',
+                    'descripcion' => 'Administrador del sistema MyJob',
+                    'profesion' => 'Administrador de Sistemas',
                     'activo' => true,
                 ]
             );

@@ -23,6 +23,7 @@
     @endif
 
     <div class="row">
+        @if(!Auth::user()->google_id)
         <!-- Cambiar Contraseña -->
         <div class="col-lg-6 mb-4">
             <div class="card shadow-sm">
@@ -71,6 +72,7 @@
                 </div>
             </div>
         </div>
+        @endif
 
         <!-- Eliminar Cuenta -->
         <div class="col-lg-6">
@@ -91,8 +93,10 @@
                             <li>Tu cuenta de usuario</li>
                         </ul>
                     </div>
+                    @if(!Auth::user()->google_id)
                     <form action="{{ route('empleador.eliminar-cuenta') }}" method="POST" id="deleteAccountForm">
                         @csrf
+                        @method('DELETE')
                         <div class="mb-3">
                             <label for="delete_password" class="form-label">Ingresa tu contraseña para confirmar</label>
                             <input type="password" 
@@ -110,6 +114,20 @@
                             <i class="fas fa-trash-alt me-2"></i>Eliminar mi cuenta
                         </button>
                     </form>
+                    @else
+                    <div class="alert alert-info mb-3">
+                        <i class="fab fa-google me-2"></i>Has iniciado sesión con Google. No necesitas ingresar una contraseña para eliminar tu cuenta.
+                    </div>
+                    <form action="{{ route('empleador.eliminar-cuenta') }}" method="POST" id="deleteAccountForm">
+                        @csrf
+                        @method('DELETE')
+                        <button type="button" 
+                                class="btn btn-danger" 
+                                onclick="confirmarEliminacion()">
+                            <i class="fas fa-trash-alt me-2"></i>Eliminar mi cuenta
+                        </button>
+                    </form>
+                    @endif
                 </div>
             </div>
         </div>

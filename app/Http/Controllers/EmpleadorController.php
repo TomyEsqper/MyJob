@@ -109,138 +109,6 @@ class EmpleadorController extends Controller
         return view('empleador.candidatos.index', compact('aplicaciones', 'ofertas'));
     }
 
-    public function estadisticas()
-    {
-        $userId = Auth::user()->id_usuario;
-        // Obtener todas las ofertas del empleador
-        $ofertas = Oferta::where('empleador_id', $userId)->get();
-        
-        // Estadísticas básicas
-        $totalOfertas = $ofertas->count();
-        $ofertasActivas = $ofertas->where('estado', 'activa')->count();
-        $ofertasInactivas = $ofertas->where('estado', 'inactiva')->count();
-        
-        // Estadísticas de aplicaciones
-        $aplicaciones = Aplicacion::whereIn('oferta_id', $ofertas->pluck('id'))->get();
-        $totalPostulaciones = $aplicaciones->count();
-        $aplicacionesPendientes = $aplicaciones->where('estado', 'pendiente')->count();
-        $aplicacionesAceptadas = $aplicaciones->where('estado', 'aceptada')->count();
-        $aplicacionesRechazadas = $aplicaciones->where('estado', 'rechazada')->count();
-        
-        // Calcular promedio de postulantes por oferta
-        $promedioPostulantes = $totalOfertas > 0 ? round($totalPostulaciones / $totalOfertas, 1) : 0;
-        
-        // Estadísticas por mes (últimos 6 meses por defecto)
-        $estadisticasMensuales = $this->obtenerEstadisticasMensuales($userId, 6);
-        
-        // Top 5 ofertas con más aplicaciones
-        $topOfertas = Oferta::where('empleador_id', $userId)
-            ->withCount('aplicaciones')
-            ->orderBy('aplicaciones_count', 'desc')
-            ->take(5)
-            ->get();
-            
-        // Estadísticas de candidatos por estado
-        $estadosCandidatos = [
-            'pendiente' => $aplicacionesPendientes,
-            'aceptada' => $aplicacionesAceptadas,
-            'rechazada' => $aplicacionesRechazadas
-        ];
-        
-        // Estadísticas de ofertas por estado
-        $estadosOfertas = [
-            'activa' => $ofertasActivas,
-            'inactiva' => $ofertasInactivas
-        ];
-        
-        return view('empleador.estadisticas', compact(
-            'totalOfertas',
-            'ofertasActivas',
-            'ofertasInactivas',
-            'totalPostulaciones',
-            'aplicacionesPendientes',
-            'aplicacionesAceptadas',
-            'aplicacionesRechazadas',
-            'promedioPostulantes',
-            'estadisticasMensuales',
-            'topOfertas',
-            'estadosCandidatos',
-            'estadosOfertas'
-        ));
-    }
-
-    /**
-     * Obtiene las estadísticas mensuales para un período específico
-     */
-    private function obtenerEstadisticasMensuales($userId, $meses = 6)
-    {
-        $estadisticasMensuales = [];
-        for ($i = $meses - 1; $i >= 0; $i--) {
-            $fecha = now()->subMonths($i);
-            $mes = $fecha->format('M Y');
-            
-            $aplicacionesMes = Aplicacion::whereHas('oferta', function($query) use ($userId) {
-                $query->where('empleador_id', $userId);
-            })->whereYear('created_at', $fecha->year)
-              ->whereMonth('created_at', $fecha->month)
-              ->count();
-                
-            $ofertasMes = Oferta::where('empleador_id', $userId)
-                ->whereYear('created_at', $fecha->year)
-                ->whereMonth('created_at', $fecha->month)
-                ->count();
-                
-            $estadisticasMensuales[] = [
-                'mes' => $mes,
-                'aplicaciones' => $aplicacionesMes,
-                'ofertas' => $ofertasMes
-            ];
-        }
-        
-        return $estadisticasMensuales;
-    }
-
-    /**
-     * Actualiza las estadísticas mensuales vía AJAX
-     */
-    public function actualizarEstadisticasMensuales(Request $request)
-    {
-        $meses = $request->input('meses', 6);
-        $userId = Auth::user()->id_usuario;
-        
-        $estadisticasMensuales = $this->obtenerEstadisticasMensuales($userId, $meses);
-        
-        return response()->json([
-            'labels' => array_column($estadisticasMensuales, 'mes'),
-            'aplicaciones' => array_column($estadisticasMensuales, 'aplicaciones'),
-            'ofertas' => array_column($estadisticasMensuales, 'ofertas')
-        ]);
-    }
-
-    /**
-     * Obtiene las top ofertas según la cantidad especificada
-     */
-    public function obtenerTopOfertas(Request $request)
-    {
-        $cantidad = $request->input('cantidad', 5);
-        $userId = Auth::user()->id_usuario;
-        
-        $topOfertas = Oferta::where('empleador_id', $userId)
-            ->withCount('aplicaciones')
-            ->orderBy('aplicaciones_count', 'desc');
-            
-        if ($cantidad !== 'all') {
-            $topOfertas = $topOfertas->take($cantidad);
-        }
-        
-        $ofertas = $topOfertas->get();
-        
-        return response()->json([
-            'labels' => $ofertas->pluck('titulo')->map(fn($t) => \Illuminate\Support\Str::limit($t, 25)),
-            'data' => $ofertas->pluck('aplicaciones_count')
-        ]);
-    }
-
     public function configuracion()
     {
         return view('empleador.configuracion');
@@ -273,14 +141,17 @@ class EmpleadorController extends Controller
      */
     public function eliminarCuenta(Request $request)
     {
-        $request->validate([
-            'password' => 'required',
-        ]);
-
         $user = Auth::user();
 
-        if (!Hash::check($request->password, $user->contrasena)) {
-            return back()->withErrors(['password' => 'La contraseña no es correcta']);
+        // Solo validar contraseña si no es un usuario de Google
+        if (!$user->google_id) {
+            $request->validate([
+                'password' => 'required',
+            ]);
+
+            if (!Hash::check($request->password, $user->contrasena)) {
+                return back()->withErrors(['password' => 'La contraseña no es correcta']);
+            }
         }
 
         // Comenzar transacción
@@ -420,41 +291,6 @@ class EmpleadorController extends Controller
         return redirect()->back()->with('success', 'Perfil actualizado correctamente');
     }
 
-    public function actualizarLogo(Request $request)
-    {
-        $request->validate([
-            'logo' => 'required|image|mimes:jpeg,png,jpg|max:5120' // 5MB
-        ]);
-
-        $usuario = Auth::user();
-        $empleador = $usuario->empleador;
-
-        // Si no existe el empleador, crearlo
-        if (!$empleador) {
-            $empleador = \App\Models\Empleador::create([
-                'usuario_id' => $usuario->id_usuario,
-                'nombre_empresa' => 'Empresa por definir',
-                'nit' => 'TEMP-' . uniqid(),
-                'correo_empresarial' => $usuario->correo_electronico,
-                'direccion_empresa' => 'Por definir'
-            ]);
-        }
-
-        if ($request->hasFile('logo')) {
-            // Eliminar logo anterior si existe
-            if ($empleador->logo_empresa) {
-                \Storage::delete('public/' . $empleador->logo_empresa);
-            }
-
-            // Guardar nuevo logo
-            $path = $request->file('logo')->store('public/logos');
-            $empleador->logo_empresa = str_replace('public/', '', $path);
-            $empleador->save();
-        }
-
-        return redirect()->back()->with('success', 'Logo actualizado correctamente');
-    }
-
     public function actualizarBeneficios(Request $request)
     {
         $request->validate([
@@ -472,29 +308,6 @@ class EmpleadorController extends Controller
         $empleador->save();
 
         return response()->json(['success' => true, 'message' => 'Beneficios actualizados correctamente']);
-    }
-
-    public function actualizarAvatar(Request $request)
-    {
-        $request->validate([
-            'avatar' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048'
-        ]);
-
-        $usuario = Auth::user();
-
-        if ($request->hasFile('avatar')) {
-            // Eliminar avatar anterior si existe
-            if ($usuario->foto_perfil) {
-                Storage::delete('public/avatars/' . basename($usuario->foto_perfil));
-            }
-
-            // Guardar nuevo avatar
-            $path = $request->file('avatar')->store('public/avatars');
-            $usuario->foto_perfil = str_replace('public/', '', $path);
-            $usuario->save();
-        }
-
-        return redirect()->back()->with('success', 'Avatar actualizado correctamente');
     }
 
     /**
@@ -633,21 +446,54 @@ class EmpleadorController extends Controller
     public function actualizarFotoPerfil(Request $request)
     {
         $request->validate([
-            'foto_perfil' => 'required|image|mimes:jpeg,png,jpg|max:5120' // 5MB
+            'foto' => 'required|image|mimes:jpeg,png,jpg|max:5120' // 5MB
         ]);
 
-        $usuario = Auth::user();
+        try {
+            $usuario = Auth::user();
 
-        // Eliminar foto anterior si es local (no URL de Google)
-        if ($usuario->foto_perfil && !filter_var($usuario->foto_perfil, FILTER_VALIDATE_URL)) {
-            \Storage::delete('public/' . $usuario->foto_perfil);
+            if ($request->hasFile('foto')) {
+                $file = $request->file('foto');
+                
+                // Crear un nombre de archivo seguro
+                $extension = $file->getClientOriginalExtension();
+                $nombreArchivo = time() . '_' . preg_replace('/[^a-zA-Z0-9]/', '_', pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . $extension;
+                
+                // Asegurarse de que el directorio existe y tiene los permisos correctos
+                $avatarPath = storage_path('app/public/avatars');
+                if (!file_exists($avatarPath)) {
+                    mkdir($avatarPath, 0755, true);
+                }
+                
+                // Eliminar foto anterior si existe y no es una URL (de Google)
+                if ($usuario->foto_perfil && !filter_var($usuario->foto_perfil, FILTER_VALIDATE_URL)) {
+                    $oldPath = storage_path('app/public/' . $usuario->foto_perfil);
+                    if (file_exists($oldPath)) {
+                        unlink($oldPath);
+                    }
+                }
+
+                // Guardar la nueva foto
+                $file->move($avatarPath, $nombreArchivo);
+                
+                // Actualizar la base de datos con la ruta relativa
+                $usuario->foto_perfil = 'avatars/' . $nombreArchivo;
+                $usuario->save();
+
+                // Limpiar la caché de la imagen
+                clearstatcache();
+
+                // Retornar respuesta con la nueva URL
+                return redirect()->back()->with([
+                    'success' => 'Foto de perfil actualizada correctamente',
+                    'foto_url' => asset('storage/avatars/' . $nombreArchivo)
+                ]);
+            }
+
+            return redirect()->back()->with('error', 'No se ha seleccionado ninguna imagen');
+        } catch (\Exception $e) {
+            \Log::error('Error al actualizar foto de perfil: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error al actualizar la foto de perfil: ' . $e->getMessage());
         }
-
-        // Guardar nueva foto
-        $path = $request->file('foto_perfil')->store('public/avatars');
-        $usuario->foto_perfil = str_replace('public/', '', $path);
-        $usuario->save();
-
-        return redirect()->back()->with('success', 'Foto de perfil actualizada correctamente');
     }
 } 

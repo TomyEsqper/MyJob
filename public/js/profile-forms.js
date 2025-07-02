@@ -33,20 +33,21 @@ window.closeNotification = function(btn) {
 };
 
 function showSaveIndicator() {
-    const indicator = document.getElementById('saveIndicator');
-    if (indicator) {
-        indicator.style.display = 'flex';
-        indicator.classList.add('show');
-    }
+    const indicator = document.createElement('div');
+    indicator.className = 'save-indicator show';
+    indicator.innerHTML = `
+        <div class="save-spinner">
+            <i class="fas fa-spinner fa-spin"></i>
+        </div>
+    `;
+    document.body.appendChild(indicator);
 }
 
 function hideSaveIndicator() {
-    const indicator = document.getElementById('saveIndicator');
+    const indicator = document.querySelector('.save-indicator');
     if (indicator) {
         indicator.classList.remove('show');
-        setTimeout(() => {
-            indicator.style.display = 'none';
-        }, 300);
+        setTimeout(() => indicator.remove(), 300);
     }
 }
 
@@ -338,6 +339,89 @@ function setupHabilidadesForm() {
     }
 }
 
+// Configuración de subida de fotos
+function setupPhotoUpload() {
+    const photoInput = document.getElementById('foto_perfil_upload');
+    const photoForm = document.getElementById('fotoPerfilForm');
+    const previewImg = document.getElementById('previewFotoPerfil');
+
+    if (photoInput && photoForm && previewImg) {
+        photoInput.addEventListener('change', function(e) {
+            const file = this.files[0];
+            if (file) {
+                // Validar el tipo de archivo
+                if (!file.type.match('image.*')) {
+                    showNotification({
+                        type: 'error',
+                        message: 'Por favor, selecciona una imagen válida (JPG, JPEG o PNG).'
+                    });
+                    return;
+                }
+
+                // Validar el tamaño del archivo (5MB máximo)
+                if (file.size > 5 * 1024 * 1024) {
+                    showNotification({
+                        type: 'error',
+                        message: 'La imagen no debe superar los 5MB.'
+                    });
+                    return;
+                }
+
+                // Mostrar preview
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImg.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+
+                // Enviar el formulario
+                showSaveIndicator();
+                const formData = new FormData(photoForm);
+                
+                fetch(photoForm.action, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').getAttribute('content')
+                    },
+                    body: formData
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Error en la respuesta del servidor');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    hideSaveIndicator();
+                    if (data.success) {
+                        showNotification({
+                            type: 'success',
+                            message: data.message || '¡Foto actualizada exitosamente!'
+                        });
+                        // Actualizar la foto en el header si existe
+                        const headerFoto = document.querySelector('.dropdown-toggle img');
+                        if (headerFoto && data.foto_url) {
+                            headerFoto.src = data.foto_url;
+                        }
+                    } else {
+                        showNotification({
+                            type: 'error',
+                            message: data.message || 'Error al actualizar la foto.'
+                        });
+                    }
+                })
+                .catch(error => {
+                    hideSaveIndicator();
+                    showNotification({
+                        type: 'error',
+                        message: 'Error al subir la imagen. Por favor, intenta nuevamente.'
+                    });
+                });
+            }
+        });
+    }
+}
+
 // Modal HTML
 if (!document.getElementById('customConfirmModal')) {
     const modalHtml = `
@@ -381,8 +465,6 @@ window.showConfirmModal = function(msg, onConfirm) {
 
 // Inicializar cuando el DOM esté listo
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('🎯 Inicializando formularios del perfil...');
-    
     // Auto-cerrar notificaciones existentes después de 8 segundos
     setTimeout(() => {
         const notifications = document.querySelectorAll('.feedback-notification');
@@ -399,8 +481,7 @@ document.addEventListener('DOMContentLoaded', function() {
     setupIdiomaForm();
     setupCertificadoForm();
     setupHabilidadesForm();
-    
-    console.log('✅ Formularios del perfil inicializados correctamente');
+    setupPhotoUpload();
 
     // Validación global de formularios: previene submit si hay campos requeridos vacíos o errores
     document.querySelectorAll('form').forEach(form => {

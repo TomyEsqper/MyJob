@@ -1,3 +1,7 @@
+@php
+use Illuminate\Support\Facades\Storage;
+@endphp
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -5,6 +9,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Dashboard Empleador')</title>
+    <link rel="icon" type="image/png" href="{{ asset('images/logo2.png') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/empleador.css') }}">
@@ -23,16 +28,7 @@
         </button>
         <aside class="sidebar-empleador" id="sidebarEmpleador">
             <div class="logo-box d-flex align-items-center p-3 mb-4">
-                @php
-                    $user = Auth::user();
-                    $empleador = $user?->empleador;
-                    $logoPath = $empleador && $empleador->logo_empresa ? public_path('storage/' . $empleador->logo_empresa) : null;
-                @endphp
-                @if ($empleador && $empleador->logo_empresa && $logoPath && file_exists($logoPath))
-                    <img src="{{ asset('storage/' . $empleador->logo_empresa) }}" alt="Logo empresa" height="50" style="object-fit:cover; border-radius:10px;">
-                @else
-                    <img src="{{ asset('images/logo_empresa_default.png') }}" alt="Logo empresa" height="50" style="object-fit:cover; border-radius:10px;">
-                @endif
+                <img src="{{ asset('images/logo.png') }}" alt="Logo" height="50">
             </div>
             <ul class="nav flex-column">
                 <li class="nav-item">
@@ -57,12 +53,6 @@
                     <a class="nav-link {{ request()->routeIs('empleador.agenda') ? 'active' : '' }}" href="{{ route('empleador.agenda') }}">
                         <i class="fas fa-fw fa-calendar-alt"></i>
                         <span>Agenda de Entrevistas</span>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link {{ request()->routeIs('empleador.estadisticas') ? 'active' : '' }}" href="{{ route('empleador.estadisticas') }}">
-                        <i class="fas fa-fw fa-chart-bar"></i>
-                        <span>Estadísticas</span>
                     </a>
                 </li>
                 <li class="nav-item">
@@ -104,32 +94,29 @@
                             @auth
                                 @php
                                     $user = Auth::user();
-                                    $empleador = $user->empleador;
-                                    $imageSrc = null;
-                                    if ($empleador && $empleador->logo_empresa && $logoPath && file_exists($logoPath)) {
-                                        $imageSrc = asset('storage/' . $empleador->logo_empresa);
-                                    } elseif ($user && $user->foto_perfil) {
-                                        if (filter_var($user->foto_perfil, FILTER_VALIDATE_URL)) {
-                                            $imageSrc = $user->foto_perfil;
+                                    $foto = $user->foto_perfil;
+                                    if ($foto) {
+                                        if (filter_var($foto, FILTER_VALIDATE_URL)) {
+                                            $imageSrc = $foto;
                                         } else {
-                                            $imageSrc = asset('storage/' . $user->foto_perfil);
+                                            $imageSrc = Storage::url('public/' . $foto);
                                         }
                                     } else {
-                                        $imageSrc = asset('images/logo_empresa_default.png');
+                                        $imageSrc = asset('images/user-default.svg');
                                     }
                                 @endphp
 
                                 @if($imageSrc)
-                                    <img src="{{ $imageSrc }}" alt="Logo" class="rounded-circle m-2" style="width: 30px; height: 30px; object-fit: cover;">
+                                    <img src="{{ $imageSrc }}" alt="Foto de perfil" class="rounded-circle m-2" style="width: 30px; height: 30px; object-fit: cover;">
                                 @else
                                     <div class="bg-secondary rounded-circle m-2 d-flex justify-content-center align-items-center" style="width: 30px; height: 30px;">
-                                        <i class="fas fa-building text-white" style="font-size: 16px;"></i>
+                                        <i class="fas fa-user text-white" style="font-size: 16px;"></i>
                                     </div>
                                 @endif
                                 <span>
-                                    {{ $user->nombre_empresa ?? $user->nombre_usuario }}
+                                    {{ $user->nombre_usuario }}
                                     @if(isset($user->verificado) && $user->verificado)
-                                        <span title="Empresa verificada" style="color:#3b82f6; font-size:1.1em; vertical-align:middle; margin-left:0.2em;"><i class="fa-solid fa-circle-check"></i></span>
+                                        <span title="Usuario verificado" style="color:#3b82f6; font-size:1.1em; vertical-align:middle; margin-left:0.2em;"><i class="fa-solid fa-circle-check"></i></span>
                                     @endif
                                 </span>
                             @endauth

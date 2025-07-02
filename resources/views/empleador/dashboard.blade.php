@@ -204,15 +204,6 @@
                                 </div>
                             </a>
                         </div>
-                        <div class="col-md-3">
-                            <a href="{{ route('empleador.estadisticas') }}" 
-                               class="card h-100 border-0 bg-info bg-opacity-10 text-info text-decoration-none rounded-3 text-center p-4">
-                                <div class="card-body">
-                                    <i class="fas fa-chart-line fa-2x mb-3"></i>
-                                    <h6 class="mb-0">Ver Estadísticas</h6>
-                                </div>
-                            </a>
-                        </div>
                     </div>
                 </div>
             </div>

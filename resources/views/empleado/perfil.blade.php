@@ -131,7 +131,7 @@ $errors->any())
                 @if ($empleado->foto_perfil)
                     <img id="previewFotoPerfil" src="{{ Str::startsWith($empleado->foto_perfil, 'http') ? $empleado->foto_perfil : asset('storage/' . $empleado->foto_perfil) }}" alt="Foto de Perfil" class="animated-avatar">
                 @else
-                    <img id="previewFotoPerfil" src="{{ asset('images/default-user.png') }}" alt="Foto de Perfil" class="animated-avatar">
+                    <img id="previewFotoPerfil" src="{{ asset('images/user-default.svg') }}" alt="Foto de Perfil" class="animated-avatar">
                 @endif
                 <div class="avatar-overlay">
                     <form action="{{ route('empleado.actualizar-foto') }}" method="POST" enctype="multipart/form-data" id="fotoPerfilForm">
@@ -139,9 +139,19 @@ $errors->any())
                         <button type="button" class="avatar-edit-btn" title="Cambiar foto de perfil" onclick="document.getElementById('foto_perfil_upload').click();">
                             <i class="fas fa-camera"></i>
                         </button>
-                        <input type="file" name="foto_perfil" id="foto_perfil_upload" accept=".jpg,.jpeg,.png" hidden onchange="this.form.submit()">
+                        <input type="file" name="foto_perfil" id="foto_perfil_upload" accept=".jpg,.jpeg,.png" hidden>
                     </form>
                 </div>
+                @error('foto_perfil')
+                    <div class="invalid-feedback d-block text-center mt-2">
+                        {{ $message }}
+                    </div>
+                @enderror
+                @if(session('error'))
+                    <div class="alert alert-danger mt-2 text-center">
+                        {{ session('error') }}
+                    </div>
+                @endif
             </div>
         </div>
         <div class="profile-info fade-in-up delay-1">
@@ -223,9 +233,113 @@ $errors->any())
     </div>
 </div>
 
+<!-- Sección de Configuración de Cuenta -->
+<div class="profile-section mt-4">
+    <div class="section-header">
+        <h2><i class="fas fa-cog"></i> Configuración de Cuenta</h2>
+    </div>
+    <div class="row">
+        @if(!Auth::user()->google_id)
+        <!-- Cambiar Contraseña -->
+        <div class="col-md-6">
+            <div class="card form-section-card">
+                <div class="card-header">
+                    <i class="fas fa-key me-2"></i>Cambiar Contraseña
+                </div>
+                <div class="card-body">
+                    <form action="{{ route('empleado.actualizar-contrasena') }}" method="POST">
+                        @csrf
+                        <div class="mb-3">
+                            <label for="current_password" class="form-label">Contraseña Actual</label>
+                            <input type="password" 
+                                   class="form-control @error('current_password') is-invalid @enderror" 
+                                   name="current_password" 
+                                   id="current_password" 
+                                   required>
+                            @error('current_password')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Nueva Contraseña</label>
+                            <input type="password" 
+                                   class="form-control @error('password') is-invalid @enderror" 
+                                   name="password" 
+                                   id="password" 
+                                   required>
+                            @error('password')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <div class="mb-3">
+                            <label for="password_confirmation" class="form-label">Confirmar Nueva Contraseña</label>
+                            <input type="password" 
+                                   class="form-control" 
+                                   name="password_confirmation" 
+                                   id="password_confirmation" 
+                                   required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Actualizar Contraseña
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        @endif
+
+        <!-- Eliminar Cuenta -->
+        <div class="col-md-6">
+            <div class="card form-section-card">
+                <div class="card-header text-danger">
+                    <i class="fas fa-trash-alt me-2"></i>Eliminar Cuenta
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>¡Advertencia! Esta acción es irreversible. Se eliminarán:
+                        <ul class="mb-0 mt-2">
+                            <li>Tu perfil de empleado</li>
+                            <li>Todas tus aplicaciones a ofertas</li>
+                            <li>Tu historial de entrevistas</li>
+                            <li>Tu cuenta de usuario</li>
+                        </ul>
+                    </div>
+                    @if(!Auth::user()->google_id)
+                    <form action="{{ route('empleado.eliminar-cuenta') }}" method="POST">
+                        @csrf
+                        @method('DELETE')
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Ingresa tu contraseña para confirmar</label>
+                            <input type="password" 
+                                   class="form-control @error('password') is-invalid @enderror" 
+                                   name="password" 
+                                   id="password" 
+                                   required>
+                            @error('password')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                        <button type="submit" class="btn btn-danger" onclick="return confirm('¿Estás seguro de que deseas eliminar tu cuenta? Esta acción no se puede deshacer.')">
+                            <i class="fas fa-trash-alt me-2"></i>Eliminar mi cuenta
+                        </button>
+                    </form>
+                    @else
+                    <div class="alert alert-info">
+                        <i class="fab fa-google me-2"></i>Has iniciado sesión con Google. No necesitas ingresar una contraseña para eliminar tu cuenta.
+                    </div>
+                    @endif
+                    <button type="submit" class="btn btn-danger" onclick="return confirm('¿Estás seguro de que deseas eliminar tu cuenta? Esta acción no se puede deshacer.')">
+                        <i class="fas fa-trash-alt me-2"></i>Eliminar mi cuenta
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
 
-@section('scripts')
+@push('scripts')
 <script src="{{ asset('js/profile-forms.js') }}"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -234,99 +348,9 @@ document.addEventListener('DOMContentLoaded', function() {
     animateCount('stat-edu', {{ $empleado->educaciones->count() }});
     animateCount('stat-cert', {{ $empleado->certificados->count() }});
     animateCount('stat-idioma', {{ $empleado->idiomas->count() }});
-
-    // Preview de foto
-    const fotoInput = document.getElementById('foto_perfil_upload');
-    const previewFoto = document.getElementById('previewFotoPerfil');
-    if (fotoInput && previewFoto) {
-        fotoInput.addEventListener('change', function() {
-            if (this.files && this.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    previewFoto.src = e.target.result;
-                };
-                reader.readAsDataURL(this.files[0]);
-            }
-        });
-    }
-
-    // Manejo del formulario "Sobre Mí" con feedback visual
-    const perfilForm = document.getElementById('perfilForm');
-    if (perfilForm) {
-        perfilForm.addEventListener('submit', function(e) {
-            showSaveIndicator();
-            
-            // Validación básica en frontend
-            const nombre = document.getElementById('nombre_usuario').value.trim();
-            const profesion = document.getElementById('profesion').value.trim();
-            
-            if (!nombre) {
-                e.preventDefault();
-                hideSaveIndicator();
-                showNotification('error', 'El nombre completo es obligatorio', 'Campo Requerido');
-                document.getElementById('nombre_usuario').focus();
-                return false;
-            }
-            
-            if (!profesion) {
-                e.preventDefault();
-                hideSaveIndicator();
-                showNotification('warning', 'La profesión es importante para tu perfil', 'Campo Recomendado');
-                document.getElementById('profesion').focus();
-                return false;
-            }
-            
-            // Si todo está bien, el formulario se envía normalmente
-            setTimeout(() => {
-                hideSaveIndicator();
-            }, 1000);
-        });
-    }
-
-    // Manejo del botón de agregar habilidad
-    const btnAgregarHabilidad = document.getElementById('btnAgregarHabilidad');
-    if (btnAgregarHabilidad) {
-        btnAgregarHabilidad.addEventListener('click', function() {
-            if (typeof mostrarFormularioHabilidades === 'function') {
-                mostrarFormularioHabilidades();
-            } else {
-                showNotification('info', 'Haz clic en "Agregar Habilidades" para editar tu lista');
-            }
-        });
-    }
-
-    // Refuerzo para asegurar que el submit de habilidades NUNCA sea tradicional
-    const habilidadesForm = document.getElementById('habilidadesForm');
-    if (habilidadesForm) {
-        habilidadesForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            // El submit real lo maneja profile-forms.js
-            // Si por alguna razón no lo hace, aquí evitamos el submit tradicional
-            return false;
-        });
-    }
-
-    document.querySelectorAll('form').forEach(form => {
-        form.addEventListener('submit', function(e) {
-            let firstError = null;
-            form.querySelectorAll('[required]').forEach(input => {
-                if (!input.value.trim()) {
-                    input.classList.add('input-error');
-                    if (!firstError) firstError = input;
-                } else {
-                    input.classList.remove('input-error');
-                }
-            });
-            if (firstError) {
-                e.preventDefault();
-                showNotification({type: 'error', message: 'Por favor completa todos los campos obligatorios.', title: 'Campos requeridos'});
-                firstError.focus();
-            }
-        });
-    });
 });
 </script>
-@endsection
+@endpush
 
 <head>
     <!-- ... otros tags ... -->

@@ -117,21 +117,14 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/actualizar-perfil', [EmpleadorController::class, 'actualizarPerfil'])->name('actualizar-perfil');
         Route::post('/subir-documento', [EmpleadorController::class, 'subirDocumento'])->name('subir-documento');
         Route::delete('/eliminar-documento/{documento}', [EmpleadorController::class, 'eliminarDocumento'])->name('eliminar-documento');
-        Route::post('/actualizar-avatar', [EmpleadorController::class, 'actualizarAvatar'])->name('actualizar-avatar');
-        Route::post('/actualizar-logo', [EmpleadorController::class, 'actualizarLogo'])->name('actualizar-logo');
         Route::post('/actualizar-beneficios', [EmpleadorController::class, 'actualizarBeneficios'])->name('actualizar-beneficios');
-        Route::post('/actualizar-foto-perfil', [\App\Http\Controllers\EmpleadorController::class, 'actualizarFotoPerfil'])->name('actualizar-foto-perfil');
+        Route::post('/actualizar-foto-perfil', [EmpleadorController::class, 'actualizarFotoPerfil'])->name('actualizar-foto-perfil');
 
         // Rutas de candidatos
         Route::get('/candidatos', [EmpleadorController::class, 'candidatos'])->name('candidatos');
         Route::get('/candidatos/{usuario}', [EmpleadorController::class, 'verCandidato'])->name('candidato.perfil');
         Route::put('/aplicaciones/{aplicacion}', [EmpleadorController::class, 'actualizarAplicacion'])->name('aplicaciones.actualizar');
         Route::post('/aplicaciones/{aplicacion}/entrevista', [EmpleadorController::class, 'agendarEntrevista'])->name('aplicaciones.entrevista');
-
-        // Rutas de estadísticas
-        Route::get('/estadisticas', [EmpleadorController::class, 'estadisticas'])->name('estadisticas');
-        Route::get('/estadisticas/mensuales', [EmpleadorController::class, 'actualizarEstadisticasMensuales'])->name('estadisticas.mensuales');
-        Route::get('/estadisticas/top-ofertas', [EmpleadorController::class, 'obtenerTopOfertas'])->name('estadisticas.top-ofertas');
 
         // Rutas de configuración
         Route::get('/configuracion', [EmpleadorController::class, 'configuracion'])->name('configuracion');

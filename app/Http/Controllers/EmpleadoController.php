@@ -17,6 +17,8 @@ use App\Models\Experiencia;
 use App\Models\Educacion;
 use App\Models\Certificado;
 use App\Models\Idioma;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Hash;
 
 class EmpleadoController extends Controller
 {
@@ -205,24 +207,67 @@ class EmpleadoController extends Controller
     public function actualizarFoto(Request $request)
     {
         $request->validate([
-            'foto_perfil' => 'required|image|mimes:jpeg,png,jpg|max:5120', // 5MB
+            'foto_perfil' => 'required|image|mimes:jpeg,png,jpg|max:5120' // 5MB
+        ], [
+            'foto_perfil.required' => 'Debes seleccionar una imagen.',
+            'foto_perfil.image' => 'El archivo debe ser una imagen.',
+            'foto_perfil.mimes' => 'La imagen debe ser de tipo: jpeg, png o jpg.',
+            'foto_perfil.max' => 'La imagen no debe pesar más de 5MB.'
         ]);
 
-        $user = Auth::user();
+        try {
+            $usuario = Auth::user();
 
-        // Eliminar foto anterior si existe y no es una URL de Google
-        if ($user->foto_perfil && !filter_var($user->foto_perfil, FILTER_VALIDATE_URL)) {
-            Storage::disk('public')->delete($user->foto_perfil);
+            if ($request->hasFile('foto_perfil')) {
+                $file = $request->file('foto_perfil');
+                
+                // Crear un nombre de archivo seguro
+                $extension = $file->getClientOriginalExtension();
+                $nombreArchivo = time() . '_' . preg_replace('/[^a-zA-Z0-9]/', '_', pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME)) . '.' . $extension;
+                
+                // Asegurarse de que el directorio existe y tiene los permisos correctos
+                $avatarPath = storage_path('app/public/avatars');
+                if (!file_exists($avatarPath)) {
+                    mkdir($avatarPath, 0755, true);
+                }
+                
+                // Eliminar foto anterior si existe y no es una URL (de Google)
+                if ($usuario->foto_perfil && !filter_var($usuario->foto_perfil, FILTER_VALIDATE_URL)) {
+                    $oldPath = storage_path('app/public/' . $usuario->foto_perfil);
+                    if (file_exists($oldPath)) {
+                        unlink($oldPath);
+                    }
+                }
+
+                // Guardar la nueva foto
+                $file->move($avatarPath, $nombreArchivo);
+                
+                // Actualizar la base de datos con la ruta relativa
+                $usuario->foto_perfil = 'avatars/' . $nombreArchivo;
+                $usuario->save();
+
+                // Limpiar la caché de la imagen
+                clearstatcache();
+
+                // Retornar respuesta JSON con la nueva URL
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Foto de perfil actualizada correctamente',
+                    'foto_url' => asset('storage/avatars/' . $nombreArchivo)
+                ]);
+            }
+
+            return response()->json([
+                'success' => false,
+                'message' => 'No se ha seleccionado ninguna imagen'
+            ], 400);
+        } catch (\Exception $e) {
+            \Log::error('Error al actualizar foto de perfil: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al actualizar la foto de perfil. Por favor, intenta nuevamente.'
+            ], 500);
         }
-
-        // Guardar la nueva foto
-        $path = $request->file('foto_perfil')->store('fotos_perfil', 'public');
-
-        // Actualizar la ruta en la base de datos
-        $user->foto_perfil = $path;
-        $user->save();
-
-        return redirect()->back()->with('success', 'Tu foto de perfil ha sido actualizada.');
     }
 
     public function actualizarHabilidades(Request $request)
@@ -475,12 +520,53 @@ class EmpleadoController extends Controller
 
     public function eliminarCuenta(Request $request)
     {
-        $usuario = Auth::user();
-        Auth::logout();
-        $usuario->delete();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-        return redirect('/')->with('success', 'Tu cuenta ha sido eliminada.');
+        $user = Auth::user();
+
+        // Solo validar contraseña si no es un usuario de Google
+        if (!$user->google_id) {
+            $request->validate([
+                'password' => 'required',
+            ]);
+
+            if (!Hash::check($request->password, $user->contrasena)) {
+                return back()->withErrors(['password' => 'La contraseña no es correcta']);
+            }
+        }
+
+        // Comenzar transacción
+        DB::beginTransaction();
+
+        try {
+            // Eliminar aplicaciones y entrevistas
+            $user->aplicaciones()->delete();
+            
+            // Eliminar vistas de perfil
+            VistaPerfil::where('empleado_id', $user->id_usuario)->delete();
+            
+            // Eliminar experiencias
+            $user->experiencias()->delete();
+            
+            // Eliminar educación
+            $user->educaciones()->delete();
+            
+            // Eliminar certificados
+            $user->certificados()->delete();
+            
+            // Eliminar idiomas
+            $user->idiomas()->delete();
+
+            // Eliminar el usuario
+            $user->delete();
+
+            DB::commit();
+            Auth::logout();
+
+            return redirect()->route('login')->with('success', 'Tu cuenta ha sido eliminada correctamente');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error al eliminar cuenta de empleado: ' . $e->getMessage());
+            return back()->withErrors(['error' => 'Hubo un error al eliminar la cuenta. Por favor, intente nuevamente.']);
+        }
     }
 
     public function actualizarCorreo(Request $request)
