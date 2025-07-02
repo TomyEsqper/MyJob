@@ -13,8 +13,7 @@
 @if (session('warning'))
     <x-notification type="warning" :message="session('warning')" title="¡Atención!" />
 @endif
-@if (
-$errors->any())
+@if ($errors->any())
     <x-notification type="error" :message="$errors->first()" title="Error de validación" />
 @endif
 
@@ -36,14 +35,6 @@ $errors->any())
         </div>
         <div class="feedback-progress"></div>
     </div>
-    <script>
-    if (typeof closeNotification !== 'function' && typeof window.closeNotification !== 'function') {
-        window.closeNotification = function(id) {
-            var el = document.getElementById(id);
-            if (el) el.style.display = 'none';
-        }
-    }
-    </script>
 @endif
 
 @if (session('error'))
@@ -305,69 +296,6 @@ $errors->any())
             </div>
         </div>
         @endif
-
-        <!-- Eliminar Cuenta -->
-        <div class="col-md-6 px-4">
-            <div class="card form-section-card shadow-sm mb-4">
-                <div class="card-header bg-light py-3">
-                    <i class="fas fa-trash-alt me-2 text-danger"></i>Eliminar Cuenta
-                </div>
-                <div class="card-body p-4">
-                    <div class="alert alert-warning">
-                        <div class="d-flex align-items-center mb-2">
-                            <i class="fas fa-exclamation-triangle text-warning me-2 fa-lg"></i>
-                            <strong>¡Advertencia! Esta acción es irreversible.</strong>
-                        </div>
-                        <p class="mb-2">Se eliminarán:</p>
-                        <ul class="mb-0 ps-4">
-                            <li>Tu perfil de empleado</li>
-                            <li>Todas tus aplicaciones a ofertas</li>
-                            <li>Tu historial de entrevistas</li>
-                            <li>Tu cuenta de usuario</li>
-                        </ul>
-                    </div>
-                    @if(!Auth::user()->google_id)
-                    <form action="{{ route('empleado.eliminar-cuenta') }}" method="POST" class="needs-validation" novalidate>
-                        @csrf
-                        @method('DELETE')
-                        <div class="mb-4">
-                            <label for="delete_password" class="form-label">Ingresa tu contraseña para confirmar</label>
-                            <div class="input-group">
-                                <input type="password" 
-                                       class="form-control @error('password') is-invalid @enderror" 
-                                       name="password" 
-                                       id="delete_password" 
-                                       required>
-                                <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('delete_password')">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                                @error('password')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        </div>
-                        <button type="submit" class="btn btn-danger w-100" onclick="return confirm('¿Estás seguro de que deseas eliminar tu cuenta? Esta acción no se puede deshacer.')">
-                            <i class="fas fa-trash-alt me-2"></i>Eliminar mi cuenta
-                        </button>
-                    </form>
-                    @else
-                    <div class="alert alert-info mb-4">
-                        <div class="d-flex align-items-center">
-                            <i class="fab fa-google me-2 fa-lg"></i>
-                            <span>Has iniciado sesión con Google. No necesitas ingresar una contraseña para eliminar tu cuenta.</span>
-                        </div>
-                    </div>
-                    <form action="{{ route('empleado.eliminar-cuenta') }}" method="POST">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn btn-danger w-100" onclick="return confirm('¿Estás seguro de que deseas eliminar tu cuenta? Esta acción no se puede deshacer.')">
-                            <i class="fas fa-trash-alt me-2"></i>Eliminar mi cuenta
-                        </button>
-                    </form>
-                    @endif
-                </div>
-            </div>
-        </div>
     </div>
 </div>
 
@@ -403,12 +331,6 @@ document.addEventListener('DOMContentLoaded', function() {
             form.classList.add('was-validated');
         });
     }
-
-    // Animación de conteo para stats
-    animateCount('stat-exp', {{ $empleado->experiencias->count() }});
-    animateCount('stat-edu', {{ $empleado->educaciones->count() }});
-    animateCount('stat-cert', {{ $empleado->certificados->count() }});
-    animateCount('stat-idioma', {{ $empleado->idiomas->count() }});
 });
 </script>
 <script src="{{ asset('js/profile-forms.js') }}"></script>

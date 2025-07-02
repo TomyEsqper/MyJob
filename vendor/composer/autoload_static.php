@@ -200,6 +200,7 @@ class ComposerStaticInit8ba0b0ddab18eca68fee869e24d3c9e9
         'A' => 
         array (
             'ArchTech\\Enums\\' => 15,
+            'App\\Http\\Middleware\\' => 20,
             'App\\' => 4,
         ),
     );
@@ -623,6 +624,10 @@ class ComposerStaticInit8ba0b0ddab18eca68fee869e24d3c9e9
         array (
             0 => __DIR__ . '/..' . '/archtechx/enums/src',
         ),
+        'App\\Http\\Middleware\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/app/Http/Middleware',
+        ),
         'App\\' => 
         array (
             0 => __DIR__ . '/../..' . '/app',
@@ -650,22 +655,26 @@ class ComposerStaticInit8ba0b0ddab18eca68fee869e24d3c9e9
     public static $classMap = array (
         'App\\Console\\Commands\\CheckTableStructure' => __DIR__ . '/../..' . '/app/Console/Commands/CheckTableStructure.php',
         'App\\Console\\Commands\\CreateEmpleadorRecords' => __DIR__ . '/../..' . '/app/Console/Commands/CreateEmpleadorRecords.php',
-        'App\\Http\\Controllers\\Admin\\DashboardController' => __DIR__ . '/../..' . '/app/Http/Controllers/Admin/DashboardController.php',
-        'App\\Http\\Controllers\\Admin\\UserController' => __DIR__ . '/../..' . '/app/Http/Controllers/Admin/UserController.php',
         'App\\Http\\Controllers\\Auth\\ForgotPasswordController' => __DIR__ . '/../..' . '/app/Http/Controllers/Auth/ForgotPasswordController.php',
         'App\\Http\\Controllers\\Auth\\LoginController' => __DIR__ . '/../..' . '/app/Http/Controllers/Auth/LoginController.php',
         'App\\Http\\Controllers\\Auth\\RegisterController' => __DIR__ . '/../..' . '/app/Http/Controllers/Auth/RegisterController.php',
         'App\\Http\\Controllers\\Auth\\ResetPasswordController' => __DIR__ . '/../..' . '/app/Http/Controllers/Auth/ResetPasswordController.php',
         'App\\Http\\Controllers\\Auth\\SocialController' => __DIR__ . '/../..' . '/app/Http/Controllers/Auth/SocialController.php',
         'App\\Http\\Controllers\\Controller' => __DIR__ . '/../..' . '/app/Http/Controllers/Controller.php',
+        'App\\Http\\Controllers\\DocumentoEmpresaController' => __DIR__ . '/../..' . '/app/Http/Controllers/DocumentoEmpresaController.php',
         'App\\Http\\Controllers\\EmpleadoController' => __DIR__ . '/../..' . '/app/Http/Controllers/EmpleadoController.php',
         'App\\Http\\Controllers\\EmpleadorController' => __DIR__ . '/../..' . '/app/Http/Controllers/EmpleadorController.php',
         'App\\Http\\Controllers\\OfertaController' => __DIR__ . '/../..' . '/app/Http/Controllers/OfertaController.php',
+        'App\\Http\\Kernel' => __DIR__ . '/../..' . '/app/Http/Kernel.php',
+        'App\\Http\\Middleware\\AdminPredefinedMiddleware' => __DIR__ . '/../..' . '/app/Http/Middleware/AdminPredefinedMiddleware.php',
         'App\\Http\\Middleware\\CheckRole' => __DIR__ . '/../..' . '/app/Http/Middleware/CheckRole.php',
+        'App\\Http\\Middleware\\ThrottleAuthAttempts' => __DIR__ . '/../..' . '/app/Http/Middleware/ThrottleAuthAttempts.php',
         'App\\Models\\Aplicacion' => __DIR__ . '/../..' . '/app/Models/Aplicacion.php',
         'App\\Models\\Certificado' => __DIR__ . '/../..' . '/app/Models/Certificado.php',
+        'App\\Models\\DocumentoEmpresa' => __DIR__ . '/../..' . '/app/Models/DocumentoEmpresa.php',
         'App\\Models\\Educacion' => __DIR__ . '/../..' . '/app/Models/Educacion.php',
         'App\\Models\\Empleador' => __DIR__ . '/../..' . '/app/Models/Empleador.php',
+        'App\\Models\\Entrevista' => __DIR__ . '/../..' . '/app/Models/Entrevista.php',
         'App\\Models\\Experiencia' => __DIR__ . '/../..' . '/app/Models/Experiencia.php',
         'App\\Models\\Idioma' => __DIR__ . '/../..' . '/app/Models/Idioma.php',
         'App\\Models\\Oferta' => __DIR__ . '/../..' . '/app/Models/Oferta.php',
@@ -676,6 +685,7 @@ class ComposerStaticInit8ba0b0ddab18eca68fee869e24d3c9e9
         'App\\Providers\\AuthServiceProvider' => __DIR__ . '/../..' . '/app/Providers/AuthServiceProvider.php',
         'App\\Providers\\EventServiceProvider' => __DIR__ . '/../..' . '/app/Providers/EventServiceProvider.php',
         'App\\Providers\\RouteServiceProvider' => __DIR__ . '/../..' . '/app/Providers/RouteServiceProvider.php',
+        'App\\Rules\\StrongPassword' => __DIR__ . '/../..' . '/app/Rules/StrongPassword.php',
         'App\\Traits\\UploadTrait' => __DIR__ . '/../..' . '/app/Traits/UploadTrait.php',
         'ArchTech\\Enums\\Comparable' => __DIR__ . '/..' . '/archtechx/enums/src/Comparable.php',
         'ArchTech\\Enums\\Exceptions\\UndefinedCaseError' => __DIR__ . '/..' . '/archtechx/enums/src/Exceptions/UndefinedCaseError.php',

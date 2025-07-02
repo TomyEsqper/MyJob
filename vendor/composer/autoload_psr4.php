@@ -109,5 +109,6 @@ return array(
     'Carbon\\' => array($vendorDir . '/nesbot/carbon/src/Carbon'),
     'Brick\\Math\\' => array($vendorDir . '/brick/math/src'),
     'ArchTech\\Enums\\' => array($vendorDir . '/archtechx/enums/src'),
+    'App\\Http\\Middleware\\' => array($baseDir . '/app/Http/Middleware'),
     'App\\' => array($baseDir . '/app', $vendorDir . '/laravel/pint/app'),
 );

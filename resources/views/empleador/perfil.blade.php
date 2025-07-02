@@ -304,55 +304,6 @@ use Illuminate\Support\Facades\Storage;
             </div>
         </div>
         @endif
-
-        <!-- Eliminar Cuenta -->
-        <div class="card form-section-card mt-4">
-            <div class="card-header text-danger">
-                <i class="fas fa-trash-alt me-2"></i>Eliminar Cuenta
-            </div>
-            <div class="card-body">
-                <div class="alert alert-warning">
-                    <i class="fas fa-exclamation-triangle me-2"></i>¡Advertencia! Esta acción es irreversible. Se eliminarán:
-                    <ul class="mb-0 mt-2">
-                        <li>Tu perfil de empleador</li>
-                        <li>Todas tus ofertas de trabajo</li>
-                        <li>Todas las aplicaciones a tus ofertas</li>
-                        <li>Tu cuenta de usuario</li>
-                    </ul>
-                </div>
-                @if(!Auth::user()->google_id)
-                <form action="{{ route('empleador.eliminar-cuenta') }}" method="POST">
-                    @csrf
-                    @method('DELETE')
-                    <div class="mb-3">
-                        <label for="password" class="form-label">Ingresa tu contraseña para confirmar</label>
-                        <input type="password" 
-                               class="form-control @error('password') is-invalid @enderror" 
-                               name="password" 
-                               id="password" 
-                               required>
-                        @error('password')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                    </div>
-                    <button type="submit" class="btn btn-danger" onclick="return confirm('¿Estás seguro de que deseas eliminar tu cuenta? Esta acción no se puede deshacer.')">
-                        <i class="fas fa-trash-alt me-2"></i>Eliminar mi cuenta
-                    </button>
-                </form>
-                @else
-                <div class="alert alert-info mb-3">
-                    <i class="fab fa-google me-2"></i>Has iniciado sesión con Google. No necesitas ingresar una contraseña para eliminar tu cuenta.
-                </div>
-                <form action="{{ route('empleador.eliminar-cuenta') }}" method="POST">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="btn btn-danger" onclick="return confirm('¿Estás seguro de que deseas eliminar tu cuenta? Esta acción no se puede deshacer.')">
-                        <i class="fas fa-trash-alt me-2"></i>Eliminar mi cuenta
-                    </button>
-                </form>
-                @endif
-            </div>
-        </div>
     </div>
 </div>
 
