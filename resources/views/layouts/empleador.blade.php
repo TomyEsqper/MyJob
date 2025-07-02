@@ -150,4 +150,4 @@ use Illuminate\Support\Facades\Storage;
     </script>
     @stack('scripts')
 </body>
-</html> 
+</html>

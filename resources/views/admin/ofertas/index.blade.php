@@ -58,32 +58,26 @@
                 </tr>
             </thead>
             <tbody>
-                @forelse($ofertas as $oferta)
+                @forelse($ofertas->items() as $oferta)
                     <tr>
                         <td class="d-none d-md-table-cell">
                             <div class="d-flex align-items-center">
                                 <div class="company-logo me-2">
                                     @if($oferta->empleador && $oferta->empleador->empleador && $oferta->empleador->empleador->logo_empresa)
-                                        <img src="{{ asset($oferta->empleador->empleador->logo_empresa) }}" alt="Logo" class="img-fluid rounded-circle" style="width: 100%; height: 100%; object-fit: cover;">
+                                        <img src="{{ asset($oferta->empleador->empleador->logo_empresa) }}" alt="Logo" class="rounded-circle" style="width: 32px; height: 32px; object-fit: cover;">
                                     @else
                                         <i class="fa-solid fa-building text-muted"></i>
                                     @endif
                                 </div>
                                 <div>
                                     <div class="fw-bold">{{ $oferta->empleador->empleador->nombre_empresa ?? 'Sin empresa' }}</div>
-                                    <small class="text-muted">{{ $oferta->empleador->nombre_usuario }}</small>
+                                    <div class="small text-muted">{{ $oferta->empleador->nombre_usuario }}</div>
                                 </div>
                             </div>
                         </td>
                         <td>
                             <div class="fw-bold">{{ $oferta->titulo }}</div>
-                            <small class="text-muted">{{ Str::limit($oferta->descripcion, 50) }}</small>
-                            <div class="d-md-none mt-1">
-                                <small class="text-muted">
-                                    <i class="fa-solid fa-building me-1"></i>
-                                    {{ $oferta->empleador->empleador->nombre_empresa ?? 'Sin empresa' }}
-                                </small>
-                            </div>
+                            <div class="small text-muted">{{ Str::limit($oferta->descripcion, 50) }}</div>
                         </td>
                         <td class="d-none d-lg-table-cell">{{ $oferta->ubicacion }}</td>
                         <td class="d-none d-md-table-cell">{{ $oferta->tipo_contrato }}</td>
@@ -91,20 +85,17 @@
                             <span class="status-badge {{ $oferta->estado == 'activa' ? 'status-activa' : 'status-inactiva' }}">
                                 {{ ucfirst($oferta->estado) }}
                             </span>
-                            <div class="d-md-none mt-1">
-                                <small class="text-muted">{{ $oferta->tipo_contrato }}</small>
-                            </div>
                         </td>
                         <td class="d-none d-md-table-cell">{{ $oferta->created_at->format('d/m/Y') }}</td>
                         <td>
                             <div class="btn-group btn-group-sm" role="group">
-                                <a href="/admin/ofertas/{{ $oferta->id }}" class="btn btn-info btn-action" title="Ver detalles">
+                                <button class="btn btn-primary" onclick="verDetalles({{ $oferta->id_oferta }})">
                                     <i class="fa-solid fa-eye"></i>
-                                </a>
-                                <button class="btn btn-warning btn-action" onclick="cambiarEstado({{ $oferta->id }})" title="Cambiar estado">
-                                    <i class="fa-solid fa-toggle-on"></i>
                                 </button>
-                                <button class="btn btn-danger btn-action" onclick="eliminarOferta({{ $oferta->id }})" title="Eliminar oferta">
+                                <button class="btn btn-success" onclick="cambiarEstado({{ $oferta->id_oferta }}, '{{ $oferta->estado == 'activa' ? 'inactiva' : 'activa' }}')">
+                                    <i class="fa-solid {{ $oferta->estado == 'activa' ? 'fa-ban' : 'fa-check' }}"></i>
+                                </button>
+                                <button class="btn btn-danger" onclick="eliminarOferta({{ $oferta->id_oferta }})">
                                     <i class="fa-solid fa-trash"></i>
                                 </button>
                             </div>
@@ -112,10 +103,12 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="7" class="text-center py-5">
-                            <i class="fa-solid fa-briefcase fa-3x text-muted mb-3 d-block"></i>
-                            <h5 class="text-muted">No se encontraron ofertas</h5>
-                            <p class="text-muted">Intenta ajustar los filtros de búsqueda.</p>
+                        <td colspan="7" class="text-center py-4">
+                            <div class="empty-state">
+                                <i class="fa-solid fa-briefcase display-4 text-muted mb-3"></i>
+                                <h4>No se encontraron ofertas</h4>
+                                <p class="text-muted">Intenta ajustar los filtros de búsqueda.</p>
+                            </div>
                         </td>
                     </tr>
                 @endforelse
@@ -125,7 +118,7 @@
 
     @if($ofertas->hasPages())
         <div class="d-flex justify-content-center mt-4">
-            {{ $ofertas->appends(request()->query())->links() }}
+            {{ $ofertas->links() }}
         </div>
     @endif
 </div>
@@ -192,4 +185,4 @@ function cambiarEstado(ofertaId) {
     });
 }
 </script>
-@endpush 
+@endpush

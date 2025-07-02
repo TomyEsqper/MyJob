@@ -507,14 +507,22 @@ class EmpleadoController extends Controller
     {
         $request->validate([
             'current_password' => 'required',
-            'new_password' => 'required|min:8|confirmed',
+            'password' => 'required|min:8|confirmed'
+        ], [
+            'current_password.required' => 'La contraseña actual es requerida.',
+            'password.required' => 'La nueva contraseña es requerida.',
+            'password.min' => 'La nueva contraseña debe tener al menos 8 caracteres.',
+            'password.confirmed' => 'Las contraseñas no coinciden.'
         ]);
+
         $usuario = Auth::user();
-        if (!\Hash::check($request->current_password, $usuario->contrasena)) {
+        if (!Hash::check($request->current_password, $usuario->contrasena)) {
             return back()->withErrors(['current_password' => 'La contraseña actual es incorrecta.']);
         }
-        $usuario->contrasena = bcrypt($request->new_password);
+
+        $usuario->contrasena = Hash::make($request->password);
         $usuario->save();
+
         return back()->with('success', 'Contraseña actualizada correctamente.');
     }
 

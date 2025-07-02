@@ -13,8 +13,7 @@
 @if (session('warning'))
     <x-notification type="warning" :message="session('warning')" title="¡Atención!" />
 @endif
-@if (
-$errors->any())
+@if ($errors->any())
     <x-notification type="error" :message="$errors->first()" title="Error de validación" />
 @endif
 
@@ -36,14 +35,6 @@ $errors->any())
         </div>
         <div class="feedback-progress"></div>
     </div>
-    <script>
-    if (typeof closeNotification !== 'function' && typeof window.closeNotification !== 'function') {
-        window.closeNotification = function(id) {
-            var el = document.getElementById(id);
-            if (el) el.style.display = 'none';
-        }
-    }
-    </script>
 @endif
 
 @if (session('error'))
@@ -233,22 +224,118 @@ $errors->any())
     </div>
 </div>
 
+<!-- Sección de Configuración de Cuenta -->
+<div class="profile-section mt-4">
+    <div class="section-header">
+        <h2><i class="fas fa-cog"></i> Configuración de Cuenta</h2>
+    </div>
+    <div class="row">
+        @if(!Auth::user()->google_id)
+        <!-- Cambiar Contraseña -->
+        <div class="col-md-6">
+            <div class="card form-section-card">
+                <div class="card-header">
+                    <i class="fas fa-key me-2"></i>Cambiar Contraseña
+                </div>
+                <div class="card-body">
+                    <form action="{{ route('empleado.actualizar-contrasena') }}" method="POST" class="needs-validation" novalidate>
+                        @csrf
+                        <div class="mb-3">
+                            <label for="current_password" class="form-label">Contraseña Actual</label>
+                            <div class="input-group">
+                                <input type="password" 
+                                       class="form-control @error('current_password') is-invalid @enderror" 
+                                       name="current_password" 
+                                       id="current_password" 
+                                       required>
+                                <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('current_password')">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                @error('current_password')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Nueva Contraseña</label>
+                            <div class="input-group">
+                                <input type="password" 
+                                       class="form-control @error('password') is-invalid @enderror" 
+                                       name="password" 
+                                       id="password" 
+                                       required>
+                                <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('password')">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                @error('password')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password_confirmation" class="form-label">Confirmar Nueva Contraseña</label>
+                            <div class="input-group">
+                                <input type="password" 
+                                       class="form-control @error('password_confirmation') is-invalid @enderror" 
+                                       name="password_confirmation" 
+                                       id="password_confirmation" 
+                                       required>
+                                <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('password_confirmation')">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                @error('password_confirmation')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Actualizar Contraseña
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        @endif
+    </div>
+</div>
+
 @endsection
 
 @push('scripts')
-<script src="{{ asset('js/profile-forms.js') }}"></script>
 <script>
+function togglePassword(inputId) {
+    const input = document.getElementById(inputId);
+    const button = input.nextElementSibling;
+    const icon = button.querySelector('i');
+
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+    } else {
+        input.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+    }
+}
+
+// Validación del formulario
 document.addEventListener('DOMContentLoaded', function() {
-    // Animación de conteo para stats
-    animateCount('stat-exp', {{ $empleado->experiencias->count() }});
-    animateCount('stat-edu', {{ $empleado->educaciones->count() }});
-    animateCount('stat-cert', {{ $empleado->certificados->count() }});
-    animateCount('stat-idioma', {{ $empleado->idiomas->count() }});
+    const form = document.querySelector('.needs-validation');
+    if (form) {
+        form.addEventListener('submit', function(event) {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        });
+    }
 });
 </script>
+<script src="{{ asset('js/profile-forms.js') }}"></script>
 @endpush
 
-<head>
-    <!-- ... otros tags ... -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-</head>
+@push('styles')
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+@endpush
