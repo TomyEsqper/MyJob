@@ -126,7 +126,7 @@ use Illuminate\Support\Facades\Storage;
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end">
                             <li><a class="dropdown-item" href="{{ route('empleador.perfil') }}"><i class="fas fa-building me-2 text-muted"></i>Perfil de Empresa</a></li>
-                            <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2 text-muted"></i>Configuración</a></li>
+                            <li><a class="dropdown-item" href="{{ route('empleador.configuracion') }}"><i class="fas fa-cog me-2 text-muted"></i>Configuración</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li>
                                 <form action="{{ route('logout') }}" method="POST">
@@ -150,4 +150,4 @@ use Illuminate\Support\Facades\Storage;
     </script>
     @stack('scripts')
 </body>
-</html> 
+</html>

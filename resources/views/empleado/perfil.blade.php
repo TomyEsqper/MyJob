@@ -247,37 +247,55 @@ $errors->any())
                     <i class="fas fa-key me-2"></i>Cambiar Contraseña
                 </div>
                 <div class="card-body">
-                    <form action="{{ route('empleado.actualizar-contrasena') }}" method="POST">
+                    <form action="{{ route('empleado.actualizar-contrasena') }}" method="POST" class="needs-validation" novalidate>
                         @csrf
                         <div class="mb-3">
                             <label for="current_password" class="form-label">Contraseña Actual</label>
-                            <input type="password" 
-                                   class="form-control @error('current_password') is-invalid @enderror" 
-                                   name="current_password" 
-                                   id="current_password" 
-                                   required>
-                            @error('current_password')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
+                            <div class="input-group">
+                                <input type="password" 
+                                       class="form-control @error('current_password') is-invalid @enderror" 
+                                       name="current_password" 
+                                       id="current_password" 
+                                       required>
+                                <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('current_password')">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                @error('current_password')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
                         </div>
                         <div class="mb-3">
                             <label for="password" class="form-label">Nueva Contraseña</label>
-                            <input type="password" 
-                                   class="form-control @error('password') is-invalid @enderror" 
-                                   name="password" 
-                                   id="password" 
-                                   required>
-                            @error('password')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
+                            <div class="input-group">
+                                <input type="password" 
+                                       class="form-control @error('password') is-invalid @enderror" 
+                                       name="password" 
+                                       id="password" 
+                                       required>
+                                <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('password')">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                @error('password')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
                         </div>
                         <div class="mb-3">
                             <label for="password_confirmation" class="form-label">Confirmar Nueva Contraseña</label>
-                            <input type="password" 
-                                   class="form-control" 
-                                   name="password_confirmation" 
-                                   id="password_confirmation" 
-                                   required>
+                            <div class="input-group">
+                                <input type="password" 
+                                       class="form-control @error('password_confirmation') is-invalid @enderror" 
+                                       name="password_confirmation" 
+                                       id="password_confirmation" 
+                                       required>
+                                <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('password_confirmation')">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                @error('password_confirmation')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
                         </div>
                         <button type="submit" class="btn btn-primary">
                             <i class="fas fa-save me-2"></i>Actualizar Contraseña
@@ -289,15 +307,19 @@ $errors->any())
         @endif
 
         <!-- Eliminar Cuenta -->
-        <div class="col-md-6">
-            <div class="card form-section-card">
-                <div class="card-header text-danger">
-                    <i class="fas fa-trash-alt me-2"></i>Eliminar Cuenta
+        <div class="col-md-6 px-4">
+            <div class="card form-section-card shadow-sm mb-4">
+                <div class="card-header bg-light py-3">
+                    <i class="fas fa-trash-alt me-2 text-danger"></i>Eliminar Cuenta
                 </div>
-                <div class="card-body">
+                <div class="card-body p-4">
                     <div class="alert alert-warning">
-                        <i class="fas fa-exclamation-triangle me-2"></i>¡Advertencia! Esta acción es irreversible. Se eliminarán:
-                        <ul class="mb-0 mt-2">
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fas fa-exclamation-triangle text-warning me-2 fa-lg"></i>
+                            <strong>¡Advertencia! Esta acción es irreversible.</strong>
+                        </div>
+                        <p class="mb-2">Se eliminarán:</p>
+                        <ul class="mb-0 ps-4">
                             <li>Tu perfil de empleado</li>
                             <li>Todas tus aplicaciones a ofertas</li>
                             <li>Tu historial de entrevistas</li>
@@ -305,32 +327,44 @@ $errors->any())
                         </ul>
                     </div>
                     @if(!Auth::user()->google_id)
-                    <form action="{{ route('empleado.eliminar-cuenta') }}" method="POST">
+                    <form action="{{ route('empleado.eliminar-cuenta') }}" method="POST" class="needs-validation" novalidate>
                         @csrf
                         @method('DELETE')
-                        <div class="mb-3">
-                            <label for="password" class="form-label">Ingresa tu contraseña para confirmar</label>
-                            <input type="password" 
-                                   class="form-control @error('password') is-invalid @enderror" 
-                                   name="password" 
-                                   id="password" 
-                                   required>
-                            @error('password')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
+                        <div class="mb-4">
+                            <label for="delete_password" class="form-label">Ingresa tu contraseña para confirmar</label>
+                            <div class="input-group">
+                                <input type="password" 
+                                       class="form-control @error('password') is-invalid @enderror" 
+                                       name="password" 
+                                       id="delete_password" 
+                                       required>
+                                <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('delete_password')">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                @error('password')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
                         </div>
-                        <button type="submit" class="btn btn-danger" onclick="return confirm('¿Estás seguro de que deseas eliminar tu cuenta? Esta acción no se puede deshacer.')">
+                        <button type="submit" class="btn btn-danger w-100" onclick="return confirm('¿Estás seguro de que deseas eliminar tu cuenta? Esta acción no se puede deshacer.')">
                             <i class="fas fa-trash-alt me-2"></i>Eliminar mi cuenta
                         </button>
                     </form>
                     @else
-                    <div class="alert alert-info">
-                        <i class="fab fa-google me-2"></i>Has iniciado sesión con Google. No necesitas ingresar una contraseña para eliminar tu cuenta.
+                    <div class="alert alert-info mb-4">
+                        <div class="d-flex align-items-center">
+                            <i class="fab fa-google me-2 fa-lg"></i>
+                            <span>Has iniciado sesión con Google. No necesitas ingresar una contraseña para eliminar tu cuenta.</span>
+                        </div>
                     </div>
+                    <form action="{{ route('empleado.eliminar-cuenta') }}" method="POST">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-danger w-100" onclick="return confirm('¿Estás seguro de que deseas eliminar tu cuenta? Esta acción no se puede deshacer.')">
+                            <i class="fas fa-trash-alt me-2"></i>Eliminar mi cuenta
+                        </button>
+                    </form>
                     @endif
-                    <button type="submit" class="btn btn-danger" onclick="return confirm('¿Estás seguro de que deseas eliminar tu cuenta? Esta acción no se puede deshacer.')">
-                        <i class="fas fa-trash-alt me-2"></i>Eliminar mi cuenta
-                    </button>
                 </div>
             </div>
         </div>
@@ -340,9 +374,36 @@ $errors->any())
 @endsection
 
 @push('scripts')
-<script src="{{ asset('js/profile-forms.js') }}"></script>
 <script>
+function togglePassword(inputId) {
+    const input = document.getElementById(inputId);
+    const button = input.nextElementSibling;
+    const icon = button.querySelector('i');
+
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+    } else {
+        input.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+    }
+}
+
+// Validación del formulario
 document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('.needs-validation');
+    if (form) {
+        form.addEventListener('submit', function(event) {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        });
+    }
+
     // Animación de conteo para stats
     animateCount('stat-exp', {{ $empleado->experiencias->count() }});
     animateCount('stat-edu', {{ $empleado->educaciones->count() }});
@@ -350,9 +411,9 @@ document.addEventListener('DOMContentLoaded', function() {
     animateCount('stat-idioma', {{ $empleado->idiomas->count() }});
 });
 </script>
+<script src="{{ asset('js/profile-forms.js') }}"></script>
 @endpush
 
-<head>
-    <!-- ... otros tags ... -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-</head>
+@push('styles')
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+@endpush

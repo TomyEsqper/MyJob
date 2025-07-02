@@ -3,6 +3,40 @@
 @section('page-title', 'Configuración')
 @section('page-description', 'Ajusta tus preferencias y configuración de cuenta.')
 
+@push('scripts')
+<script>
+function togglePassword(inputId) {
+    const input = document.getElementById(inputId);
+    const button = input.nextElementSibling;
+    const icon = button.querySelector('i');
+
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+    } else {
+        input.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+    }
+}
+
+// Validación del formulario
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('.needs-validation');
+    if (form) {
+        form.addEventListener('submit', function(event) {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        });
+    }
+});
+</script>
+@endpush
+
 @section('content')
 @if (session('success'))
     <x-notification type="success" :message="session('success')" title="¡Éxito!" />
@@ -23,21 +57,59 @@
     </div>
     <div class="card-body-empleado">
         @if (empty(auth()->user()->google_id))
-            <form method="POST" action="{{ route('empleado.actualizar-contrasena') }}">
+            <form method="POST" action="{{ route('empleado.actualizar-contrasena') }}" class="needs-validation" novalidate>
                 @csrf
                 <div class="mb-3">
                     <label for="current_password" class="form-label">Contraseña actual</label>
-                    <input type="password" class="form-control" id="current_password" name="current_password" required>
+                    <div class="input-group">
+                        <input type="password" 
+                               class="form-control @error('current_password') is-invalid @enderror" 
+                               id="current_password" 
+                               name="current_password" 
+                               required>
+                        <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('current_password')">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        @error('current_password')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
                 </div>
                 <div class="mb-3">
                     <label for="new_password" class="form-label">Nueva contraseña</label>
-                    <input type="password" class="form-control" id="new_password" name="new_password" required>
+                    <div class="input-group">
+                        <input type="password" 
+                               class="form-control @error('new_password') is-invalid @enderror" 
+                               id="new_password" 
+                               name="new_password" 
+                               required>
+                        <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('new_password')">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        @error('new_password')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
                 </div>
                 <div class="mb-3">
                     <label for="new_password_confirmation" class="form-label">Confirmar nueva contraseña</label>
-                    <input type="password" class="form-control" id="new_password_confirmation" name="new_password_confirmation" required>
+                    <div class="input-group">
+                        <input type="password" 
+                               class="form-control @error('new_password_confirmation') is-invalid @enderror" 
+                               id="new_password_confirmation" 
+                               name="new_password_confirmation" 
+                               required>
+                        <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('new_password_confirmation')">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        @error('new_password_confirmation')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
                 </div>
-                <button type="submit" class="btn btn-primary">Actualizar contraseña</button>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save me-2"></i>Actualizar contraseña
+                </button>
             </form>
         @else
             <div class="alert alert-info mb-3">
@@ -87,4 +159,4 @@
         </form>
     </div>
 </div>
-@endsection 
+@endsection

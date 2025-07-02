@@ -96,7 +96,7 @@
             <div class="text-center py-5">
                 <i class="fas fa-briefcase fa-3x text-muted mb-3"></i>
                 <p class="text-muted mb-0">No hay aplicaciones que mostrar</p>
-                <a href="{{ route('empleado.buscar') }}" class="btn btn-success mt-3">
+                <a href="{{ route('empleado.buscar') }}" class="btn btn-success btn-sm mt-3">
                     <i class="fas fa-search me-1"></i> Buscar Ofertas
                 </a>
             </div>
@@ -131,4 +131,4 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
-@endsection 
+@endsection

@@ -43,7 +43,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse($aplicaciones as $aplicacion)
+                    @forelse($aplicaciones->items() as $aplicacion)
                         <tr>
                             <td class="d-none d-md-table-cell">{{ $aplicacion->id_aplicacion }}</td>
                             <td>
@@ -57,35 +57,15 @@
                                             </div>
                                         @endif
                                     </div>
-                                    <div class="flex-grow-1">
-                                        <div class="fw-bold">
-                                            <a href="/admin/usuarios/{{ $aplicacion->usuario->id_usuario }}/perfil" class="text-decoration-none text-dark">
-                                                {{ $aplicacion->usuario->nombre_usuario }}
-                                            </a>
-                                        </div>
-                                        <div class="small text-muted d-md-none">
-                                            {{ Str::limit($aplicacion->usuario->correo_electronico, 25) }}
-                                        </div>
-                                        <div class="small text-muted">
-                                            @if($aplicacion->usuario->verificado)
-                                                <span class="badge bg-info me-1"><i class="fa-solid fa-check me-1"></i><span class="d-none d-sm-inline">Verificado</span></span>
-                                            @endif
-                                            @if($aplicacion->usuario->destacado)
-                                                <span class="badge bg-warning"><i class="fa-solid fa-star me-1"></i><span class="d-none d-sm-inline">Destacado</span></span>
-                                            @endif
-                                        </div>
+                                    <div>
+                                        <div class="fw-bold">{{ $aplicacion->usuario->nombre_usuario }}</div>
+                                        <div class="small text-muted">{{ $aplicacion->usuario->correo_electronico }}</div>
                                     </div>
                                 </div>
                             </td>
                             <td>
                                 <div class="fw-bold">{{ $aplicacion->oferta->titulo }}</div>
                                 <div class="small text-muted">{{ Str::limit($aplicacion->oferta->descripcion, 40) }}</div>
-                                <div class="d-md-none mt-1">
-                                    <small class="text-muted">
-                                        <i class="fa-solid fa-building me-1"></i>
-                                        {{ $aplicacion->oferta->empleador->empleador->nombre_empresa ?? $aplicacion->oferta->empleador->nombre_usuario }}
-                                    </small>
-                                </div>
                             </td>
                             <td>
                                 <div class="d-flex align-items-center">
@@ -96,39 +76,37 @@
                                             <i class="fa-solid fa-building text-muted"></i>
                                         @endif
                                     </div>
-                                    <div>
-                                        <div class="fw-bold">{{ $aplicacion->oferta->empleador->empleador->nombre_empresa ?? $aplicacion->oferta->empleador->nombre_usuario }}</div>
-                                        <div class="small text-muted d-md-none">{{ $aplicacion->oferta->empleador->correo_electronico }}</div>
-                                    </div>
+                                    <div class="fw-bold">{{ $aplicacion->oferta->empleador->empleador->nombre_empresa ?? 'Sin empresa' }}</div>
                                 </div>
                             </td>
                             <td>
-                                <span class="status-badge {{ $aplicacion->estado == 'aceptada' ? 'status-activa' : ($aplicacion->estado == 'rechazada' ? 'status-inactiva' : 'status-pendiente') }}">
+                                <span class="status-badge status-{{ $aplicacion->estado }}">
                                     {{ ucfirst($aplicacion->estado) }}
                                 </span>
                             </td>
-                            <td class="d-none d-md-table-cell">{{ $aplicacion->created_at->format('d/m/Y H:i') }}</td>
+                            <td class="d-none d-md-table-cell">{{ $aplicacion->created_at->format('d/m/Y') }}</td>
                             <td>
                                 <div class="btn-group btn-group-sm" role="group">
-                                    <button class="btn btn-info btn-action" onclick="verDetalle({{ $aplicacion->id_aplicacion }})" title="Ver detalle">
+                                    <button class="btn btn-primary" onclick="verDetalles({{ $aplicacion->id_aplicacion }})">
                                         <i class="fa-solid fa-eye"></i>
                                     </button>
-                                    @if($aplicacion->estado == 'pendiente')
-                                        <button class="btn btn-success btn-action" onclick="cambiarEstado({{ $aplicacion->id_aplicacion }}, 'aceptada')" title="Aceptar">
-                                            <i class="fa-solid fa-check"></i>
-                                        </button>
-                                        <button class="btn btn-danger btn-action" onclick="cambiarEstado({{ $aplicacion->id_aplicacion }}, 'rechazada')" title="Rechazar">
-                                            <i class="fa-solid fa-times"></i>
-                                        </button>
-                                    @endif
+                                    <button class="btn btn-success" onclick="cambiarEstado({{ $aplicacion->id_aplicacion }}, 'aceptada')">
+                                        <i class="fa-solid fa-check"></i>
+                                    </button>
+                                    <button class="btn btn-danger" onclick="cambiarEstado({{ $aplicacion->id_aplicacion }}, 'rechazada')">
+                                        <i class="fa-solid fa-times"></i>
+                                    </button>
                                 </div>
                             </td>
                         </tr>
                     @empty
                         <tr>
                             <td colspan="7" class="text-center py-4">
-                                <i class="fa-solid fa-inbox fa-2x text-muted mb-2"></i>
-                                <p class="text-muted">No se encontraron aplicaciones</p>
+                                <div class="empty-state">
+                                    <i class="fa-solid fa-paper-plane display-4 text-muted mb-3"></i>
+                                    <h4>No se encontraron aplicaciones</h4>
+                                    <p class="text-muted">Intenta ajustar los filtros de búsqueda.</p>
+                                </div>
                             </td>
                         </tr>
                     @endforelse
@@ -137,7 +115,7 @@
         </div>
         @if($aplicaciones->hasPages())
             <div class="d-flex justify-content-center mt-4">
-                {{ $aplicaciones->appends(request()->query())->links() }}
+                {{ $aplicaciones->links() }}
             </div>
         @endif
     </div>
@@ -194,4 +172,4 @@ function cambiarEstado(id, estado) {
     }
 }
 </script>
-@endpush 
+@endpush

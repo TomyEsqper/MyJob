@@ -226,7 +226,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 const data = await response.json();
 
                 if (!response.ok) {
-                    throw new Error(data.message || 'Error en el registro');
+                    throw new Error(data.error || data.message || 'Error en el registro');
                 }
 
                 // Éxito
@@ -249,9 +249,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 Swal.fire({
                     icon: 'error',
-                    title: 'Error',
-                    text: error.message || 'Hubo un problema al procesar tu registro. Por favor, intenta nuevamente.',
-                    confirmButtonText: 'Entendido'
+                    title: 'Error en el Registro',
+                    text: error.message,
+                    confirmButtonText: 'Entendido',
+                    confirmButtonColor: '#258d19'
                 });
             }
         });
@@ -292,8 +293,8 @@ function isValidNIT(nit) {
 
 // Función para validar nombre de usuario
 function isValidUsername(username) {
-    // Solo letras, números, guiones y puntos, 3-30 caracteres
-    return /^[a-zA-Z0-9.-]{3,30}$/.test(username);
+    // Letras, números, espacios, guiones y puntos, 3-30 caracteres
+    return /^[a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s.-]{3,30}$/.test(username);
 }
 
 // Agregar validaciones a los campos del formulario

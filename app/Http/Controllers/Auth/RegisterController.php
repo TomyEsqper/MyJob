@@ -39,7 +39,7 @@ class RegisterController extends Controller
     {
         // Definición de reglas de validación.
         $rules = [
-            'name'               => 'required_if:rol,empleado|string|max:255',
+            'name'               => ['required_if:rol,empleado', 'string', 'min:3', 'max:30'],
             'email'              => 'required|string|email|max:255|unique:usuarios,correo_electronico',
             'password'           => 'required_if:rol,empleado|string|min:8|confirmed',
             'password_empresa'   => 'required_if:rol,empleador|string|min:8|confirmed',
@@ -55,7 +55,9 @@ class RegisterController extends Controller
         $messages = [
             'name.required_if'           => 'El nombre es obligatorio para los empleados.',
             'name.string'                => 'El nombre debe ser un texto.',
-            'name.max'                   => 'El nombre no puede superar los 255 caracteres.',
+            'name.regex'                 => 'El nombre solo puede contener letras, números, espacios, puntos y guiones.',
+            'name.min'                   => 'El nombre debe tener al menos 3 caracteres.',
+            'name.max'                   => 'El nombre no puede superar los 30 caracteres.',
 
             'email.required'             => 'El correo electrónico es obligatorio.',
             'email.email'                => 'El correo debe tener un formato válido.',
@@ -99,8 +101,24 @@ class RegisterController extends Controller
 
         // Si falla, retorna el primer error en formato JSON.
         if ($validator->fails()) {
+            $errors = $validator->errors();
+            $errorMessage = 'Error en el registro: ';
+            
+            // Verificar campos específicos según el rol
+            if ($request->rol === 'empleado') {
+                if ($errors->has('name')) $errorMessage .= 'Nombre requerido. ';
+                if ($errors->has('email')) $errorMessage .= 'Email inválido o ya registrado. ';
+                if ($errors->has('password')) $errorMessage .= 'Contraseña inválida. ';
+            } else {
+                if ($errors->has('nit')) $errorMessage .= 'NIT requerido. ';
+                if ($errors->has('nombre_empresa')) $errorMessage .= 'Nombre de empresa requerido. ';
+                if ($errors->has('correo_empresarial')) $errorMessage .= 'Correo empresarial inválido. ';
+                if ($errors->has('direccion_empresa')) $errorMessage .= 'Dirección requerida. ';
+                if ($errors->has('telefono_contacto')) $errorMessage .= 'Teléfono requerido. ';
+            }
+            
             return response()->json([
-                'error' => $validator->errors()->first()
+                'error' => trim($errorMessage)
             ], 422);
         }
 

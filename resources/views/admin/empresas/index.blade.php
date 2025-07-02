@@ -95,54 +95,46 @@
                 </tr>
             </thead>
             <tbody>
-                @forelse($empresas as $empresa)
+                @forelse($empresas->items() as $empresa)
                     <tr>
                         <td>
-                            <input type="checkbox" class="form-check-input empresa-checkbox" value="{{ $empresa->id_usuario }}">
+                            <input type="checkbox" class="form-check-input empresa-checkbox" value="{{ $empresa->id_empresa }}">
                         </td>
-                        <td class="d-none d-md-table-cell">{{ $empresa->id_usuario }}</td>
+                        <td class="d-none d-md-table-cell">{{ $empresa->id_empresa }}</td>
                         <td>
                             <div class="d-flex align-items-center">
                                 <div class="company-logo me-2">
-                                    @if($empresa->empleador && $empresa->empleador->logo_empresa)
-                                        <img src="{{ asset($empresa->empleador->logo_empresa) }}" alt="Logo" class="rounded-circle" style="width: 32px; height: 32px; object-fit: cover;">
+                                    @if($empresa->logo_empresa)
+                                        <img src="{{ asset($empresa->logo_empresa) }}" alt="Logo" class="rounded-circle" style="width: 32px; height: 32px; object-fit: cover;">
                                     @else
-                                        <div class="bg-secondary rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
-                                            <i class="fa-solid fa-building text-white"></i>
-                                        </div>
+                                        <i class="fa-solid fa-building text-muted"></i>
                                     @endif
                                 </div>
-                                <div class="flex-grow-1">
-                                    <div class="fw-bold">{{ $empresa->nombre_usuario }}</div>
-                                    <div class="small text-muted d-md-none">
-                                        {{ Str::limit($empresa->correo_electronico, 25) }}
-                                    </div>
-                                    <div class="small text-muted">
-                                        @if($empresa->verificado)
-                                            <span class="badge bg-info"><i class="fa-solid fa-check me-1"></i><span class="d-none d-sm-inline">Verificado</span></span>
-                                        @endif
-                                    </div>
+                                <div>
+                                    <div class="fw-bold">{{ $empresa->nombre_empresa }}</div>
+                                    <div class="small text-muted d-md-none">{{ $empresa->correo_electronico }}</div>
                                 </div>
                             </div>
                         </td>
                         <td class="d-none d-lg-table-cell">{{ $empresa->correo_electronico }}</td>
                         <td>
-                            @if($empresa->activo)
-                                <span class="status-badge status-activa">Activa</span>
-                            @else
-                                <span class="status-badge status-inactiva">Inactiva</span>
+                            <span class="status-badge {{ $empresa->activo ? 'status-activa' : 'status-inactiva' }}">
+                                {{ $empresa->activo ? 'Activa' : 'Inactiva' }}
+                            </span>
+                            @if($empresa->verificado)
+                                <span class="badge bg-info ms-1"><i class="fa-solid fa-check"></i></span>
                             @endif
                         </td>
                         <td class="d-none d-md-table-cell">{{ $empresa->created_at->format('d/m/Y') }}</td>
                         <td>
                             <div class="btn-group btn-group-sm" role="group">
-                                <a href="/admin/empresas/{{ $empresa->id_usuario }}/perfil" class="btn btn-primary btn-action" title="Ver perfil completo">
-                                    <i class="fa-solid fa-eye"></i>
-                                </a>
-                                <button class="btn btn-info btn-action" onclick="verificarEmpresa({{ $empresa->id_usuario }})" title="Verificar empresa">
+                                <button class="btn btn-success" onclick="cambiarEstado({{ $empresa->id_empresa }}, {{ $empresa->activo ? 0 : 1 }})">
+                                    <i class="fa-solid {{ $empresa->activo ? 'fa-ban' : 'fa-check' }}"></i>
+                                </button>
+                                <button class="btn btn-info" onclick="verificarEmpresa({{ $empresa->id_empresa }})">
                                     <i class="fa-solid fa-building-circle-check"></i>
                                 </button>
-                                <button class="btn btn-danger btn-action" onclick="eliminarEmpresa({{ $empresa->id_usuario }})" title="Eliminar empresa">
+                                <button class="btn btn-danger" onclick="eliminarEmpresa({{ $empresa->id_empresa }})">
                                     <i class="fa-solid fa-trash"></i>
                                 </button>
                             </div>
@@ -150,10 +142,12 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="7" class="text-center py-5">
-                            <i class="fa-solid fa-building fa-3x text-muted mb-3 d-block"></i>
-                            <h5 class="text-muted">No se encontraron empresas</h5>
-                            <p class="text-muted">Intenta ajustar los filtros de búsqueda.</p>
+                        <td colspan="7" class="text-center py-4">
+                            <div class="empty-state">
+                                <i class="fa-solid fa-building display-4 text-muted mb-3"></i>
+                                <h4>No se encontraron empresas</h4>
+                                <p class="text-muted">Intenta ajustar los filtros de búsqueda.</p>
+                            </div>
                         </td>
                     </tr>
                 @endforelse
@@ -163,7 +157,7 @@
     
     @if($empresas->hasPages())
         <div class="d-flex justify-content-center mt-4">
-            {{ $empresas->appends(request()->query())->links() }}
+            {{ $empresas->links() }}
         </div>
     @endif
 </div>
@@ -350,4 +344,4 @@ function verificarEmpresa(empresaId) {
     });
 }
 </script>
-@endpush 
+@endpush
