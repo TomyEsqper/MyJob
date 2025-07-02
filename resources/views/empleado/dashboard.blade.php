@@ -108,7 +108,7 @@ document.querySelectorAll('.stat-card-empleado').forEach(function(card, idx) {
 <section class="card-empleado mb-4 animate__animated animate__fadeInUp animate__delay-2s">
     <div class="card-header-empleado d-flex justify-content-between align-items-center">
         <h5 class="mb-0">Ofertas Disponibles</h5>
-        <a href="#" class="btn btn-outline-success btn-sm">Ver Más</a>
+        <a href="{{ route('empleado.buscar') }}" class="btn btn-outline-success btn-sm">Ver Más</a>
     </div>
     <div class="card-body-empleado">
         @forelse($ofertas as $oferta)
@@ -140,7 +140,7 @@ document.querySelectorAll('.stat-card-empleado').forEach(function(card, idx) {
                                 </span>
                                 <span class="text-muted small">
                                     <i class="fas fa-money-bill-wave me-1 text-secondary"></i>
-                                    COP ${{ number_format($oferta->salario_minimo, 0, ',', '.') }} - COP ${{ number_format($oferta->salario_maximo, 0, ',', '.') }}
+                                    COP ${{ number_format($oferta->salario, 0, ',', '.') }}
                                 </span>
                             </div>
                         </div>

@@ -56,7 +56,16 @@ Route::post('password/reset', [ResetPasswordController::class, 'reset'])
 // Rutas para empleado
 Route::middleware(['auth'])->group(function () {
     Route::prefix('empleado')->name('empleado.')->group(function () {
-        Route::get('/dashboard', [EmpleadoController::class, 'dashboard'])->name('dashboard');
+        Route::get('/dashboard', function() {
+            \Log::info('Usuario autenticado', [
+                'user' => auth()->user(),
+                'rol' => auth()->user() ? auth()->user()->rol : null
+            ]);
+            if (!auth()->check() || auth()->user()->rol !== 'empleado') {
+                abort(403, 'No tienes permiso para acceder a esta sección.');
+            }
+            return app(\App\Http\Controllers\EmpleadoController::class)->dashboard();
+        })->name('dashboard');
         Route::get('/perfil/{id?}', [EmpleadoController::class, 'perfil'])->name('perfil');
         Route::post('/actualizar-perfil', [EmpleadoController::class, 'actualizarPerfil'])->name('actualizar-perfil');
         Route::post('/actualizar-foto', [EmpleadoController::class, 'actualizarFoto'])->name('actualizar-foto');
@@ -106,7 +115,12 @@ Route::middleware(['auth'])->group(function () {
 // Rutas para empleador
 Route::middleware(['auth'])->group(function () {
     Route::prefix('empleador')->name('empleador.')->group(function () {
-        Route::get('/dashboard', [EmpleadorController::class, 'dashboard'])->name('dashboard');
+        Route::get('/dashboard', function() {
+            if (!auth()->check() || auth()->user()->rol !== 'empleador') {
+                abort(403, 'No tienes permiso para acceder a esta sección.');
+            }
+            return app(\App\Http\Controllers\EmpleadorController::class)->dashboard();
+        })->name('dashboard');
 
         // Rutas de ofertas
         Route::resource('ofertas', OfertaController::class);
@@ -145,6 +159,9 @@ Route::middleware(['auth'])->group(function () {
 
 // Ruta para dashboard de admin solo para correos predefinidos
 Route::middleware(['auth'])->get('/admin/dashboard', function () {
+    if (!auth()->check() || auth()->user()->rol !== 'admin') {
+        abort(403, 'No tienes permiso para acceder a esta sección.');
+    }
     $allowedEmails = [
         't.esquivel@myjob.com.co',
         's.murillo@myjob.com.co',
@@ -163,6 +180,9 @@ Route::middleware(['auth'])->get('/admin/dashboard', function () {
 })->name('admin.dashboard');
 
 Route::middleware(['auth'])->get('/admin/usuarios', function (Illuminate\Http\Request $request) {
+    if (!auth()->check() || auth()->user()->rol !== 'admin') {
+        abort(403, 'No tienes permiso para acceder a esta sección.');
+    }
     $allowedEmails = [
         't.esquivel@myjob.com.co',
         's.murillo@myjob.com.co',
@@ -207,6 +227,9 @@ Route::middleware(['auth'])->get('/admin/usuarios', function (Illuminate\Http\Re
 
 // Ruta para bulk actions de usuarios
 Route::middleware(['auth'])->post('/admin/usuarios/bulk-action', function (Illuminate\Http\Request $request) {
+    if (!auth()->check() || auth()->user()->rol !== 'admin') {
+        abort(403, 'No tienes permiso para acceder a esta sección.');
+    }
     $allowedEmails = [
         't.esquivel@myjob.com.co',
         's.murillo@myjob.com.co',
@@ -273,6 +296,9 @@ Route::middleware(['auth'])->post('/admin/usuarios/bulk-action', function (Illum
 
 // Ruta para vista de ofertas admin
 Route::middleware(['auth'])->get('/admin/ofertas', function (Illuminate\Http\Request $request) {
+    if (!auth()->check() || auth()->user()->rol !== 'admin') {
+        abort(403, 'No tienes permiso para acceder a esta sección.');
+    }
     $allowedEmails = [
         't.esquivel@myjob.com.co',
         's.murillo@myjob.com.co',
@@ -312,6 +338,9 @@ Route::middleware(['auth'])->get('/admin/ofertas', function (Illuminate\Http\Req
 
 // Ruta para ver detalle de una oferta específica
 Route::middleware(['auth'])->get('/admin/ofertas/{oferta}', function ($ofertaId) {
+    if (!auth()->check() || auth()->user()->rol !== 'admin') {
+        abort(403, 'No tienes permiso para acceder a esta sección.');
+    }
     $allowedEmails = [
         't.esquivel@myjob.com.co',
         's.murillo@myjob.com.co',
@@ -329,6 +358,9 @@ Route::middleware(['auth'])->get('/admin/ofertas/{oferta}', function ($ofertaId)
 
 // Ruta para vista de empresas admin
 Route::middleware(['auth'])->get('/admin/empresas', function (Illuminate\Http\Request $request) {
+    if (!auth()->check() || auth()->user()->rol !== 'admin') {
+        abort(403, 'No tienes permiso para acceder a esta sección.');
+    }
     $allowedEmails = [
         't.esquivel@myjob.com.co',
         's.murillo@myjob.com.co',
@@ -368,6 +400,9 @@ Route::middleware(['auth'])->get('/admin/empresas', function (Illuminate\Http\Re
 
 // Ruta para ver perfil completo de una empresa
 Route::middleware(['auth'])->get('/admin/empresas/{empresa}/perfil', function ($empresaId) {
+    if (!auth()->check() || auth()->user()->rol !== 'admin') {
+        abort(403, 'No tienes permiso para acceder a esta sección.');
+    }
     $allowedEmails = [
         't.esquivel@myjob.com.co',
         's.murillo@myjob.com.co',
@@ -386,6 +421,9 @@ Route::middleware(['auth'])->get('/admin/empresas/{empresa}/perfil', function ($
 
 // Ruta para bulk actions de empresas
 Route::middleware(['auth'])->post('/admin/empresas/bulk-action', function (Illuminate\Http\Request $request) {
+    if (!auth()->check() || auth()->user()->rol !== 'admin') {
+        abort(403, 'No tienes permiso para acceder a esta sección.');
+    }
     $allowedEmails = [
         't.esquivel@myjob.com.co',
         's.murillo@myjob.com.co',
@@ -446,6 +484,9 @@ Route::middleware(['auth'])->post('/admin/empresas/bulk-action', function (Illum
 
 // Acciones AJAX para usuarios admin
 Route::middleware(['auth'])->post('/admin/usuarios/{usuario}/eliminar', function ($usuarioId) {
+    if (!auth()->check() || auth()->user()->rol !== 'admin') {
+        abort(403, 'No tienes permiso para acceder a esta sección.');
+    }
     $allowedEmails = [
         't.esquivel@myjob.com.co',
         's.murillo@myjob.com.co',
@@ -462,6 +503,9 @@ Route::middleware(['auth'])->post('/admin/usuarios/{usuario}/eliminar', function
     abort(403, 'No autorizado.');
 });
 Route::middleware(['auth'])->post('/admin/usuarios/{usuario}/verificar', function ($usuarioId) {
+    if (!auth()->check() || auth()->user()->rol !== 'admin') {
+        abort(403, 'No tienes permiso para acceder a esta sección.');
+    }
     $allowedEmails = [
         't.esquivel@myjob.com.co',
         's.murillo@myjob.com.co',
@@ -479,6 +523,9 @@ Route::middleware(['auth'])->post('/admin/usuarios/{usuario}/verificar', functio
     abort(403, 'No autorizado.');
 });
 Route::middleware(['auth'])->post('/admin/usuarios/{usuario}/destacar', function ($usuarioId) {
+    if (!auth()->check() || auth()->user()->rol !== 'admin') {
+        abort(403, 'No tienes permiso para acceder a esta sección.');
+    }
     $allowedEmails = [
         't.esquivel@myjob.com.co',
         's.murillo@myjob.com.co',
@@ -497,6 +544,9 @@ Route::middleware(['auth'])->post('/admin/usuarios/{usuario}/destacar', function
 });
 
 Route::middleware(['auth'])->post('/admin/empresas/{empresa}/eliminar', function ($empresaId) {
+    if (!auth()->check() || auth()->user()->rol !== 'admin') {
+        abort(403, 'No tienes permiso para acceder a esta sección.');
+    }
     $allowedEmails = [
         't.esquivel@myjob.com.co',
         's.murillo@myjob.com.co',
@@ -514,6 +564,9 @@ Route::middleware(['auth'])->post('/admin/empresas/{empresa}/eliminar', function
 });
 
 Route::middleware(['auth'])->post('/admin/empresas/{empresa}/verificar', function ($empresaId) {
+    if (!auth()->check() || auth()->user()->rol !== 'admin') {
+        abort(403, 'No tienes permiso para acceder a esta sección.');
+    }
     $allowedEmails = [
         't.esquivel@myjob.com.co',
         's.murillo@myjob.com.co',
@@ -533,6 +586,9 @@ Route::middleware(['auth'])->post('/admin/empresas/{empresa}/verificar', functio
 
 // Ruta para cambiar estado de empresa desde perfil
 Route::middleware(['auth'])->post('/admin/empresas/{empresa}/cambiar-estado', function ($empresaId) {
+    if (!auth()->check() || auth()->user()->rol !== 'admin') {
+        abort(403, 'No tienes permiso para acceder a esta sección.');
+    }
     $allowedEmails = [
         't.esquivel@myjob.com.co',
         's.murillo@myjob.com.co',
@@ -552,6 +608,9 @@ Route::middleware(['auth'])->post('/admin/empresas/{empresa}/cambiar-estado', fu
 
 // Acciones AJAX para ofertas admin
 Route::middleware(['auth'])->post('/admin/ofertas/{oferta}/eliminar', function ($ofertaId) {
+    if (!auth()->check() || auth()->user()->rol !== 'admin') {
+        abort(403, 'No tienes permiso para acceder a esta sección.');
+    }
     $allowedEmails = [
         't.esquivel@myjob.com.co',
         's.murillo@myjob.com.co',
@@ -569,6 +628,9 @@ Route::middleware(['auth'])->post('/admin/ofertas/{oferta}/eliminar', function (
 });
 
 Route::middleware(['auth'])->post('/admin/ofertas/{oferta}/cambiar-estado', function ($ofertaId) {
+    if (!auth()->check() || auth()->user()->rol !== 'admin') {
+        abort(403, 'No tienes permiso para acceder a esta sección.');
+    }
     $allowedEmails = [
         't.esquivel@myjob.com.co',
         's.murillo@myjob.com.co',
@@ -588,6 +650,9 @@ Route::middleware(['auth'])->post('/admin/ofertas/{oferta}/cambiar-estado', func
 
 // Ruta para vista de reportes admin
 Route::middleware(['auth'])->get('/admin/reportes', function () {
+    if (!auth()->check() || auth()->user()->rol !== 'admin') {
+        abort(403, 'No tienes permiso para acceder a esta sección.');
+    }
     $allowedEmails = [
         't.esquivel@myjob.com.co',
         's.murillo@myjob.com.co',
@@ -644,6 +709,9 @@ Route::middleware(['auth'])->get('/admin/reportes', function () {
 
 // Ruta para vista de configuración del admin
 Route::middleware(['auth'])->get('/admin/configuracion', function () {
+    if (!auth()->check() || auth()->user()->rol !== 'admin') {
+        abort(403, 'No tienes permiso para acceder a esta sección.');
+    }
     $allowedEmails = [
         't.esquivel@myjob.com.co',
         's.murillo@myjob.com.co',
@@ -660,6 +728,9 @@ Route::middleware(['auth'])->get('/admin/configuracion', function () {
 
 // Rutas para actualizar configuración del admin
 Route::middleware(['auth'])->post('/admin/configuracion/cambiar-contrasena', function (Illuminate\Http\Request $request) {
+    if (!auth()->check() || auth()->user()->rol !== 'admin') {
+        abort(403, 'No tienes permiso para acceder a esta sección.');
+    }
     $allowedEmails = [
         't.esquivel@myjob.com.co',
         's.murillo@myjob.com.co',
@@ -697,6 +768,9 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
 
 // Ruta para ver perfil completo de un usuario
 Route::middleware(['auth'])->get('/admin/usuarios/{usuario}/perfil', function ($usuarioId) {
+    if (!auth()->check() || auth()->user()->rol !== 'admin') {
+        abort(403, 'No tienes permiso para acceder a esta sección.');
+    }
     $allowedEmails = [
         't.esquivel@myjob.com.co',
         's.murillo@myjob.com.co',
@@ -714,6 +788,9 @@ Route::middleware(['auth'])->get('/admin/usuarios/{usuario}/perfil', function ($
 
 // Ruta para cambiar estado de usuario desde perfil
 Route::middleware(['auth'])->post('/admin/usuarios/{usuario}/cambiar-estado', function ($usuarioId) {
+    if (!auth()->check() || auth()->user()->rol !== 'admin') {
+        abort(403, 'No tienes permiso para acceder a esta sección.');
+    }
     $allowedEmails = [
         't.esquivel@myjob.com.co',
         's.murillo@myjob.com.co',
@@ -733,6 +810,9 @@ Route::middleware(['auth'])->post('/admin/usuarios/{usuario}/cambiar-estado', fu
 
 // Ruta para cambiar verificación de usuario desde perfil
 Route::middleware(['auth'])->post('/admin/usuarios/{usuario}/verificar', function ($usuarioId) {
+    if (!auth()->check() || auth()->user()->rol !== 'admin') {
+        abort(403, 'No tienes permiso para acceder a esta sección.');
+    }
     $allowedEmails = [
         't.esquivel@myjob.com.co',
         's.murillo@myjob.com.co',
@@ -752,6 +832,9 @@ Route::middleware(['auth'])->post('/admin/usuarios/{usuario}/verificar', functio
 
 // Ruta para cambiar destacado de usuario desde perfil
 Route::middleware(['auth'])->post('/admin/usuarios/{usuario}/destacar', function ($usuarioId) {
+    if (!auth()->check() || auth()->user()->rol !== 'admin') {
+        abort(403, 'No tienes permiso para acceder a esta sección.');
+    }
     $allowedEmails = [
         't.esquivel@myjob.com.co',
         's.murillo@myjob.com.co',
@@ -771,6 +854,9 @@ Route::middleware(['auth'])->post('/admin/usuarios/{usuario}/destacar', function
 
 // Ruta para vista de aplicaciones admin
 Route::middleware(['auth'])->get('/admin/aplicaciones', function (Illuminate\Http\Request $request) {
+    if (!auth()->check() || auth()->user()->rol !== 'admin') {
+        abort(403, 'No tienes permiso para acceder a esta sección.');
+    }
     $allowedEmails = [
         't.esquivel@myjob.com.co',
         's.murillo@myjob.com.co',
