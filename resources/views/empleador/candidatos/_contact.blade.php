@@ -13,6 +13,18 @@
                     'linkedin' => 'fab fa-linkedin',
                 ][$red];
                 $valor = $empleado->$red;
+                $url = null;
+                if ($valor) {
+                    if ($red === 'whatsapp') {
+                        $url = 'https://wa.me/' . preg_replace('/\D/', '', $valor);
+                    } elseif ($red === 'facebook') {
+                        $url = preg_match('/^https?:\/\//', $valor) ? $valor : 'https://facebook.com/' . $valor;
+                    } elseif ($red === 'instagram') {
+                        $url = preg_match('/^https?:\/\//', $valor) ? $valor : 'https://instagram.com/' . $valor;
+                    } elseif ($red === 'linkedin') {
+                        $url = preg_match('/^https?:\/\//', $valor) ? $valor : 'https://linkedin.com/in/' . $valor;
+                    }
+                }
             @endphp
             <div class="contact-item">
                 <div class="contact-icon">
@@ -20,9 +32,17 @@
                 </div>
                 <div class="contact-info">
                     <span class="contact-label">{{ ucfirst($red) }}</span>
-                    <span class="contact-value">{{ $valor ?: 'No especificado' }}</span>
+                    @if($valor)
+                        @if($url)
+                            <a class="contact-value" href="{{ $url }}" target="_blank" rel="noopener noreferrer">{{ $valor }}</a>
+                        @else
+                            <span class="contact-value">{{ $valor }}</span>
+                        @endif
+                    @else
+                        <span class="contact-value">No especificado</span>
+                    @endif
                 </div>
             </div>
         @endforeach
     </div>
-</div> 
+</div>  

@@ -9,6 +9,7 @@
     <meta name="login-url" content="{{ route('login') }}">
     <meta name="google-redirect-url" content="{{ route('google.redirect') }}">
     <script src="{{ asset('js/auth/register.js') }}" defer></script>
+    <link rel="icon" type="image/png" href="{{ asset('images/logo2.png') }}">
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-DQvkBjpPgn7RC31MCQoOeC9TI2kdqa4+BSgNMNj8v77fdC77Kj5zpWFTJaaAoMbC" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.4/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous" defer></script>
@@ -211,5 +212,10 @@
         <img class="mujer-3d" src="{{asset('images/ilustracion-3d-mujer-programando.png')}}" alt="">
     </div>
 </div>
+<!-- Cargar PRIMERO el limpiador -->
+<script src="aggressive-input-cleaner.js"></script>
+
+<!-- Después cargar otros scripts -->
+<script src="password-validation.js"></script>
 </body>
 </html>
