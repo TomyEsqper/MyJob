@@ -13,6 +13,18 @@
                     'linkedin' => 'fab fa-linkedin',
                 ][$red];
                 $valor = $empleado->$red;
+                $url = null;
+                if ($valor) {
+                    if ($red === 'whatsapp') {
+                        $url = 'https://wa.me/' . preg_replace('/\D/', '', $valor);
+                    } elseif ($red === 'facebook') {
+                        $url = preg_match('/^https?:\/\//', $valor) ? $valor : 'https://facebook.com/' . $valor;
+                    } elseif ($red === 'instagram') {
+                        $url = preg_match('/^https?:\/\//', $valor) ? $valor : 'https://instagram.com/' . $valor;
+                    } elseif ($red === 'linkedin') {
+                        $url = preg_match('/^https?:\/\//', $valor) ? $valor : 'https://linkedin.com/in/' . $valor;
+                    }
+                }
             @endphp
             <div class="contact-item" data-campo="{{ $red }}" data-red="{{ $red }}" data-valor="{{ $valor ? 'si' : 'no' }}">
                 <div class="contact-icon">
@@ -20,8 +32,17 @@
                 </div>
                 <div class="contact-info">
                     <span class="contact-label">{{ ucfirst($red) }}</span>
-                    <span class="contact-value valor-campo" id="valor-{{ $red }}">{{ $valor ?: 'No especificado' }}</span>
-                    <input type="text" class="contact-input" id="input-{{ $red }}" value="{{ $valor }}" style="display:none;max-width:180px;">
+                    @if($valor)
+                        @if($url)
+                            <a class="contact-value valor-campo" id="valor-{{ $red }}" href="{{ $url }}" target="_blank" rel="noopener noreferrer">{{ $valor }}</a>
+                        @else
+                            <span class="contact-value valor-campo" id="valor-{{ $red }}">{{ $valor }}</span>
+                        @endif
+                        <input type="text" class="contact-input" id="input-{{ $red }}" value="{{ $valor }}" style="display:none;max-width:180px;">
+                    @else
+                        <span class="contact-value valor-campo" id="valor-{{ $red }}">No especificado</span>
+                        <input type="text" class="contact-input" id="input-{{ $red }}" value="" style="display:none;max-width:180px;">
+                    @endif
                 </div>
                 <button class="contact-edit editar-campo" title="Editar" onclick="editarContacto('{{ $red }}')">
                     <i class="fas fa-edit"></i>
@@ -84,16 +105,16 @@ function validarContacto(red, valor) {
         return /^\+?\d{8,15}$/.test(valor);
     }
     if (red === 'facebook') {
-        // URL o username
-        return /^(https?:\/\/)?(www\.)?facebook\.com\/[A-Za-z0-9\.]+$|^[A-Za-z0-9\.]{5,}$/.test(valor);
+        // Username o URL válida de Facebook
+        return /^[A-Za-z0-9\.]{5,}$/.test(valor) || /^(https?:\/\/)?(www\.)?facebook\.com\/[A-Za-z0-9\.]+\/?$/.test(valor);
     }
     if (red === 'instagram') {
-        // Username IG
-        return /^([A-Za-z0-9_\.]){3,30}$/.test(valor);
+        // Username IG o URL válida
+        return /^([A-Za-z0-9_\.]){3,30}$/.test(valor) || /^(https?:\/\/)?(www\.)?instagram\.com\/[A-Za-z0-9_\.]+\/?$/.test(valor);
     }
     if (red === 'linkedin') {
-        // URL o username
-        return /^(https?:\/\/)?(www\.)?linkedin\.com\/[A-Za-z0-9\-_/]+$|^[A-Za-z0-9\-_.]{5,}$/.test(valor);
+        // Username o URL válida de LinkedIn
+        return /^[A-Za-z0-9\-_.]{5,}$/.test(valor) || /^(https?:\/\/)?(www\.)?linkedin\.com\/[A-Za-z0-9\-_/]+\/?$/.test(valor);
     }
     return true;
 }
@@ -104,6 +125,14 @@ function mostrarError(red, mensaje) {
         err.id = 'error-' + red;
         err.className = 'input-error-msg';
         document.getElementById('input-' + red).after(err);
+    }
+    // Mensajes personalizados
+    if (!mensaje) {
+        if (red === 'facebook') mensaje = 'La URL de Facebook debe ser válida (ejemplo: https://facebook.com/usuario).';
+        else if (red === 'instagram') mensaje = 'La URL de Instagram debe ser válida (ejemplo: https://instagram.com/usuario).';
+        else if (red === 'linkedin') mensaje = 'La URL de LinkedIn debe ser válida (ejemplo: https://linkedin.com/in/usuario).';
+        else if (red === 'whatsapp') mensaje = 'El número de WhatsApp debe tener entre 8 y 15 dígitos.';
+        else mensaje = 'Formato inválido para ' + red;
     }
     err.textContent = mensaje;
     err.style.display = 'block';
@@ -121,7 +150,7 @@ document.querySelectorAll('.contact-input').forEach(input => {
             document.getElementById('guardar-' + red).disabled = false;
         } else {
             this.classList.add('input-error');
-            mostrarError(red, 'Formato inválido para ' + red);
+            mostrarError(red, ''); // Mensaje personalizado según red
             document.getElementById('guardar-' + red).disabled = true;
         }
     });
